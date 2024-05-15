@@ -1,0 +1,40 @@
+      &dump = 1
+      nx = 35
+      n = 1
+      nset = 1
+      num = array(1000)
+      num[1] = 1
+      fill = array('0:3')
+      fill[0] = '000'
+      fill[1] = '00'
+      fill[2] = '0'
+      output = '    Table of factorials for 1 through ' nx
+      output = ''
+
+l1    i = 1
+   
+l2    num[i] = num[i] * n              :f(err)
+      i = lt(i, nset) i + 1            :s(l2)
+      i = 1
+
+l3    lt(num[i], 1000)                 :s(l4)
+      numx = num[i] / 1000             :f(err)
+      num[i + 1] = num[i + 1] + numx   :f(err)
+      num[i] = num[i] - 1000 * numx    :f(err)
+
+l4    i = lt(i, nset) i + 1            :s(l3)
+
+ 
+l5    nset = differ(num[nset + 1]) nset + 1
+      number = num[nset]               :f(err)
+      i = gt(nset, 1) nset - 1         :f(l7)
+
+l6    number = number ',' fill[size(num[i])] num[i]
+      i = gt(i, 1) i - 1               :s(l6)
+ 
+l7    output = n '!= ' number
+      n = lt(n, nx) n + 1              :s(l1)f(end)
+
+err   output = n ' cannot be computed because of table overflow.'
+      output = '  increase the size of array "num"'
+end
