@@ -3084,13 +3084,7 @@ g_dtc
 *  of word word
 
    dtc_i = 1
-   t4 =
-
-g_dtc.1
-
-   t4 = gt(dtc_i, 1) t4 ","
-   t4 = t4 "'" substr(t2,dtc_i,1) "'"
-   le(dtc_i = dtc_i + 1, size(t2))        :s(g_dtc.1)
+   t4 = "'" t2 "'"
 
    t4 = ne(t3) t4 dupl(',0',cfp_c - t3)
    genopl(thislabel,'d_char',t4)
