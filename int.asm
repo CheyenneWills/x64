@@ -800,7 +800,7 @@ get_fp:
 scstro equ   cfp_c+cfp_c
 
 ;
-restart:
+restart:  ;; BROKEN ;;
       pop   rax                ; discard return
       pop   rax                     ; discard dummy
       pop   rax                     ; get lowest legal stack value
@@ -810,7 +810,7 @@ restart:
       call  stackinit         ; initialize minimal stack
 
                               ; set up for stack relocation
-      lea   rax,[tscblk+scstro]       ; top of saved stack
+;      lea   rax,[tscblk+scstro]       ; top of saved stack
       mov   rbx,m_word [lmodstk]          ; bottom of saved stack
       mov   rcx,m_word [stbas]      ; rcx = stbas from exit() time
       sub   rbx,rax                       ; wb = size of saved stack
@@ -826,7 +826,7 @@ restart:
 ;     restore stack from tscblk.
 ;
       mov   rsi,m_word [lmodstk]          ; -> bottom word of stack in tscblk
-      lea   rdi,[tscblk+scstro]            ; -> top word of stack
+;      lea   rdi,[tscblk+scstro]            ; -> top word of stack
       cmp   rsi,rdi                       ; any stack to transfer?
       je    re3               ;  skip if not
       sub   rsi,4
