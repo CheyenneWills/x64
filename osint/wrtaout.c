@@ -34,14 +34,14 @@ openaout(char *fn, char *tmpfnbuf, int exe)
     char *p;
     unsigned int m, n;
 
-    mystrcpy(tmpfnbuf, fn);
+    strcpy(tmpfnbuf, fn);
     n = (unsigned int)clock();
     m = n = n - ((n / 10000) * 10000); /* put in range 0 - 9999 */
     for (;;) {
         p = pathlast(tmpfnbuf);        /* p = address we can append to */
-        p = mystrcpy(p, "temp");
+        p = strcpy(p, "temp");
         p += stcu_d(p, n, 4);
-        mystrcpy(p, ".tmp");
+        strcpy(p, ".tmp");
         if (access(tmpfnbuf, 0) != 0) {
             break;
         }

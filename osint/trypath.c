@@ -26,14 +26,14 @@ initpath(char *name)
     char ucname[32]; /* only called with "snolib" and "path" */
     int i;
 
-    pathptr = findenv(name, length(name));
+    pathptr = findenv(name, strlen(name));
     if (!pathptr) {
         for (i = 0;; i++) {
             if ((ucname[i] = uppercase(name[i])) == '\0') {
                 break;
             }
         }
-        pathptr = findenv(ucname, length(ucname));
+        pathptr = findenv(ucname, strlen(ucname));
     }
 
     /* skip leading paren if present */

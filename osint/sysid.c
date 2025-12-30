@@ -28,6 +28,7 @@ Copyright 2012-2017 David Shields
 #include "port.h"
 #include <string.h>
 #include <time.h>
+#include <sys/utsname.h>
 
 /*
 /   define actual headers elsewhere to overcome problems in initializing
@@ -39,21 +40,23 @@ int
 zysid()
 {
     time_t now;
-    char *cp;
     char *s;
-    int i;
+
+    struct utsname unamebuf;
+    uname(&unamebuf);
+
+    id1blk->schar[0] = 0;
+    id1blk->sclen = 0;
+
+    now = time(NULL);
+    id2blk->schar[0] = 0;
+    strcpy(id2blk->schar, unamebuf.machine);
+    strcat(id2blk->schar, "  ");
+    s = ctime(&now);
+    strcat(id2blk->schar, s);
+    id2blk->sclen = strlen(id2blk->schar);
 
     SET_XR(id1blk);
-    now = time(NULL);
-    gettype(id2blk, id2blk_length);
-    cp = id2blk->schar + id2blk->sclen;
-    *cp++ = ' ';
-    *cp++ = ' ';
-    s = ctime(&now);
-    for (i = 0; i < strlen(s); i++) {
-        *cp++ = s[i];
-    }
-    id2blk->sclen = id2blk->sclen + 2 + strlen(s);
     SET_XL(id2blk);
     return NORMAL_RETURN;
 }

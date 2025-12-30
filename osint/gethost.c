@@ -20,10 +20,8 @@ Copyright 2012-2017 David Shields
 
 #include "port.h"
 
-char htype[] = "x86-64";
-char osver[] = ":unix ";
-
 #include <fcntl.h>
+#include <sys/utsname.h>
 
 void
 gethost(struct scblk *scptr, word maxlen)
@@ -45,27 +43,20 @@ gethost(struct scblk *scptr, word maxlen)
 
     if (cnt == 0) {
         /* Could not read spithost file.  Construct string instead */
-        char *scp;
-
-        gettype(scptr, maxlen);
-        scp = scptr->schar + scptr->sclen;
-        scp = mystrcpy(scp, osver);
-        scp = mystrcpy(scp, ":Macro SPITBOL ");
-        scp += mystrncpy(scp, pheadv->schar, pheadv->sclen);
-        scp += mystrncpy(scp, pid1blk->schar, (int)pid1blk->sclen);
-        *scp++ = ' ';
-        *scp++ = '#';
-        cnt = scp - scptr->schar;
+        struct utsname unamebuf;
+        uname(&unamebuf);
+        scptr->schar[0] = 0;
+        strcpy(scptr->schar, unamebuf.machine);
+        strcat(scptr->schar, ":");
+        strcat(scptr->schar, unamebuf.sysname);
+        strcat(scptr->schar, " ");
+        strcat(scptr->schar, unamebuf.release);
+        strcat(scptr->schar, ":Macro SPITBOL ");
+        strncat(scptr->schar, pheadv->schar, pheadv->sclen);
+        strncat(scptr->schar, id1blk->schar, id1blk->sclen);
+        strcat(scptr->schar, " #");
+        cnt = strlen(scptr->schar);
     }
 
     scptr->sclen = cnt;
-}
-
-/*
- * Get type of host computer
- */
-void
-gettype(struct scblk *scptr, word maxlen)
-{
-    cpys2sc(htype, scptr, maxlen); /* Computer type */
 }

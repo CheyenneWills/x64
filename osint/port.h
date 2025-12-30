@@ -15,6 +15,7 @@ Copyright 2012-2017 David Shields
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdint.h>
+#include <string.h>
 #include "systype.h"
 
 /*

@@ -140,7 +140,7 @@ doshell(struct ioblk *ioptr)
     if (len >= CMDBUFLEN) {
         return -1;
     }
-    mystrncpy(cmdbuf, &scptr->schar[2], len); /* get command */
+    strncpy(cmdbuf, &scptr->schar[2], len);   /* get command */
     if (cmdbuf[len - 1] == scptr->schar[1]) { /* if necessary */
         len--;                                /*   zap 2nd delimiter */
     }
