@@ -88,7 +88,6 @@ getargs(int argc, char *argv[])
                 case '?': /* display option summary */
                     prompt();
                     break;
-#if !RUNTIME
                 case 'l': /* turn on compilation listing */
                     spitflag &= ~NOLIST;
                     break;
@@ -162,9 +161,6 @@ getargs(int argc, char *argv[])
                     /* round up to machine word boundary */
                     stacksiz = (stacksiz + sizeof(int) - 1) & ~(sizeof(int) - 1);
                     break;
-
-#endif                      /* !RUNTIME */
-
                 case 'T': { /* fff | :fff | =fff write TERMINAL output to file fff */
                     char *ttyfile;
                     File_handle h;
@@ -189,16 +185,9 @@ getargs(int argc, char *argv[])
                     }
                     break;
 
-#if !RUNTIME
-# if EXECFILE
-                case 'w': /* write executable module after compilation */
-                    spitflag |= WRTEXE;
-                    break;
-# endif                   /* EXECFILE */
                 case 'y': /* write executable module after compilation */
                     spitflag |= WRTSAV;
                     break;
-#endif                    /* !RUNTIME */
 
                 case '0': /* # fff associate file fff with channel # */
                 case '1':

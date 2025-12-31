@@ -28,17 +28,25 @@
     extern  zeron
     extern  mxcsr_set
 
+; Math functions
+    extern atn_
+    extern chp_
+    extern cos_
+    extern etx_
+    extern lnf_
+    extern sin_
+    extern sqr_
+    extern tan_
+
+; Exported
     global  mxint
-
     global  start
-
 
 ;
 ;
 ;   table to recover type word from type ordinal
 ;
 
-    extern  _rc_
     section .data
     global  typet
 typet:
@@ -141,24 +149,6 @@ calltab:
     global  end_min_data
 
 
-    extern ldr_
-    extern str_
-    extern itr_
-    extern adr_
-    extern sbr_
-    extern mlr_
-    extern dvr_
-    extern ngr_
-    extern atn_
-    extern chp_
-    extern cos_
-    extern etx_
-    extern lnf_
-    extern sin_
-    extern sqr_
-    extern tan_
-    extern cpr_
-    extern ovr_
 
 ;   integer arithmetic instructions
 

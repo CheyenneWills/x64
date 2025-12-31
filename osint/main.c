@@ -57,35 +57,6 @@ main(int argc, char **argv)
      */
     dcdone = 0;
 
-#if EXECFILE
-    /*
-       /   If this is a restart of this program from a load module, set things
-       /   up for a restart.  Transfer control to function restart which
-       actually /   resumes program execution.
-     */
-    if (lmodstk) {
-        if (brk((char *)topmem) < 0) { /* restore topmem to its prior state */
-            wrterr("Insufficient memory to load.");
-            exit(1);
-        }
-
-        cmdcnt = 1;            /* allow access to command line args */
-        inpptr = 0;            /* no compilation input files */
-        inpcnt = 0;            /* ditto */
-        outptr = 0;            /* no compilation output file */
-        pathptr = (char *)-1L; /* include paths unknown */
-        clrbuf();              /* no chars left in std input buffer */
-        sfn = 0;
-# if FLOAT
-        hasfpu = checkfpu();   /* check for floating point hardware */
-# endif                        /* FLOAT */
-        heapmove();            /* move the heap up */
-        malloc_empty();        /* mark the malloc region as empty */
-        zysdc();               /* Brag if necessary */
-        restart(NULL, lowsp);  /* call restart to continue execution */
-    }
-#endif                         /* EXECFILE */
-
     /*
      *  Process command line arguments
      */
@@ -104,13 +75,6 @@ main(int argc, char **argv)
      */
     swcinp(inpcnt, inpptr);
 
-#if FLOAT
-    /*
-     * test if floating point hardware present
-     */
-    hasfpu = checkfpu();
-#endif                              /* FLOAT */
-
     switch (getsave(getrdfd())) {
         case 1:                     /* save file loaded */
             wrterr("SPITBOL restart is currently broken");
@@ -119,11 +83,7 @@ main(int argc, char **argv)
             restart(NULL, lowsp);
 
         case 0:                     /* not a save file */
-#if RUNTIME
-            wrterr("SPITBOL save (.spx) file only!");
-#else                               /* RUNTIME */
             break;
-#endif                              /* RUNTIME */
 
         case -1:                    /* error loading save file */
             exit(1);
@@ -133,8 +93,6 @@ main(int argc, char **argv)
        /    Setup output and issue brag message
      */
     setout();
-
-#if !RUNTIME
 
     /* Initialize memory */
 
@@ -147,16 +105,8 @@ main(int argc, char **argv)
     SET_CP(0);
     SET_IA(0);
 
-    /* For x32-x86, we pass value of largest integer in WA on startup. It's not
-       possible to set this up at compile time, if we want to compile for 64
-       bits on 32 bit machine.
-     */
     SET_WA(0);
-# ifdef m32
-    long mxint = INT32_MAX;
-# else
     long mxint = INT64_MAX;
-# endif
 
     /*    reg_wb = mxint; */
     SET_WB(mxint);
@@ -168,7 +118,6 @@ main(int argc, char **argv)
        /   Startup compiler.
      */
     startup();
-#endif /* !RUNTIME */
 
     /*
        /   Never returns. exit is via exit().

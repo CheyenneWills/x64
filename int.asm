@@ -41,7 +41,6 @@
       global      reg_xs
       global      reg_size
 
-      global      reg_rp
       global      mxcsr_set
       global      minimal
 
@@ -178,12 +177,13 @@ reg_xs:     d_word      0           ; minimal stack pointer
 
 ;     r_size      equ     $-reg_block
 ; use computed value for nasm conversion, put back proper code later
-r_size      equ   10*cfp_b
+r_size      equ   11*cfp_b
 reg_size:   dd   r_size
 
 ; end of words saved during exit(-3)
 
 ; reg_rp is used to pass pointer to real operand for real arithmetic
+      global      reg_rp
 reg_rp:     d_word      0
 
 ; reg_fl is used to communicate condition codes between minimal and c code.
@@ -234,35 +234,18 @@ sav_block: times 44 db 0            ; save minimal registers during push/pop reg
 ppoff:      d_word          0             ; offset for ppm exits
       global      compsp
 compsp: d_word        0             ; compiler's stack pointer
-      global      osisp
-osisp:      d_word          0             ; osint's stack pointer
       global      lowspmin
 lowspmin: d_word      0             ; Bottom of stack (r8 in minimal)
       global      lowspminx
 lowspminx: d_word     -1            ; Lowest stack used (r9 in minimal)
+
+      global      osisp                   ; CCW not global
+osisp:      d_word          0             ; osint's stack pointer
+
       global      _rc_
 _rc_: dd   0                        ; return code from osint procedure
 
       align cfp_b
-      global      save_cp
-      global      save_xl
-      global      save_xr
-      global      save_xs
-      global      save_wa
-      global      save_wb
-      global      save_wc
-      global      save_w0
-      global      save_ra
-save_cp:    d_word      0           ; saved cp value
-save_ia:    d_word      0           ; saved ia value
-save_xl:    d_word      0           ; saved xl value
-save_xr:    d_word      0           ; saved xr value
-save_xs:    d_word      0           ; saved sp value
-save_wa:    d_word      0           ; saved wa value
-save_wb:    d_word      0           ; saved wb value
-save_wc:    d_word      0           ; saved wc value
-save_w0:    d_word      0           ; saved w0 value
-save_ra:    d_real      0.0         ; saved ra value
 
       global      minimal_id
 minimal_id: d_word      0           ; id for call to minimal from c. see proc minimal below.
@@ -432,8 +415,6 @@ minimal:
 
       section           .data
       align       cfp_b
-      global      hasfpu
-hasfpu:     d_word      0
       global      cprtmsg
 cprtmsg:
       db        ' copyright 1987-2012 robert b. k. dewar and mark emmer.',0,0

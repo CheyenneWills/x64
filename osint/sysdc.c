@@ -44,11 +44,7 @@ zysdc()
     if (!dcdone && !(spitflag & NOBRAG)) {
         dcdone = 1; /* Only do once per run */
 
-        write(STDERRFD, "LINUX SPITBOL", 13);
-
-#if RUNTIME
-        write(STDERRFD, " Runtime", 8);
-#endif /* RUNTIME */
+        write(STDERRFD, "Macro SPITBOL", 13);
 
         write(STDERRFD, "  Release ", 10);
         write(STDERRFD, pheadv->schar, pheadv->sclen);
