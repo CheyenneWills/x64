@@ -1,0 +1,73 @@
+---
+# Problems:
+#  unlabeled enums do not break after the "{". e.g.: enum {a,
+#                                                          b};
+#  does not break before the closing brace in an enum or a list.  Can be avoided by
+#  adding a trailing ',' on the last entry
+
+Language: Cpp
+AlignAfterOpenBracket: Align
+AlignArrayOfStructures: Right
+AlignConsecutiveAssignments: None
+AlignConsecutiveDeclarations: None
+AlignConsecutiveMacros:
+  AcrossComments: true
+  AcrossEmptyLines: false
+  Enabled: true
+AlignEscapedNewlines: DontAlign
+AllowShortBlocksOnASingleLine: Empty
+AllowShortFunctionsOnASingleLine: All
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+AlwaysBreakAfterReturnType: AllDefinitions
+BinPackArguments: true
+BinPackParameters: true
+AlignTrailingComments:
+    Kind: Always
+    OverEmptyLines: 2
+BraceWrapping:
+     AfterCaseLabel: false
+     AfterControlStatement: Never
+     AfterEnum: false
+     AfterFunction: true
+     AfterNamespace: false
+     AfterStruct: false
+     AfterUnion: false
+     BeforeElse: false
+     BeforeWhile: false
+     IndentBraces: false
+     SplitEmptyFunction: true
+BreakBeforeBraces: Custom
+BreakStringLiterals: true
+ColumnLimit: 0
+ContinuationIndentWidth: 2
+IndentGotoLabels: false
+IndentCaseLabels: true
+IndentPPDirectives: AfterHash
+IndentWidth: 4
+InsertBraces: true
+InsertNewlineAtEOF: true
+KeepEmptyLinesAtTheStartOfBlocks: true
+MaxEmptyLinesToKeep: 1
+PointerAlignment: Right
+PPIndentWidth: 1
+QualifierAlignment: Left
+ReferenceAlignment: Right
+ReflowComments: IndentOnly
+SkipMacroDefinitionBody: true
+SortIncludes: Never
+SpaceAfterCStyleCast: false
+SpaceAfterLogicalNot: false
+SpaceBeforeAssignmentOperators: true
+SpaceBeforeParens: ControlStatements
+SpaceBeforeSquareBrackets: false
+SpacesBeforeTrailingComments: 1
+SpacesInParentheses: false
+SeparateDefinitionBlocks: Leave
+TabWidth: 4
+UseTab: Never
+SpacesInLineCommentPrefix:
+    Minimum: 1
+    Maximum: -1
+#EnumTrailingComma:
+#   Insert: true
