@@ -512,182 +512,57 @@ syscall_exit:
       jmp   rax
 
       %macro      syscall     2
-      pop   rax               ; pop return address
+      global %1
+      extern %2
+%1:   pop   rax               ; pop return address
       mov   m_word [reg_pc],rax
       call  syscall_init
 ;     save compiler stack and switch to osint stack
       mov   m_word [compsp],rsp      ; save compiler's stack pointer
       mov   rsp,m_word [osisp]       ; load osint's stack pointer
       and   rsp,0xfffffffffffffff0   ; 16byte alignment
-      call  %1
+      call  %2
       jmp   syscall_exit            ; was a call for debugging purposes, but that would cause a crash when the
                               ; compilers stack pointer blew up
       %endmacro
 
-      global sysax
-      extern      zysax
-sysax:      syscall       zysax,1
-
-      global sysbs
-      extern      zysbs
-sysbs:      syscall       zysbs,2
-
-      global sysbx
-      extern      zysbx
-sysbx:      mov   m_word [reg_xs],rsp
-      syscall     zysbx,2
-
-;      global syscr
-;     extern      zyscr
-;syscr:      syscall    zyscr ;    ,0
-
-      global sysdc
-      extern      zysdc
-sysdc:      syscall     zysdc,4
-
-      global sysdm
-      extern      zysdm
-sysdm:      syscall     zysdm,5
-
-      global sysdt
-      extern      zysdt
-sysdt:      syscall     zysdt,6
-
-      global sysea
-      extern      zysea
-sysea:      syscall     zysea,7
-
-      global sysef
-      extern      zysef
-sysef:      syscall     zysef,8
-
-      global sysej
-      extern      zysej
-sysej:      syscall     zysej,9
-
-      global sysem
-      extern      zysem
-sysem:      syscall     zysem,10
-
-      global sysen
-      extern      zysen
-sysen:      syscall     zysen,11
-
-      global sysep
-      extern      zysep
-sysep:      syscall     zysep,12
-
-      global sysex
-      extern      zysex
-sysex:      mov   m_word [reg_xs],rsp
-      syscall     zysex,13
-
-      global sysfc
-      extern      zysfc
-sysfc:      pop   rax         ; <<<<remove stacked scblk>>>>
-      lea   rsp,[rsp+rdx*cfp_b]
-      push  rax
-      syscall     zysfc,14
-
-      global sysgc
-      extern      zysgc
-sysgc:      syscall     zysgc,15
-
-      global syshs
-      extern      zyshs
-syshs:      mov   m_word [reg_xs],rsp
-      syscall     zyshs,16
-
-      global sysid
-      extern      zysid
-sysid:      syscall     zysid,17
-
-      global sysif
-      extern      zysif
-sysif:      syscall     zysif,18
-
-      global sysil
-      extern      zysil
-sysil:      syscall zysil,19
-
-      global sysin
-      extern      zysin
-sysin:      syscall     zysin,20
-
-      global sysio
-      extern      zysio
-sysio:      syscall     zysio,21
-
-      global sysld
-      extern      zysld
-sysld:      syscall zysld,22
-
-      global sysmm
-      extern      zysmm
-sysmm:      syscall     zysmm,23
-
-      global sysmx
-      extern      zysmx
-sysmx:      syscall     zysmx,24
-
-      global sysou
-      extern      zysou
-sysou:      syscall     zysou,25
-
-      global syspi
-      extern      zyspi
-syspi:      syscall     zyspi,26
-
-      global syspl
-      extern      zyspl
-syspl:      syscall     zyspl,27
-
-      global syspp
-      extern      zyspp
-syspp:      syscall     zyspp,28
-
-      global syspr
-      extern      zyspr
-syspr:      syscall     zyspr,29
-
-      global sysrd
-      extern      zysrd
-sysrd:      syscall     zysrd,30
-
-      global sysri
-      extern      zysri
-sysri:      syscall     zysri,32
-
-      global sysrw
-      extern      zysrw
-sysrw:      syscall     zysrw,33
-
-      global sysst
-      extern      zysst
-sysst:      syscall     zysst,34
-
-      global systm
-      extern      zystm
-systm:      syscall     zystm,35
-
-      global systt
-      extern      zystt
-systt:      syscall     zystt,36
-
-      global sysul
-      extern      zysul
-sysul:      syscall     zysul,37
-
-      global sysxi
-      extern      zysxi
-sysxi:      mov   m_word [reg_xs],rsp
-      syscall     zysxi,38
-
-      %macro      callext     2
-      extern      %1
-      call  %1
-      add   rsp,%2            ; pop arguments
-      %endmacro
+      syscall sysax,zysax
+      syscall sysbs,zysbs
+      syscall sysbx,zysbx     ; saved rsp into reg_xs
+      syscall sysdc,zysdc
+      syscall sysdm,zysdm
+      syscall sysdt,zysdt
+      syscall sysea,zysea
+      syscall sysef,zysef
+      syscall sysej,zysej
+      syscall sysem,zysem
+      syscall sysen,zysen
+      syscall sysep,zysep
+      syscall sysex,zysex     ; saved rsp into reg_xs
+      syscall sysfc,zysfc     ; "popped" stacked scblk
+      syscall sysgc,zysgc
+      syscall syshs,zyshs     ; saved rsp into reg_xs
+      syscall sysid,zysid
+      syscall sysif,zysif
+      syscall sysil,zysil
+      syscall sysin,zysin
+      syscall sysio,zysio
+      syscall sysld,zysld
+      syscall sysmm,zysmm
+      syscall sysmx,zysmx
+      syscall sysou,zysou
+      syscall syspi,zyspi
+      syscall syspl,zyspl
+      syscall syspp,zyspp
+      syscall syspr,zyspr
+      syscall sysrd,zysrd
+      syscall sysri,zysri
+      syscall sysrw,zysrw
+      syscall sysst,zysst
+      syscall systm,zystm
+      syscall systt,zystt
+      syscall sysul,zysul
+      syscall sysxi,zysxi     ; saved rsp into reg_xs
 
       %macro      math_op 2
       global      %1
