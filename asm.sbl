@@ -747,6 +747,7 @@ config_done
 
    filenami = 'sbl.lex'
    input(.infile,1,filenami)        :s(inputok)
+   output = '  cannot open lex file: ' filenami :(end)
 
 inputok
 
