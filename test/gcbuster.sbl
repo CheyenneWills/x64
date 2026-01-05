@@ -1,7 +1,7 @@
         &abend = 1      ; &dump = 1
         data('thing(a,b)')
 make    list = thing(n,list)
-        n = n + 1 lt(n,100000) :s(make)
+        n = n + 1 lt(n,500000) :s(make)
         output = 'starting garbage collection'
         output = collect()
         output = collect()
