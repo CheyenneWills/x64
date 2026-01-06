@@ -5,55 +5,36 @@ Copyright 2012-2017 David Shields
 */
 
 /*
-/    This module contains the main function that gets control when
-/    the spitbol compiler starts execution.  Responsibilities of
-/    this function:
-/
-/    o  Save argc and argv parameters in global storage.
-/
-/    o  Determine if this execution reflects the invocation of
-/       of the compiler or of a load module and take appropriate
-/       actions.
-/
-/       If invoked as compiler:  process command line arguments,
-/       set up input files, output file, initial memory allocation,
-/       and transfer control to compiler
-/
-/       If invoked as load module:  reset various compiler variables
-/       whose values are no longer valid, re-establish dynamic area
-/       and transfer control to function that returns control to
-/       suspended spitbol program
-/
-/                  line as file names.
-*/
+ * This module contains the main function that gets control when
+ * the spitbol compiler starts execution.  Responsibilities of
+ * this function:
+ *
+ * Save argc and argv parameters in global storage.
+ *
+ * Process command line arguments, set up input files, output file,
+ * initial memory allocation, and transfer control to compiler
+ */
+
 #define GLOBALS /* global variables will be defined in this module */
 #include "port.h"
 #include <stdint.h>
-
-#ifdef DEBUG
-# undef DEBUG /* Change simple -DDEBUG on command line to -DDEBUG=1 */
-# define DEBUG 1
-#else
-# define DEBUG 0
-#endif
 
 int
 main(int argc, char **argv)
 {
     /*
-       /   Save command line parameters in global storage, in case they are
-       needed /   later.
+     * Save command line parameters in global storage, in case they are needed
+     * later.
      */
     gblargc = argc;
     gblargv = argv;
-    lowsp = NULL;
     /*
-       /    Initialize buffers
+     * Initialize buffers
      */
     stdioinit();
     ttyinit();
     /*
-       /    Make sure sysdc gets to output stuff at least once.
+     * Make sure sysdc gets to output stuff at least once.
      */
     dcdone = 0;
 
@@ -71,7 +52,7 @@ main(int argc, char **argv)
     }
 
     /*
-       /   Switch to proper input file.
+     * Switch to proper input file.
      */
     swcinp(inpcnt, inpptr);
 
@@ -90,7 +71,7 @@ main(int argc, char **argv)
     }
 
     /*
-       /    Setup output and issue brag message
+     * Setup output and issue brag message
      */
     setout();
 
@@ -99,8 +80,8 @@ main(int argc, char **argv)
     sysmm_init();
 
     /*
-       /   All compiler registers are initially zero, except for XL and XR
-       which /   are set to top and bottom of heap.
+     * All compiler registers are initially zero, except for XL and XR
+     * which are set to top and bottom of heap.
      */
     SET_CP(0);
     SET_IA(0);
@@ -115,20 +96,19 @@ main(int argc, char **argv)
     SET_XL(topmem - sizeof(word));
 
     /*
-       /   Startup compiler.
+     * Startup compiler.
      */
     startup();
 
     /*
-       /   Never returns. exit is via exit().
+     * Never returns. exit is via exit().
      */
 }
 
 /*
-/    wrterr( s )
-/
-/    Write message to standard error, and append end-of-line.
-*/
+ * wrterr( s )
+ * Write message to standard error, and append end-of-line.
+ */
 void
 wrterr(char *s)
 {
@@ -153,13 +133,13 @@ setout(void)
     zysdc();
 
     /*
-       /   Switch to proper output file.
+     * Switch to proper output file.
      */
     swcoup(outptr);
 
     /*
-       /   Determine if standard output is a tty or not, and if it is be sure
-       to /   inform compiler and turn off header.
+     * Determine if standard output is a tty or not, and if it is be sure
+     * to inform compiler and turn off header.
      */
     spitflag &= ~PRTICH;
     if (testty(getprfd()) == 0) {

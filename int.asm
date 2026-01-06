@@ -328,39 +328,47 @@ startup:
 
 ;     output: register wa, sp, lowspmin, compsp, osisp set up per diagram:
 
-;     (high)      +----------------+
-;                 |  old c stack   |
-;                 |    //////      |  <- incoming sp
-;                 |----------------|
-;                 |   vdso/vvar    |
-;                 |    etc ////    |
-;                 |----------------| <-- high heap
-;                 | free alloc     |
-;                 |                | <- maxmem
-;                 |----------------| <- topmem (will grow to maxmem)
-;                 / memincb        /
-;                 |----------------| <- basemem
-;                 |          ^     | <- initial compsp (stack goes down)
-;                 |          |     |
-;                 / stacksiz bytes /
-;                 |          |     |
-;                 |          |     |
-;                 |--------- | ----| <-- resultant lowspmin
-;                 | 400 bytesv     |
-;                 |----------------| <- lowsp
-;    (low)          // free heap //
-
+;  C stack - (used when executing C code)
+;  +--------------------+                                             
+;  |  C stack -         |
+;  |    //////          |   o osisp set to RSP when entering minimal
+;  |                    |   o RSP set to osisp when leaving minimal
+;  +--------------------+
+;                 
+;  Minimal stack (static size, not relocated) 
+;  +--------------------+ <- highsp (stack goes down) <- initial compsp
+;  |           ^        |   o compsp set to RSP when leaving minimal
+;  |           |        |   o RSP set to compsp when entering minimal
+;  / stacksiz bytes     / 
+;  |           |        | }-- lowspminx (lowest used stack) 
+;  |           |        | 
+;  |---------- | -------| <-- resultant lowspmin (stack overflow raised if RSP
+;  | 400 guard v bytes  |                         less than lowspmin)
+;  +--------------------+ <- lowsp
+; 
+;  Minimal heap (dynamic size, relocatable)           
+;  +----------------------+ <-- maxmem (will expand until heap_alloced_size
+;  |                    ^ |  ^          reaches heap_max)
+;  |                    | |  |
+;  / heap_alloced_size -| /  } - available for heap expansion without realloc
+;  |                    | |  v
+;  |--------------------|-| <- topmem (will grow to maxmem in heap_inc chunks)
+;  / heap_inc           | /  ^
+;  |--------------------|-|  } - Active minimal heap storage
+;  / heap_initial_size  v /  v
+;  +----------------------+ <- basemem  (address must be creater than maxlen)
+;               
 
       global      stackinit
 stackinit:
-      mov   rax, m_word [lowsp]     ;
-      add   rax, cfp_b*400
-      mov   m_word [lowspmin], rax
-      mov   rax, m_word [lowsp]
-      add   rax, m_word [stacksiz]
-      sub   rax, cfp_b
-      mov   m_word [compsp],rax     ; save as minimal's stack pointer
-      mov   m_word [highsp],rax  ; save top of stack
+      mov   rax, m_word [lowsp]     ; Start of allocated stack
+      mov   rbx, rax
+      add   rax, 400                ; Stack guard
+      mov   m_word [lowspmin],rax   ; Bottom of "usable" stack
+      add   rbx, m_word [stacksiz]  ; Calculate start of stack
+      sub   rbx, cfp_b              ; CCW is this actually needed?
+      mov   m_word [compsp],rbx     ; save as minimal's initial stack pointer
+      mov   m_word [highsp],rbx     ; save top of stack
       ret
 
 ;     mimimal -- call minimal function from c

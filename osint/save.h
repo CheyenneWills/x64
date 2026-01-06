@@ -53,10 +53,10 @@ struct svfilehdr {
     uword heapsize;         /* size of heap after collection */
     char *heapadr;          /* address of heap */
     char *topmem;           /* previous top of heap */
-    uword databts;          /* largest allowed size of heap */
+    uword heap_max;         /* largest allowed size of heap */
     uword sec5size;         /* size of SPITBOL code */
     char *sec5adr;          /* address of SPITBOL code */
-    uword memincb;          /* memory increment size */
+    uword heap_inc;         /* memory increment size */
     uword maxsize;          /* maximum object size */
     word compress;          /* 0 = no compress, */
     /* >0 = code word size (bits) */

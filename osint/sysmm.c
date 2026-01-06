@@ -5,15 +5,61 @@ Copyright 2012-2017 David Shields
 */
 
 /*
-/    zysmm- get more memory
-/
-/    Parameters:
-/        None
-/    Returns:
-/        XR - number of addtional words obtained
-/    Exits:
-/        None
-*/
+ * Memory allocations
+ *
+ * There are 2 memory allocations:
+ *  o minimal stack   - Size is static
+ *  o minimal heap    - Size is dynamic
+ *
+ * The size of the minimal stack is defined via a build time size that can be
+ * overridden via the -s# command line option.
+ *
+ * The minimal heap size, increment and maximal size are defined by build time
+ * settings and can be overridden via the -d# (for absolute max), -i#[,#] for
+ * initial size and increment size.
+ *
+ * Due to the method used for garbage collection, the minimal heap has a
+ * restriction that it's starting address must be greater than then largest size
+ * of a spitbol object.  In order to achieve this, the initial memory allocation
+ * may be adjusted to force the C memory allocation to allocate from high memory
+ * instead of lower memory. (This is sensitive to C's runtime malloc/realloc
+ * routines)
+ *
+ *  Minimal stack (static size, not relocated)
+ *  +--------------------+ <- highsp (stack goes down) <- initial compsp
+ *  |           ^        |
+ *  |           |        |
+ *  / stacksiz bytes     /
+ *  |           |        | }-- lowspminx (lowest used stack)
+ *  |           |        |
+ *  |---------- | -------| <-- resultant lowspmin
+ *  | 400 guard v bytes  |
+ *  +--------------------+ <- lowsp
+ *
+ *  Minimal heap (dynamic size, relocatable)
+ *  +----------------------+ <-- maxmem (will expand until heap_alloced_size
+ *  |                    ^ |  ^          reaches heap_max)
+ *  |                    | |  |
+ *  / heap_alloced_size -| /  } - available for heap expansion without realloc
+ *  |                    | |  v
+ *  |--------------------|-| <- topmem (will grow to maxmem in heap_inc chunks)
+ *  / heap_inc           | /  ^
+ *  |--------------------|-|  } - Active minimal heap storage
+ *  / heap_initial_size  v /  v
+ *  +----------------------+ <- basemem  (address must be creater than maxlen)
+ *
+ */
+
+/*
+ * zysmm- get more memory
+ *
+ * Parameters:
+ *    None
+ * Returns:
+ *    XR - number of addtional words obtained
+ * Exits:
+ *    None
+ */
 
 #include "port.h"
 #include <string.h>
@@ -28,14 +74,17 @@ zysmm(void)
     /*
      * If not already at maximum allocation, try to get more memory.
      */
-    if (topmem + memincb > maxmem) {
-        n = moremem(memincb);
+    if (topmem + heap_inc > maxmem) {
+        n = moremem(heap_inc);
+        if (n < 0) {
+            return NORMAL_RETURN;
+        }
         topmem += n;              /*  adjust current top address */
 
         SET_XR(n / sizeof(word)); /*  set # of words obtained */
     } else {
-        topmem += memincb;
-        SET_XR(memincb / sizeof(word));
+        topmem += heap_inc;
+        SET_XR(heap_inc / sizeof(word));
     }
     return NORMAL_RETURN;
 }
@@ -62,7 +111,10 @@ moremem(long n)
     memset(adjusts, 0, sizeof(adjusts));
 
     n &= -(long)sizeof(word);
-    newalloc = realloc(basemem, currallocsize + n);
+    if (heap_max != MAXUINT && heap_alloced_size + n > heap_max) {
+        return -1; /* Exceeds hard limit */
+    }
+    newalloc = realloc(basemem, heap_alloced_size + n);
 
     topmem += (uintptr_t)newalloc - curralloc;
     maxmem += (uintptr_t)newalloc - curralloc;
@@ -111,7 +163,7 @@ moremem(long n)
         compsp = (void *)saveregs[7];
         reg_pc = saveregs[8];
     }
-    currallocsize += n;
+    heap_alloced_size += n;
     return n;
 }
 
@@ -120,15 +172,16 @@ void
 sysmm_init(void)
 {
 
+    size_t memalloc_size;
+
     /* Allocate the stack */
     lowsp = calloc(1, stacksiz);
 
-    /* Ensure minimum memory allocation is large enough */
-    if (databts < 15 * 1024) {
-        databts = 15 * 1024;
+    if (heap_max != MAXUINT && heap_initial_size > heap_max) {
+        heap_initial_size = heap_max;
     }
 
-    databts -= memincb;
+    memalloc_size = heap_initial_size - heap_inc;
     basemem = NULL;
     /* We need to trick the C runtime so that the address of the basemem
      * is greater than maxsize (see spitbol's garbage collection).
@@ -137,18 +190,17 @@ sysmm_init(void)
      */
     while ((uintptr_t)basemem <= (uintptr_t)maxsize) {
         free(basemem);
-        databts += memincb;
-        basemem = calloc(1, databts);
+        memalloc_size += heap_inc;
+        basemem = calloc(1, memalloc_size);
         if (basemem == NULL) {
             wrterr("Insufficient memory to initialize SPITBOL environment");
             exit(1);
         }
     }
-    currallocsize = databts;
-    if (databts < memincb) {
-        topmem = basemem + databts;
-    } else {
-        topmem = basemem + memincb;
+    heap_alloced_size = memalloc_size;
+    if (heap_max != MAXUINT && heap_max < heap_alloced_size) {
+        heap_max = heap_alloced_size;
     }
-    maxmem = basemem + databts;
+    topmem = basemem + memalloc_size;
+    maxmem = basemem + heap_alloced_size;
 }

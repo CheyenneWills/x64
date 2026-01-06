@@ -5,23 +5,23 @@ Copyright 2012-2017 David Shields
 */
 
 /*
-/   arg2scb( req, argc, argv, scptr, maxs )
-/
-/   arg2scb() makes a copy of the req-th argument in the argv array.
-/   The copy is appended to the string in the SCBLK provided.
-/
-/   Parameters:
-/    req    number of argument to copy
-/    argc    number of arguments
-/    argv    pointer to array of pointers to strings (arguments)
-/    scptr    pointer to SCBLK to receive copy of argument
-/    maxs    maximum number of characters to append.
-/   Returns:
-/    Length of argument copied or -1 if req is out of range.
-/   Side Effects:
-/    Modifies contents of passed SCBLK (scptr).
-/    SCBLK length field is incremented.
-*/
+ *   arg2scb( req, argc, argv, scptr, maxs )
+ *
+ *   arg2scb() makes a copy of the req-th argument in the argv array.
+ *   The copy is appended to the string in the SCBLK provided.
+ *
+ *   Parameters:
+ *    req    number of argument to copy
+ *    argc    number of arguments
+ *    argv    pointer to array of pointers to strings (arguments)
+ *    scptr    pointer to SCBLK to receive copy of argument
+ *    maxs    maximum number of characters to append.
+ *   Returns:
+ *    Length of argument copied or -1 if req is out of range.
+ *   Side Effects:
+ *    Modifies contents of passed SCBLK (scptr).
+ *    SCBLK length field is incremented.
+ */
 
 #include "port.h"
 extern char *lowspminx;
@@ -44,52 +44,52 @@ arg2scb(int req, int argc, char *argv[], struct scblk *scptr, int maxs)
 }
 
 /*
-/    zyshs - host specific functions
-/
-/    zyshs is the catch-all function in the interface.  Any actions that
-/    are host specific should be placed here.
-/
-/    zyshs determines what function to preformed by examining the value
-/    of argument 1.  Current functions:
-/
-/    HOST()
-/        returns the host string identifying the host environment
-/
-/    HOST( 0 )
-/        returns -u argument from command line
-/
-/    HOST( 1, "command" )
-/        executes 2nd argument as a Unix command
-/
-/    HOST( 2, n )
-/        returns command line argument "n"
-/
-/    HOST( 3 )
-/        returns the command count
-/
-/    HOST( 4, "v" )
-/        returns the value of environment variable "v"
-/
-/    Other HOST functions may be provided by system specific modules.
-/
-/    Parameters:
-/        WA - argument 1
-/        XL - argument 2
-/        XR - argument 3
-/        WB - argument 4
-/        WC - argument 5
-/    Returns:
-/        See exits
-/    Exits:
-/        1 - erroneous argument
-/        2 - execution error
-/        3 - pointer to SCBLK or 0 in XL
-/        4 - return NULL string
-/        5 - return result in XR
-/        6 - cause statement failure
-/        7 - return string in XL, length in WA (may be 0)
-/        8 - return copy of result in XR
-*/
+ *    zyshs - host specific functions
+ *
+ *    zyshs is the catch-all function in the interface.  Any actions that
+ *    are host specific should be placed here.
+ *
+ *    zyshs determines what function to preformed by examining the value
+ *    of argument 1.  Current functions:
+ *
+ *    HOST()
+ *        returns the host string identifying the host environment
+ *
+ *    HOST( 0 )
+ *        returns -u argument from command line
+ *
+ *    HOST( 1, "command" )
+ *        executes 2nd argument as a Unix command
+ *
+ *    HOST( 2, n )
+ *        returns command line argument "n"
+ *
+ *    HOST( 3 )
+ *        returns the command count
+ *
+ *    HOST( 4, "v" )
+ *        returns the value of environment variable "v"
+ *
+ *    Other HOST functions may be provided by system specific modules.
+ *
+ *    Parameters:
+ *        WA - argument 1
+ *        XL - argument 2
+ *        XR - argument 3
+ *        WB - argument 4
+ *        WC - argument 5
+ *    Returns:
+ *        See exits
+ *    Exits:
+ *        1 - erroneous argument
+ *        2 - execution error
+ *        3 - pointer to SCBLK or 0 in XL
+ *        4 - return NULL string
+ *        5 - return result in XR
+ *        6 - cause statement failure
+ *        7 - return string in XL, length in WA (may be 0)
+ *        8 - return copy of result in XR
+ */
 
 /*
  *  checkstr - check if scblk is a valid string.  Returns 1 if so, else 0.
@@ -256,29 +256,29 @@ zyshs()
                     ticblk.icget = TYPE_ICL;
                     SET_XR(&ticblk);
                     switch ((int)val) {
-                        case 0:
-                            ticblk.icval = memincb;
+                        case 0:                            /* Heap increment */
+                            ticblk.icval = heap_inc;
                             return EXIT_8;
-                        case 1:
-                            ticblk.icval = databts;
+                        case 1:                            /* Absolute heap max. -1 = system limit */
+                            ticblk.icval = heap_max;
                             return EXIT_8;
-                        case 2:
+                        case 2:                            /* low address for heap */
                             ticblk.icval = (long)basemem;
                             return EXIT_8;
-                        case 3:
+                        case 3:                            /* current top address for heap */
                             ticblk.icval = (long)topmem;
                             return EXIT_8;
-                        case 4:
+                        case 4:                            /* stack size minus guard */
                             ticblk.icval = stacksiz - 400; /* safety margin */
                             return EXIT_8;
                         case 5:                            /* stack in use */
-                            ticblk.icval = stacksiz - (XS(long) - (long)lowsp);
+                            ticblk.icval = stacksiz - (XS(uintptr_t) - (uintptr_t)lowsp);
                             return EXIT_8;
-                        case 6:
+                        case 6:                            /* bytes in a word */
                             ticblk.icval = sizeof(long);
                             return EXIT_8;
-                        case 7:
-                            ticblk.icval = stacksiz - ((char *)lowspminx - (char *)lowsp);
+                        case 7:                            /* most stack used */
+                            ticblk.icval = stacksiz - ((uintptr_t)lowspminx - (uintptr_t)lowsp);
                             return EXIT_8;
                         default:
                             return EXIT_1;
