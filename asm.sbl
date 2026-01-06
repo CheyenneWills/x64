@@ -1261,13 +1261,15 @@ g_jsr
 *  get count of following ppm statements
 
    jsr_count = ppm_cases[jsr_proc]
+   jsr_rcode = 0
    eq(jsr_count)              :s(opdone)
    z_suspend = 1
    jsr_calls = jsr_calls +  1
    jsr_label = 'call_' jsr_calls
    jsr_label_norm = jsr_label
-   genop('dec',rcode)
-   genop('js',jsr_label_norm)
+   genop('cmp',rcode,jsr_rcode)
+   genop('je',jsr_label_norm)
+   jsr_rcode = jsr_rcode + 1
    z_suspend = 0
 
 *       generate branch around for ppms that will follow
@@ -1404,42 +1406,33 @@ g_err
 
 *  branch to next case if rcode code still not negative.
 
-   ident(incode,'ppm')           :s(g_ppm.loop)
-   count.err =  count.err + 1
-   errfile =   i.text(i1) ' ' i.text(i2)
-   max.err = gt(t1,max.err) t1
-                     :(g_ppm.loop)
+   genop('cmp',rcode,jsr_rcode)
+   jsr_rcode = jsr_rcode + 1
 
-g_ppm.loop.next
+   ident(incode,'err')        :s(g_ppm.err)
 
-   genopl(lab_next ':')
-   jsr_count = jsr_count - 1
-   z_suspend = eq(jsr_count) 0
-   eq(jsr_count) genopl(jsr_label_norm ':')  :(opdone)
-
-g_ppm.loop
-
-   lab_next = genlab()
-   genop('dec',rcode)
-   genop('jns',lab_next)
-   ident(incode,'ppm')           :s(g_ppm.loop.ppm)
+   ident(i.text(i1))          :s(g_ppm.2)
+   genop('je', getarg(i1))    :(g_ppm.loop.next)
 
 *  here if error exit via exi. set rcode to exit code and jump to error
 *  handler with error code in rcode
+g_ppm.err
+   errfile =   i.text(i1) ' ' i.text(i2)
+   max.err = gt(t1,max.err) t1
+   lab_next = genlab()
+   genop('jne',lab_next)
 
 g_ppm.loop.err
 
    genop('mov',rcode, +t1)
    genop('jmp','err_')
+   genopl(lab_next ':')
                      :(g_ppm.loop.next)
-g_ppm.loop.ppm
 
-*       check each ppm case and take branch if appropriate
-
-   ident(i.text(i1))          :s(g_ppm.2)
-   count.ppm = count.ppm + 1
-   genop('jmp',   getarg(i1))
-                     :(g_ppm.loop.next)
+* Check to see if ppm/err are all done
+g_ppm.loop.next
+   jsr_count = jsr_count - 1
+   eq(jsr_count) genopl(jsr_label_norm ':')  :(opdone)
 
 g_ppm.2
 
@@ -1448,6 +1441,8 @@ g_ppm.2
 
    t1 = 299
    errfile =  t1 ' internal logic error      : unexpected ppm branch'
+   lab_next = genlab()
+   genop('jne',lab_next)
                      :(g_ppm.loop.err)
 
 *  *   1.15 ERB  _int,text_  error branch
