@@ -23,7 +23,7 @@ Copyright 2012-2017 David Shields
 #include "port.h"
 
 int
-zysin()
+zysin(struct minimal_regs *minregs)
 {
     word reclen;
     struct fcblk *fcb = WA(struct fcblk *);

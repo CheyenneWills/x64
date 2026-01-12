@@ -25,7 +25,7 @@ Copyright 2012-2017 David Shields
 #include "port.h"
 
 int
-zysen()
+zysen(struct minimal_regs *minregs)
 {
     struct fcblk *fcb = WA(struct fcblk *);
     struct ioblk *iob = ((struct ioblk *)(fcb->iob));

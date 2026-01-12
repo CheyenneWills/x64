@@ -36,7 +36,7 @@ extern int brkpnd;
 #define stmtDelay PollCount
 
 int
-zyspl()
+zyspl(struct minimal_regs *minregs)
 {
     /* Make simple polling case the fastest by avoiding switch statement */
     if (WA(word) == 0) {

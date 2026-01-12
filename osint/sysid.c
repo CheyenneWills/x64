@@ -37,7 +37,7 @@ Copyright 2012-2017 David Shields
 */
 
 int
-zysid()
+zysid(struct minimal_regs *minregs)
 {
     time_t now;
     char *s;

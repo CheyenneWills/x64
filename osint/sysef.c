@@ -33,7 +33,7 @@ static struct scblk ffscblk = {
 };
 
 int
-zysef()
+zysef(struct minimal_regs *minregs)
 {
     struct fcblk *fcb = WA(struct fcblk *);
     struct ioblk *iob = ((struct ioblk *)(fcb->iob));

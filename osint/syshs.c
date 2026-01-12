@@ -24,7 +24,6 @@ Copyright 2012-2017 David Shields
  */
 
 #include "port.h"
-extern char *lowspminx;
 static int
 arg2scb(int req, int argc, char *argv[], struct scblk *scptr, int maxs)
 {
@@ -106,7 +105,7 @@ checkstr(struct scblk *scp)
  * Returns 1 if both OK, else 0.
  */
 int
-check2str(void)
+check2str(struct minimal_regs *minregs)
 {
     return checkstr(XL(struct scblk *)) && checkstr(XR(struct scblk *));
 }
@@ -128,7 +127,7 @@ savestr(struct scblk *scp, char *cp)
  *  save2str - convert first two argument strings in XL, XR.
  */
 void
-save2str(char **s1p, char **s2p)
+save2str(struct minimal_regs *minregs, char **s1p, char **s2p)
 {
     *s1p = savestr(XL(struct scblk *), &savexl);
     *s2p = savestr(XR(struct scblk *), &savexr);
@@ -152,7 +151,7 @@ restorestring(struct scblk *scp, word c)
  *  restore2str - restore two argument strings in XL, XR.
  */
 void
-restore2str()
+restore2str(struct minimal_regs *minregs)
 {
     restorestring(XR(struct scblk *), savexr);
     restorestring(XL(struct scblk *), savexl);
@@ -222,7 +221,7 @@ getint(struct icblk *icp, long *pword)
 }
 
 int
-zyshs()
+zyshs(struct minimal_regs *minregs)
 {
     word retval;
     long val;
@@ -272,13 +271,13 @@ zyshs()
                             ticblk.icval = stacksiz - 400; /* safety margin */
                             return EXIT_8;
                         case 5:                            /* stack in use */
-                            ticblk.icval = stacksiz - (XS(uintptr_t) - (uintptr_t)lowsp);
+                            ticblk.icval = (uintptr_t)highsp - (XS(uintptr_t));
                             return EXIT_8;
                         case 6:                            /* bytes in a word */
                             ticblk.icval = sizeof(long);
                             return EXIT_8;
                         case 7:                            /* most stack used */
-                            ticblk.icval = stacksiz - ((uintptr_t)lowspminx - (uintptr_t)lowsp);
+                            ticblk.icval = ((uintptr_t)highsp - (uintptr_t)lowspminx);
                             return EXIT_8;
                         default:
                             return EXIT_1;
@@ -316,15 +315,15 @@ zyshs()
             case 1: {
                 char *cmd, *path;
 
-                if (!check2str()) {
+                if (!check2str(minregs)) {
                     return EXIT_1;
                 }
-                save2str(&cmd, &path);
+                save2str(minregs, &cmd, &path);
                 save0(); /* made sure fd 0 OK */
                 ticblk.icval = dosys(cmd, path);
 
                 ticblk.icget = TYPE_ICL;
-                restore2str();
+                restore2str(minregs);
                 restore0();
                 if (ticblk.icval < 0) {
                     return EXIT_6;

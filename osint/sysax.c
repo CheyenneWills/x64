@@ -21,7 +21,7 @@ Copyright 2012-2017 David Shields
 #include "port.h"
 
 int
-zysax()
+zysax(struct minimal_regs *minregs)
 {
     /*  swcoup does real work */
     swcoup(outptr);

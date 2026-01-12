@@ -18,7 +18,7 @@ Copyright 2012-2017 David Shields
 #include "port.h"
 
 int
-zysmx()
+zysmx(struct minimal_regs *minregs)
 {
     SET_WA(maxsize);
     return NORMAL_RETURN;

@@ -16,7 +16,7 @@ Copyright 2012-2017 David Shields
 #include "port.h"
 
 int
-zysul()
+zysul(struct minimal_regs *minregs)
 {
 #if EXTFUN
     unldef(XR(struct efblk *));

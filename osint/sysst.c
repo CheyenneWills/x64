@@ -47,7 +47,7 @@ Copyright 2012-2017 David Shields
 #include "port.h"
 
 int
-zysst()
+zysst(struct minimal_regs *minregs)
 {
     long whence, temp;
     FILEPOS offset;

@@ -335,7 +335,7 @@ scnint(char *str, word len, word *intptr)
  *    xr    pointer to scblk holding filearg2 (filename & args)
  *    wa    pointer to existing fcblk or 0
  *    wb    0/3 for input/output association
- *    wc    number of scblk pointers on stack (forced to zero by interface)
+ *    wc    number of scblk pointers on stack
  *   Returns:
  *    wa = xl = 0       Nothing to allocate
  *    wa > 0            Size of requested fcblk
@@ -351,7 +351,7 @@ scnint(char *str, word len, word *intptr)
 struct ioblk tioblk; /* temporary ioblk */
 
 int
-zysfc()
+zysfc(struct minimal_regs *minregs)
 {
     int fd_spec, i;
     word allocsize, length_fname;
@@ -360,6 +360,8 @@ zysfc()
     struct fcblk *fcb = WA(struct fcblk *);
     word use_env = 0; /* Initially, flag that not using environment block */
 
+    /* Remove extra scblks on the stack */
+    SET_XS(XS(long) + (WC(long) * CFP_B));
     /*
      *   Bad filearg2 or NULL filearg1 is an error
      */

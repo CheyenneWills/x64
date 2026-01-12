@@ -28,7 +28,7 @@ static int back(struct ioblk *iob);
 #define RET_BIAS 100
 
 int
-zysbs()
+zysbs(struct minimal_regs *minregs)
 {
     int c;
     struct fcblk *fcb = WA(struct fcblk *);

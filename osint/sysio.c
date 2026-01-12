@@ -30,7 +30,7 @@ Copyright 2012-2017 David Shields
 extern struct ioblk tioblk;
 
 int
-zysio()
+zysio(struct minimal_regs *minregs)
 {
     char *charptr = WA(char *);
     struct fcblk *fcb;

@@ -29,7 +29,7 @@ Copyright 2012-2017 David Shields
 #include "port.h"
 
 int
-zysbx()
+zysbx(struct minimal_regs *minregs)
 {
 
     executing = 1;
@@ -48,7 +48,7 @@ zysbx()
         tscblk->sclen = appendext(*inpptr, RUNEXT, tscblk->schar, 1);
         if (makeexec(tscblk, spitflag & NOEXEC ? -3 : -4)) {
             wrterr("Error writing save file.");
-            zysej();
+            zysej(NULL);
         }
     }
     /*

@@ -20,9 +20,6 @@
 
     extern  osisp
     extern  compsp
-    extern  _rc_
-    extern  reg_fl
-    extern  reg_ra
     extern  inf
     extern  neg1f
     extern  zeron

@@ -51,7 +51,7 @@ static void hcopy(char *src, char *dst, int len, int max);
 extern off_t LSEEK(int F, off_t Loc, int Method);
 
 int
-zysxi()
+zysxi(struct minimal_regs *minregs)
 {
 
     char fileName[256], tmpfnbuf[256];
@@ -93,7 +93,7 @@ zysxi()
     /*
        /    Get current value of FP and compute length of current stack.
      */
-    stackbase = (word *)get_fp();
+    stackbase = XS(word *);
     stacklength = GET_MIN_VALUE(stbas, char *) - (char *)stackbase;
     /*
        /    Close all files and flush buffers
@@ -113,10 +113,10 @@ zysxi()
     unmake_c_str(&(scfn->schar[scfn->sclen]), savech);
 
     if (IA(long) < 0) {
-        retval |= putsave(stackbase, stacklength); /* write save file */
+        retval |= putsave(minregs, stackbase, stacklength); /* write save file */
     }
 
-    rereloc();
+    rereloc(minregs);
 
     retval |= closeaout(fileName, tmpfnbuf, retval);
     if (retval < 0) {
@@ -132,9 +132,9 @@ zysxi()
         return NORMAL_RETURN;
     }
 
-    SET_XL(0); /* files already closed V1.11 */
+    SET_XL(0);      /* files already closed V1.11 */
     SET_WB(0);
-    zysej();   /* NO RETURN */
+    zysej(minregs); /* NO RETURN */
     return EXIT_1;
 }
 
@@ -166,7 +166,7 @@ zysxi()
 */
 
 void
-unreloc()
+unreloc(struct minimal_regs *minregs)
 {
     char *pstbas;
 
@@ -185,7 +185,7 @@ unreloc()
 */
 
 void
-rereloc()
+rereloc(struct minimal_regs *minregs)
 {
     char *pstbas;
 
@@ -215,8 +215,7 @@ hcopy(
  * putsave - create a save file
  */
 word
-putsave(
-  word *stkbase, word stklen)
+putsave(struct minimal_regs *minregs, word *stkbase, word stklen)
 {
     word result = 0;
     struct scblk *vscb = XR(struct scblk *);
@@ -270,7 +269,7 @@ putsave(
        /    Let function wrtaout write the save file.  Hold off checking for
        /    errors until stack position sensitive pointers have been readjusted.
      */
-    unreloc();
+    unreloc(minregs);
 
     if (docompress(svfheader.compress, basemem + svfheader.heapsize, (uword)(topmem - (basemem + svfheader.heapsize)))) { /* Do compression if room */
         svfheader.compress = 0;
@@ -300,7 +299,7 @@ putsave(
                                                                    uword));
 
     /* write out MINIMAL register block */
-    result |= compress((unsigned char *)&reg_block, reg_size);
+    result |= compress((unsigned char *)minregs, sizeof(*minregs));
 #if EXTFUN
     scanef();                              /* prepare to scan for external functions */
     while ((textlen = (word)nextef(&bufp, 1)) != 0) {
@@ -321,7 +320,7 @@ putsave(
  *        -1 if save file but error during reload.
  */
 int
-getsave(int fd)
+getsave(struct minimal_regs *minregs, int fd)
 {
     int n;
     unsigned long s;
@@ -477,15 +476,15 @@ getsave(int fd)
             SET_XR(basemem);
             SET_CP(basemem + svfheader.dynoff);
             SET_XL(adjusts);
-            MINIMAL(minimal_relcr);
-            MINIMAL(minimal_reloc);
+            minimal(minregs, minimal_relcr);
+            minimal(minregs, minimal_reloc);
 
             /* Relocate any return addresses in stack */
             SET_WB(tscblk->schar);
             SET_WA(tscblk->schar + svfheader.stacklength);
             if (svfheader.stacklength) {
 
-                MINIMAL(minimal_relaj);
+                minimal(minregs, minimal_relaj);
             }
 
             /* Note: There are return addresses in the PRC_ variables
@@ -499,7 +498,7 @@ getsave(int fd)
              * The only Minimal register in need of relocation is CP,
              * and this is handled by the rereloc routine.
              */
-            if (expand(fd, (unsigned char *)&reg_block, reg_size)) {
+            if (expand(fd, (unsigned char *)minregs, sizeof(*minregs))) {
                 goto reload_ioerr;
             }
 

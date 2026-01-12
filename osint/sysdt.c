@@ -34,7 +34,7 @@ conv(char *dest, int value)
 }
 
 int
-zysdt()
+zysdt(struct minimal_regs *minregs)
 {
     struct icblk *dtscb = XR(struct icblk *);
 

@@ -36,7 +36,7 @@ This file is part of Macro SPITBOL.
 #include "port.h"
 
 int
-zysdc()
+zysdc(struct minimal_regs *minregs)
 {
     struct scblk *pheadv = GET_DATA_OFFSET(headv, struct scblk *);
     return NORMAL_RETURN;

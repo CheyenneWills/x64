@@ -12,13 +12,13 @@ Copyright 2012-2017 David Shields
 #include "port.h"
 
 int
-zysdm(void)
+zysdm(struct minimal_regs *minregs)
 {
     return NORMAL_RETURN;
 }
 
 int
-zystt(void)
+zystt(struct minimal_regs *minregs)
 {
     return NORMAL_RETURN;
 }

@@ -19,7 +19,7 @@ Copyright 2012-2017 David Shields
 #include "port.h"
 
 int
-zysil()
+zysil(struct minimal_regs *minregs)
 {
     struct fcblk *fcb = WA(struct fcblk *);
 

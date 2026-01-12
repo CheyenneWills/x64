@@ -11,7 +11,7 @@ Copyright 2012-2017 David Shields
 #include "port.h"
 
 int
-zyspp()
+zyspp(struct minimal_regs *minregs)
 {
     /*
        /   Set default case flag here; cannot set before starting up
