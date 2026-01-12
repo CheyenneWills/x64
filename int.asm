@@ -348,32 +348,7 @@ ttybuf:     d_word        0   ; type word
 ;
 ;
       segment     .text
-      global      save_regs
-save_regs:
-      mov   m_word [save_ia],r12
-      mov   m_word [save_xl],rsi
-      mov   m_word [save_xr],rdi
-      mov   m_word [save_xs],rsp
-      mov   m_word [save_wa],rcx
-      mov   m_word [save_wb],rbx
-      mov   m_word [save_wc],rdx
-      mov   m_word [save_w0],rax
-      movsd m_real [save_ra],xmm12
-      ret
 
-      global      restore_regs
-restore_regs:
-      ;     restore regs, except for sp. that is caller's responsibility
-      mov   r12,m_word [save_ia]
-      mov   rsi,m_word [save_xl]
-      mov   rdi,m_word [save_xr]
-;     mov   rsp,m_word [save_xs     ; caller restores sp]
-      mov   rcx,m_word [save_wa]
-      mov   rbx,m_word [save_wb]
-      mov   rdx,m_word [save_wc]
-      mov   rax,m_word [save_w0]
-      movsd xmm12,m_real [save_ra]
-      ret
 ; ;
 ; ;     startup( char *dummy1, char *dummy2) - startup compiler
 ; ;
@@ -562,8 +537,6 @@ cprtmsg:
 ;                ...    ...
 
 
-      segment     .data
-call_adr:   d_word      0
       segment     .text
 
 syscall_init:
@@ -941,16 +914,4 @@ re4:  mov   rax,m_word [stbas]
       mov   m_word [minimal_id],rax
       call  minimal                 ; no return
 
-%ifdef z_trace
-      extern      zz_ra
-      global      zzz
-      extern      zz,zz_cp,zz_xl,zz_xr,zz_wa,zz_wb,zz_wc,zz_w0
-zzz:
-      pushf
-      call  save_regs
-      call  zz
-      call  restore_regs
-      popf
-      ret
-%endif
 section .note.GNU-stack noalloc noexec nowrite progbits

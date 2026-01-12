@@ -20,8 +20,6 @@
 
     extern  osisp
     extern  compsp
-    extern  save_regs
-    extern  restore_regs
     extern  _rc_
     extern  reg_fl
     extern  reg_ra
@@ -33,29 +31,6 @@
 
     global  mxint
 
-;%define zz_trace
-%ifdef zz_trace
-    extern  zz
-    extern  zzz
-    extern  zz_cp
-    extern  zz_xl
-    extern  zz_xr
-    extern  zz_xs
-    extern  zz_wa
-    extern  zz_wb
-    extern  zz_wc
-    extern  zz_w0
-    extern  zz_zz
-    extern  zz_id
-    extern  zz_de
-    extern  zz_0
-    extern  zz_1
-    extern  zz_2
-    extern  zz_3
-    extern  zz_4
-    extern  zz_arg
-    extern  zz_num
-%endif
     global  start
 
 
@@ -185,16 +160,6 @@ calltab:
     extern tan_
     extern cpr_
     extern ovr_
-
-    %macro  zzz 3
-    section .data
-%%desc: db  %3,0
-    section .text
-    mov m_word [zz_id],%1
-    mov m_word [zz_zz],%2
-    mov m_word [zz_de],%%desc
-    call    zzz
-    %endmacro
 
 ;   integer arithmetic instructions
 

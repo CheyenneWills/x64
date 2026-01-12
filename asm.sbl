@@ -67,63 +67,6 @@
 
 *  error is used to report an error for current statement
 
--stitl chktrace()
-   define('chktrace()')          :(chktrace_end)
-chktrace
-
-*                      :(return)
-*       output = 'chktrace:' iinput_lines ':' label ':' stmtout
-*       output = differ (label) 'chktrace label:' label ':'
-*       turn off skip mode when begin executable code
-
-   clabel = inlabel
-   old_z_skip = z_skip
-   old_z_exec = z_exec
-   old_is_exec = is_exec
-   z_skip = ident(inlabel,'s_aaa') 0
-
-*       incode ? any(lcase)           :s(return)
-
-   uopcode   = replace(incode, lcase,ucase)
-
-*  do not trace bsw (for now)
-
-   ident(uopcode,'bsw')          :s(return)
-   is_exec = is_executable[uopcode]
-   z_exec = ne(z_trace)  ident(inlabel, 's_aaa') 1
-   z_exec = gt(input_lines,2186) 1
-
-*  need to skip certain blocks since otherwise get branches that are
-*  too long skip when in code that won't assemble if try to trace
-*  this was discovered on a case-by-case basis.
-
-   z_skip   = differ(inlabel) differ(skip_on[inlabel]) 1
-   z_skip   = differ(inlabel) differ(skip_off[inlabel]) 0
-
-   ne(z_skip)              :s(return)
-   eq(z_exec)              :s(return)
-   eq(is_exec)             :s(return)
-
-*  here to emit trace. need to emit trace after label if there is label
-*  ident(inlabel)            :s(chktrace.1)
-*       only trace at labels since get jumps that are too removed otherwise
-*       ident(label)            :s(return)
-*       here to emit trace code when there is label
-*       first need to emit label, then fall through
-
-*       stmtout ? break_ws  . label spanws    rem . body  :f(outstmt5)
-*       stmtout = tab body
-*       outfile = label
-*       label =
-   ne(in_gcol)             :s(return)
-
-chktrace.1
-
-   genz()
-                     :(return)
-
-chktrace_end
-
 -stitl comregs(line)t,pre,word
    define('comregs(line)t,pre,word')      :(comregs_end)
 
@@ -312,34 +255,6 @@ genrep
    genopl(l2 ':')
                      :(return)
 genrep_end
-
--stitl genz
-   define('genz()')           :(genz_end)
-
-*  generate trace instruction if needed.
-
-genz
-
-*       no trace if trace has been suspended
-*       output = ne(z_suspend) 'z_suspend ' thisline
-
-   ne(z_suspend)              :s(return)
-
-*  only trace at label definition
-*       ident(thislabel)              :s(return)
-
-   z_count = z_count + 1
-   gt(z_first) le(z_count,z_first)        :s(return)
-   gt(z_limit)  gt(z_count, z_limit)      :s(return)
-
-*       always generate trace if at label definition
-
-   z_desc = '"' replace(thisline,sepchar,' ') '"'
-   outfile = tab 'zzz' tab z_count ',' input_lines ',' z_desc
-   outlines = outlines + 1
-                     :(return)
-
-genz_end
 
 -stitl getarg(iarg,imem)
    define('getarg(iarg,imem)l1,l2,t1,t2,tmem')  :(getarg_end)
@@ -595,9 +510,6 @@ init
 
 config_done
 
-*  set z_trace to enable instruction by instruction trace
-   z_trace = 1
-   z_trace = 0
 *  z_limit is maximum number of calls to be generated if non-zero
    z_limit = 000
 *  set z_first non-zero to skip first number of instructions that would
@@ -933,18 +845,6 @@ outstmt4
    line = line '; ' comment
 
 outstmt5
-**
-** send text to output file if not null.
-
-*       line = replace(trim(line),'$','_')
-
-   eq(z_trace)             :s(outstmt6)
-
-*       here if trace code desired for executable instructions
-
-   chktrace()
-
-outstmt6
 
 * output =  line
    outfile = line
@@ -3327,10 +3227,6 @@ g_end.2
    &code = ne(nerrors) 2001
    report(collect(), 'free words')
                      :(end)
-
-g_zzz
-
-   genop('zzz',getarg(i1))          :(opdone)
 
 opdone
 
