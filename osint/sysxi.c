@@ -270,20 +270,6 @@ hcopy(
     }
 }
 
-#if EXECFILE
-
-/*
-/    Roundup the integer argument to be a multiple of the
-/    system page size.
-*/
-
-static word
-roundup(word n)
-{
-    return (n + PAGESIZE - 1) & ~((word)PAGESIZE - 1);
-}
-#endif /* EXECFILE */
-
 /*
  * putsave - create a save file
  */

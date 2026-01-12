@@ -135,17 +135,6 @@ save2str(char **s1p, char **s2p)
 }
 
 /*
- *  getstring - verify and convert an scblk to a valid C string.
- *   Returns pointer to start of string, or 0 if fail.  The char
- *   replaced by the '\0' terminator is returned in *cp.
- */
-char *
-getstring(struct scblk *scp, char *cp)
-{
-    return checkstr(scp) ? savestr(scp, cp) : NULL;
-}
-
-/*
  *  restorestring - restore an scblk after a getstring call.
  *
  *  when making multiple getstring calls, call restorestring in the reverse

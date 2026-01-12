@@ -13,8 +13,6 @@ Copyright 2012-2017 David Shields
 /*#include <unistd.h> */
 #include "port.h"
 #include <fcntl.h>
-#undef brk  /* remove sproto redefinition */
-#undef sbrk /* remove sproto redefinition */
 
 /* Size and offset of fields of a structure.  Probably not portable. */
 #define FIELDSIZE(str, fld) (sizeof(((str *)0)->fld))
@@ -446,18 +444,6 @@ nextef(unsigned char **bufp, int io)
     return result;
 }
 
-/* Rename a file.  Return 0 if OK */
-int
-renames(char *oldname, char *newname)
-{
-    if (link(oldname, newname) == 0) {
-        unlink(oldname);
-        return 0;
-    } else {
-        return -1;
-    }
-}
-
 /*
  * scanef - prepare to scan memory for external function blocks.
  */
@@ -538,76 +524,6 @@ spit_open(char *Name, Open_method Method, File_mode Mode, int Action)
     }
 
     return open(Name, Method, (Mode & IO_EXECUTABLE) ? 0777 : 0666);
-}
-
-void *
-sbrkx(long incr)
-{
-    static char *base = 0; /* base of the sbrk region */
-    static char *endofmem;
-    static char *curr;
-    void *result;
-
-    if (!base) { /* if need to initialize */
-        char *first_base;
-        unsigned long size;
-
-        /* Allocate but do not commit a chunk of linear address space.
-         * This allows dlopen and any loaded external functions to use
-         * the system malloc and sbrk to obtain memory beyond SPITBOL's
-         * heap.
-         */
-        size = databts;
-
-        do {
-            first_base = (char *)malloc(size);
-            if (first_base != 0) {
-                break;
-            }
-
-            size -= (1 * 1024 * 1024);
-        } while (size >= (20 * maxsize)); /* arbitrary lower limit */
-
-        if (!first_base) {
-            return (void *)-1;
-        }
-
-        base = first_base;
-
-        /* To satisfy SPITBOL's requirement that the heap begin at an address
-         * numerically larger than the largest object size, we force base
-         * up to that value.  Note three things:  Since Linux memory is a sparse
-         * array, this doesn't waste any physical memory.  And if by some
-         * chance the user has specified a different object size value on
-         * the command line, there is no harm in doing this.  It also starts
-         * the heap at a nice high address that isn't likely to change as
-         * the size of the SPITBOL system changes.
-         */
-        if (base < (char *)maxsize) {
-            base = (char *)maxsize;
-        }
-
-        curr = base;
-        endofmem = first_base + size;
-    }
-
-    if (curr + incr > endofmem) {
-        return (void *)-1;
-    }
-
-    result = curr;
-    curr += incr;
-
-    return result;
-}
-
-/*  brkx(addr) - set the break address to the given value.
- *  returns 0 if successful, -1 if not.
- */
-int
-brkx(void *addr)
-{
-    return sbrkx((char *)addr - (char *)sbrkx(0)) == (void *)-1 ? -1 : 0;
 }
 
 /*

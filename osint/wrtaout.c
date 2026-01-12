@@ -85,47 +85,6 @@ wrtaout(unsigned char *startadr, uword size)
     return 0;
 }
 
-#if EXECFILE
-
-/*
-/   seekaout( pagesize )
-/
-/   Parameters:
-/    pagesize    power of two (e.g. 1024)
-/   Returns:
-/    0    successful
-/  -3 LSEEK to pagesize-1 file position failed
-/    -4    forced write to pagesize boundary failed
-/
-/   Seek and extend file to power of two boundary.
-*/
-
-int
-seekaout(long pagesize)
-{
-    long excess;
-
-    /*
-       /   If fp not multiple of pagesize, force file size up to multiple.
-       /   Notice trick to force file size up:  seek to 1 character in front
-       /   of desired length, then write a single character at that position.
-       /   The file system will fill in seeked over characters.
-     */
-    if ((excess = ((long)fp & (pagesize - 1))) != 0) {
-        excess = pagesize - excess;
-        if (LSEEK(aoutfd, (FILEPOS)(excess - 1), 1) < (FILEPOS)0) {
-            return -3;
-        }
-        if (write(aoutfd, "", 1) != 1) {
-            return -4;
-        }
-        fp += (FILEPOS)excess;
-    }
-
-    return 0;
-}
-#endif /* EXECFILE */
-
 /*
 /   closeaout(filename)
 /

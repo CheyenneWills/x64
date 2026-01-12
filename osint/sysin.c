@@ -22,12 +22,6 @@ Copyright 2012-2017 David Shields
 
 #include "port.h"
 
-word
-wabs(word x)
-{
-    return (x >= 0) ? x : -x;
-}
-
 int
 zysin()
 {
