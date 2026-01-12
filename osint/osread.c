@@ -35,8 +35,8 @@ word
 osread(word mode, word recsiz, struct ioblk *ioptr, struct scblk *scptr)
 
 {
-    struct bfblk *bfptr = ((struct bfblk *)(ioptr->bfb));
-    char *cp = scptr->str;
+    struct iobfblk *bfptr = ((struct iobfblk *)(ioptr->bfb));
+    char *cp = scptr->schar;
     char *bp;
     word cnt = 0;
     word fdn = ioptr->fdn;
@@ -91,7 +91,7 @@ osread(word mode, word recsiz, struct ioblk *ioptr, struct scblk *scptr)
                             findeol = 0;
                             cnt -= i + 1;
                             if (testty(fdn)) {
-                                doset(ioptr, cp - scptr->str - n,
+                                doset(ioptr, cp - scptr->schar - n,
                                       1); /* backup file to point following
                                              line */
                             }
@@ -334,7 +334,7 @@ osread(word mode, word recsiz, struct ioblk *ioptr, struct scblk *scptr)
 word
 fillbuf(struct ioblk *ioptr)
 {
-    struct bfblk *bfptr = ((struct bfblk *)(ioptr->bfb));
+    struct iobfblk *bfptr = ((struct iobfblk *)(ioptr->bfb));
     word n;
 
     fsyncio(ioptr); /* synchronize file and buffer */

@@ -35,12 +35,12 @@ gethost(struct scblk *scptr, word maxlen)
 
     if ((fd = spit_open(HOST_FILE, O_RDONLY, IO_PRIVATE | IO_DENY_WRITE,
                         IO_OPEN_IF_EXISTS)) >= 0) {
-        cnt = read(fd, scptr->str, maxlen);
+        cnt = read(fd, scptr->schar, maxlen);
         close(fd);
     }
 
-    if (cnt > 0 && scptr->str[cnt - 1] == EOL) {
-        scptr->str[--cnt] = 0;
+    if (cnt > 0 && scptr->schar[cnt - 1] == EOL) {
+        scptr->schar[--cnt] = 0;
     }
 
     if (cnt == 0) {
@@ -48,17 +48,17 @@ gethost(struct scblk *scptr, word maxlen)
         char *scp;
 
         gettype(scptr, maxlen);
-        scp = scptr->str + scptr->len;
+        scp = scptr->schar + scptr->sclen;
         scp = mystrcpy(scp, osver);
         scp = mystrcpy(scp, ":Macro SPITBOL ");
-        scp += mystrncpy(scp, pheadv->str, pheadv->len);
-        scp += mystrncpy(scp, pid1blk->str, (int)pid1blk->len);
+        scp += mystrncpy(scp, pheadv->schar, pheadv->sclen);
+        scp += mystrncpy(scp, pid1blk->schar, (int)pid1blk->sclen);
         *scp++ = ' ';
         *scp++ = '#';
-        cnt = scp - scptr->str;
+        cnt = scp - scptr->schar;
     }
 
-    scptr->len = cnt;
+    scptr->sclen = cnt;
 }
 
 /*

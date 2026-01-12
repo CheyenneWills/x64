@@ -84,7 +84,7 @@ zysxi()
        /    command to execute by chaining.
      */
     if (scb != 0) {
-        if (scb->typ == TYPE_SCL) {        /* must be SCBLK! */
+        if (scb->scget == TYPE_SCL) {      /* must be SCBLK! */
             close_all(WB(struct chfcb *)); /* V1.11 */
             save0();                       /* V1.14 make sure fd 0 OK */
             doexec(scb);                   /* execute command */
@@ -118,16 +118,16 @@ zysxi()
     close_all(WB(struct chfcb *)); /* V1.11 */
 
     /*  Prepare optional file name as a C string, open output file */
-    savech = make_c_str(&(scfn->str[scfn->len]));
-    if (scfn->str[0]) {
-        mystrcpy(fileName, scfn->str);
+    savech = make_c_str(&(scfn->schar[scfn->sclen]));
+    if (scfn->schar[0]) {
+        mystrcpy(fileName, scfn->schar);
     } else {
         mystrcpy(fileName,                                                   /* default file name */
                  IA(long) < 0 ? SAVE_FILE : AOUT_FILE);
     }
     retval = openaout(fileName, tmpfnbuf, (IA(long) < 0 ? 0 : IO_EXECUTABLE) /* executable? */
     );
-    unmake_c_str(&(scfn->str[scfn->len]), savech);
+    unmake_c_str(&(scfn->schar[scfn->sclen]), savech);
 
     if (IA(long) < 0) {
         retval |= putsave(stackbase, stacklength); /* write save file */
@@ -306,8 +306,8 @@ putsave(
     svfheader.version = SaveVersion;
     svfheader.system = SYSVERSION;
     svfheader.spare = 0;
-    hcopy(vscb->str, svfheader.headv, vscb->len, sizeof(svfheader.headv));
-    hcopy(pid1blk->str, svfheader.iov, pid1blk->len, sizeof(svfheader.iov));
+    hcopy(vscb->schar, svfheader.headv, vscb->sclen, sizeof(svfheader.headv));
+    hcopy(pid1blk->schar, svfheader.iov, pid1blk->sclen, sizeof(svfheader.iov));
     svfheader.timedate = time((time_t *)0);
     svfheader.flags = spitflag;
     svfheader.stacksiz = (uword)stacksiz;
@@ -515,12 +515,12 @@ getsave(int fd)
             }
 
             /* Read saved stack from save file into tscblk */
-            if (expand(fd, (unsigned char *)ptscblk->str, svfheader.stacklength)) {
+            if (expand(fd, (unsigned char *)ptscblk->schar, svfheader.stacklength)) {
                 goto reload_ioerr;
             }
 
             SET_MIN_VALUE(stbas, svfheader.stbas, word);
-            lmodstk = (word *)(ptscblk->str + svfheader.stacklength);
+            lmodstk = (word *)(ptscblk->schar + svfheader.stacklength);
             stacksiz = svfheader.stacksiz;
 
             /* Reload compiler working globals section */
@@ -554,8 +554,8 @@ getsave(int fd)
             MINIMAL(minimal_reloc);
 
             /* Relocate any return addresses in stack */
-            SET_WB(ptscblk->str);
-            SET_WA(ptscblk->str + svfheader.stacklength);
+            SET_WB(ptscblk->schar);
+            SET_WA(ptscblk->schar + svfheader.stacklength);
             if (svfheader.stacklength) {
 
                 MINIMAL(minimal_relaj);
@@ -656,8 +656,8 @@ doexec(
     char *cp;
     extern char **environ;
     char *shellpath;
-    length = scbptr->len;
-    cp = scbptr->str;
+    length = scbptr->sclen;
+    cp = scbptr->schar;
 
     /*
        /    Instead of copying the command string, temporarily save the character

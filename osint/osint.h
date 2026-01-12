@@ -155,7 +155,7 @@ extern void s_yyy();
 /* Some shorthand notations */
 #define pid1blk GET_DATA_OFFSET(id1blk, struct scblk *)
 #define pid2blk GET_DATA_OFFSET(id2blk, struct scblk *)
-#define pinpbuf GET_DATA_OFFSET(inpbuf, struct bfblk *)
+#define pinpbuf GET_DATA_OFFSET(inpbuf, struct iobfblk *)
 #define pttybuf GET_DATA_OFFSET(ttybuf, struct bfblk *)
 #define pticblk GET_DATA_OFFSET(ticblk, struct icblk *)
 #define ptscblk GET_DATA_OFFSET(tscblk, struct scblk *)

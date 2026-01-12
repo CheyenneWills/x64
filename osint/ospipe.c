@@ -134,18 +134,18 @@ doshell(struct ioblk *ioptr)
             return -1;
         }
         scptr = ptscblk;
-        ptscblk->len = lenfnm(scptr); /* remove any options */
+        ptscblk->sclen = lenfnm(scptr); /* remove any options */
     }
-    len = lenfnm(scptr) - 2;          /* length of cmd without ! & delimiter */
+    len = lenfnm(scptr) - 2;            /* length of cmd without ! & delimiter */
     if (len >= CMDBUFLEN) {
         return -1;
     }
-    mystrncpy(cmdbuf, &scptr->str[2], len); /* get command */
-    if (cmdbuf[len - 1] == scptr->str[1]) { /* if necessary */
-        len--;                              /*   zap 2nd delimiter */
+    mystrncpy(cmdbuf, &scptr->schar[2], len); /* get command */
+    if (cmdbuf[len - 1] == scptr->schar[1]) { /* if necessary */
+        len--;                                /*   zap 2nd delimiter */
     }
-    cmdbuf[len] = '\0';                     /* Nul terminate cmd */
-    shellpath = getshell();                 /* get shell's path */
+    cmdbuf[len] = '\0';                       /* Nul terminate cmd */
+    shellpath = getshell();                   /* get shell's path */
     execl(shellpath, pathlast(shellpath), "-c", cmdbuf, NULL);
-    return -1;                              /* should not get here */
+    return -1;                                /* should not get here */
 }

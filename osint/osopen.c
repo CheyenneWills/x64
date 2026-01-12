@@ -46,11 +46,11 @@ osopen(struct ioblk *ioptr)
             return -1;
         }
         scptr = ptscblk;
-        ptscblk->len = lenfnm(scptr); /* remove any options */
+        ptscblk->sclen = lenfnm(scptr); /* remove any options */
     }
 
-    cp = scptr->str;                  /* point to filename string */
-    len = lenfnm(scptr);              /* get length of filename */
+    cp = scptr->schar;                  /* point to filename string */
+    len = lenfnm(scptr);                /* get length of filename */
 
     /*
        /    Handle pipes here.

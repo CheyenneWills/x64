@@ -60,7 +60,7 @@ zysbx()
        /   so does writing it produce an error?
      */
     if (spitflag & WRTSAV) {
-        ptscblk->len = appendext(*inpptr, RUNEXT, ptscblk->str, 1);
+        ptscblk->sclen = appendext(*inpptr, RUNEXT, ptscblk->schar, 1);
         if (makeexec(ptscblk, spitflag & NOEXEC ? -3 : -4)) {
             wrterr("Error writing save file.");
             zysej();

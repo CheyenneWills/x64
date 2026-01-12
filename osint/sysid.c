@@ -46,14 +46,14 @@ zysid()
     SET_XR(pid1blk);
     now = time(NULL);
     gettype(pid2blk, id2blk_length);
-    cp = pid2blk->str + pid2blk->len;
+    cp = pid2blk->schar + pid2blk->sclen;
     *cp++ = ' ';
     *cp++ = ' ';
     s = ctime(&now);
     for (i = 0; i < strlen(s); i++) {
         *cp++ = s[i];
     }
-    pid2blk->len = pid2blk->len + 2 + strlen(s);
+    pid2blk->sclen = pid2blk->sclen + 2 + strlen(s);
     SET_XL(pid2blk);
     return NORMAL_RETURN;
 }

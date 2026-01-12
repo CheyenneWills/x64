@@ -29,11 +29,11 @@ cpys2sc(char *cp, struct scblk *scptr, word maxlen)
     word i;
     char *scbcp;
 
-    scptr->typ = TYPE_SCL;
-    scbcp = scptr->str;
+    scptr->scget = TYPE_SCL;
+    scbcp = scptr->schar;
     for (i = 0; i < maxlen && ((*scbcp++ = *cp++) != 0); i++)
         ;
-    scptr->len = i;
+    scptr->sclen = i;
     while (i++ & (sizeof(word) - 1)) {
         *scbcp++ = 0;
     }

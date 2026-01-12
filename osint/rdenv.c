@@ -44,7 +44,7 @@ rdenv(struct scblk *varname, struct scblk *result)
 {
     char *p;
 
-    if ((p = findenv(varname->str, varname->len)) == 0) {
+    if ((p = findenv(varname->schar, varname->sclen)) == 0) {
         return -1;
     }
 

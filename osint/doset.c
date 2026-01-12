@@ -30,7 +30,7 @@ Copyright 2012-2017 David Shields
 FILEPOS
 doset(struct ioblk *ioptr, FILEPOS offset, int whence)
 {
-    struct bfblk *bfptr = ((struct bfblk *)(ioptr->bfb));
+    struct iobfblk *bfptr = ((struct iobfblk *)(ioptr->bfb));
     FILEPOS target, newoffset;
 
     if (ioptr->flg2 & IO_PIP) {
@@ -121,7 +121,7 @@ doset(struct ioblk *ioptr, FILEPOS offset, int whence)
 FILEPOS
 geteof(struct ioblk *ioptr)
 {
-    struct bfblk *bfptr = ((struct bfblk *)(ioptr->bfb));
+    struct iobfblk *bfptr = ((struct iobfblk *)(ioptr->bfb));
     FILEPOS eofpos, curpos;
 
     if (!bfptr) {                                   /* if unbuffered file */

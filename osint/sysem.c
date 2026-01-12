@@ -51,7 +51,7 @@ word special(word c);
 int
 zysem()
 {
-    ptscblk->len = msgcopy(WA(word), errors, ptscblk->str);
+    ptscblk->sclen = msgcopy(WA(word), errors, ptscblk->schar);
     SET_XR(ptscblk);
     return NORMAL_RETURN;
 }

@@ -28,18 +28,18 @@ typedef long FILEPOS; /* 32-bit file positions */
 /              is altered.
 */
 
-struct bfblk {
-    word typ;               /*  type word */
-    word len;               /*  length of bfblk */
-    word size;              /*  size of buffer in bytes */
-    word fill;              /*  number of bytes currently in buffer */
-    word next;              /*  next buffer position to read/write */
-    FILEPOS offset;         /*  file position of first byte in buf */
-    FILEPOS curpos;         /*  physical file position */
-    char buf[sizeof(word)]; /* buffer ([sizeof(word)] is kludge for C) */
+struct iobfblk {
+    word typ;       /*  type word */
+    word len;       /*  length of bfblk */
+    word size;      /*  size of buffer in bytes */
+    word fill;      /*  number of bytes currently in buffer */
+    word next;      /*  next buffer position to read/write */
+    FILEPOS offset; /*  file position of first byte in buf */
+    FILEPOS curpos; /*  physical file position */
+    char buf[];     /* buffer ([sizeof(word)] is kludge for C) */
 };
 
-#define BFSIZE (sizeof(struct bfblk) - sizeof(word))
+#define BFSIZE (sizeof(struct iobfblk))
 
 /*
 /   FCBLK - file control block (type XRBLK)
@@ -59,6 +59,22 @@ struct fcblk {
 #define FCSIZE (sizeof(struct fcblk))
 
 /*
+/   CHFCB - chain of FCBs block
+/
+/   For every FCB created by OSINT, the compiler creates a CHFCB pointing
+/   to the FCB and links it onto a chain of CHFCBs.  At EOJ the head of this
+/   CHFCB chain is passed to the interface function SYSEJ so that all files
+/   can be closed.
+*/
+
+struct chfcb {
+    word typ;          /*  type word */
+    word len;          /*  block length */
+    struct chfcb *nxt; /*  pointer to next chfcb */
+    struct fcblk *fcp; /*  pointer to fcb */
+};
+
+/*
 /   IOBLK - I/O control block (type XRBLK)
 /
 /   For every SPITBOL I/O channel there is one central IOBLK containing
@@ -74,16 +90,16 @@ struct fcblk {
 */
 
 struct ioblk {
-    word typ;          /*  type word */
-    word len;          /*  length of IOBLK */
-    struct scblk *fnm; /*  pointer to SCBLK holding filename */
-    word pid;          /*  process id for pipe */
-    struct bfblk *bfb; /*  pointer to BFBLK (type XNBLK) */
-    word fdn;          /*  file descriptor number */
-    word flg1;         /*  first nine flags */
-    word flg2;         /*  second nine flags */
-    word share;        /*  sharing mode */
-    word action;       /*  file open actions */
+    word typ;            /*  type word */
+    word len;            /*  length of IOBLK */
+    struct scblk *fnm;   /*  pointer to SCBLK holding filename */
+    word pid;            /*  process id for pipe */
+    struct iobfblk *bfb; /*  pointer to BFBLK (type XNBLK) */
+    word fdn;            /*  file descriptor number */
+    word flg1;           /*  first nine flags */
+    word flg2;           /*  second nine flags */
+    word share;          /*  sharing mode */
+    word action;         /*  file open actions */
 };
 
 #define IOSIZE (sizeof(struct ioblk))

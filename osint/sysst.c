@@ -80,11 +80,11 @@ zysst()
     if (!getint(icp, &temp)) {
         struct scblk *scp;
         scp = (struct scblk *)icp;
-        if (!checkstr(scp) || scp->len != 1) {
+        if (!checkstr(scp) || scp->sclen != 1) {
             return EXIT_1;
         }
         temp = whence;
-        switch (uppercase(scp->str[0])) {
+        switch (uppercase(scp->schar[0])) {
             case 'P':
                 whence = 0;
                 break;

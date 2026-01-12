@@ -24,7 +24,7 @@ Copyright 2012-2017 David Shields
 void
 ttyinit()
 {
-    ttyiobin.bfb = MP_OFF(pttybuf, struct bfblk *);
+    ttyiobin.bfb = MP_OFF(pttybuf, struct iobfblk *);
 }
 
 /*
@@ -82,11 +82,11 @@ zysri()
     /*
        /    Read a line specified by length of scblk.  If EOF take exit 1.
      */
-    length = scb->len;           /* Length of buffer provided */
-    saveptr = scb->str + length; /* Save char following buffer for \n */
+    length = scb->sclen;           /* Length of buffer provided */
+    saveptr = scb->schar + length; /* Save char following buffer for \n */
     savechr = *saveptr;
 
-    ((struct bfblk *)(ttyiobin.bfb))->size =
+    ((struct iobfblk *)(ttyiobin.bfb))->size =
       ++length; /* Size includes extra byte for \n */
 
     length = osread(1, length, &ttyiobin, scb);
@@ -100,7 +100,7 @@ zysri()
     /*
        /    Line read OK, so set string length and return normally.
      */
-    scb->len = length;
+    scb->sclen = length;
     return NORMAL_RETURN;
 }
 

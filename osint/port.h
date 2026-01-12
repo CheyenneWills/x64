@@ -14,6 +14,7 @@ Copyright 2012-2017 David Shields
 */
 #include <stdlib.h>
 #include <unistd.h>
+#include <stdint.h>
 #include "systype.h"
 
 /*
@@ -371,13 +372,7 @@ OUTPUT, TERMINAL
 #define const
 
 #include "osint.h"
-
-#ifdef PRIVATEBLOCKS
-# include "extern32.h"
-#else  /* PRIVATEBLOCKS */
-# include "spitblks.h"
-# include "spitio.h"
-#endif /* PRIVATEBLOCKS */
-
+#include "spitio.h"
 #include "globals.h"
+#include "blocks.h"
 #include "sproto.h"

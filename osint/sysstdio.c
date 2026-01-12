@@ -27,7 +27,7 @@ Copyright 2012-2017 David Shields
 void
 stdioinit()
 {
-    inpiob.bfb = MP_OFF(pinpbuf, struct bfblk *);
+    inpiob.bfb = MP_OFF(pinpbuf, struct iobfblk *);
 }
 
 /*
@@ -104,7 +104,7 @@ zysrd()
     while ((length = osread(1, WC(word), &inpiob, scb)) < 0) {
         if (nesting || swcinp(inpcnt, inpptr) < 0) {
             /* EOF */
-            scb->len = 0;
+            scb->sclen = 0;
             return EXIT_1;
         } else {
             /* Successful switch, report new file name if still in compilation phase */
@@ -114,18 +114,18 @@ zysrd()
             }
         }
     }
-    scb->len = length; /* line read, so set line length */
+    scb->sclen = length; /* line read, so set line length */
     /*
        /    Special check for '#!' invocation.
      */
     if (first_record && inpptr) {
         first_record = 0;
-        if (scb->str[0] == '#' && scb->str[1] == '!') {
+        if (scb->schar[0] == '#' && scb->schar[1] == '!') {
             cmdcnt = gblargc - inpcnt + 1;
             inpcnt = 1;
             while ((length = osread(1, WC(word), &inpiob, scb)) < 0) {
                 if (swcinp(inpcnt, inpptr) < 0) {
-                    scb->len = 0;
+                    scb->sclen = 0;
                     return EXIT_1;
                 }
                 /* Successful switch, report new file name */
@@ -134,7 +134,7 @@ zysrd()
                     return EXIT_1;
                 }
             }
-            scb->len = length;
+            scb->sclen = length;
         }
     }
 
@@ -177,9 +177,9 @@ getrdiob()
 void
 clrbuf()
 {
-    struct bfblk *bfptr;
+    struct iobfblk *bfptr;
 
-    bfptr = ((struct bfblk *)(inpiob.bfb));
+    bfptr = ((struct iobfblk *)(inpiob.bfb));
     bfptr->next = bfptr->fill = 0;
     bfptr->offset = (FILEPOS)0;
     bfptr->curpos = (FILEPOS)-1;

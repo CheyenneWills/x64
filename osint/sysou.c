@@ -28,14 +28,14 @@ zysou()
     union block *blk = XR(union block *);
     int result;
 
-    if (blk->scb.typ == TYPE_SCL) {
+    if (blk->scb.scget == TYPE_SCL) {
         /* called with string, get length from SCBLK */
-        SET_WA(blk->scb.len);
+        SET_WA(blk->scb.sclen);
     } else {
         /* called with buffer, get length from BCBLK, and treat BSBLK
          * like an SCBLK
          */
-        SET_WA(blk->bcb.len);
+        SET_WA(blk->bcb.bclen);
         SET_XR(blk->bcb.bcbuf);
     }
 
