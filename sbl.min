@@ -8799,8 +8799,8 @@ rls05  exi                   return to caller
 *      (wa,wb,wc,xr)         destroyed
 
 *      pointers between a_aaa and r_yyy are examined and
-*      adjusted if necessary.  the pointer kvrtn is also
-*      adjusted although it lies outside this range.
+*      adjusted if necessary.  the pointers gtswk, kvalp, prbuf and kvrtn
+*      are also adjusted although they are outside this range.
 *      dname is explicitly adjusted because the limits
 *      on dynamic region in stack are to the area actively
 *      in use (between dnamb and dnamp), and dname is outside
@@ -8811,6 +8811,18 @@ relws  prc  e,0              entry point
        mov  wa,=r_yyy        point to end of adjustables
        jsr  relaj            relocate adjustable pointers
        add  dname,rldya(xl)  adjust ptr missed by relaj
+       mov  wb,=gtswk        case of gtswk
+       mov  wa,wb            handled specially
+       ica  wa               one value to adjust
+       jsr  relaj            adjust gtswk
+       mov  wb,=kvalp        case of kvalp
+       mov  wa,wb            handled specially
+       ica  wa               one value to adjust
+       jsr  relaj            adjust kvalp
+       mov  wb,=prbuf        case of prbuf
+       mov  wa,wb            handled specially
+       ica  wa               one value to adjust
+       jsr  relaj            adjust prbuf
        mov  wb,=kvrtn        case of kvrtn
        mov  wa,wb            handled specially
        ica  wa               one value to adjust

@@ -52,6 +52,8 @@ NoInit(char *maxmem);                            /*  maximum top of dynamic memo
 Init(uword maxsize, OBJECT_SIZE * sizeof(word)); /*  maximum size element in dyn. memory */
 Init(uword stacksiz, STACK_SIZE);                /*  maximum size of stack in bytes */
 NoInit(char *lowsp);                             /*  lowest legal sp value */
+NoInit(char *highsp);                            /*  highest legal sp value */
+NoInit(size_t currallocsize);                    /* Current memory allocation size */
 
 /*
 /   Variables that describe access to standard input and output files.

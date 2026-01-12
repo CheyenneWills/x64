@@ -135,33 +135,9 @@ main(int argc, char **argv)
 
 #if !RUNTIME
 
-    /*
-     *  Force the memory manager to initialize itself
-     */
-    if (sbrk(0) == (char *)-1) {
-        wrterr("Insufficient memory.  Try smaller -d, -m, or -s command "
-               "line options.");
-        exit(1);
-    }
+    /* Initialize memory */
 
-    /*
-       /   Allocate stack
-     */
-    if ((lowsp = sbrk((uword)stacksiz)) == (char *)-1) {
-        wrterr("Stack memory unavailable.");
-        exit(1);
-    }
-    /*
-       /   Allocate initial increment of dynamic memory.
-       /
-     */
-
-    if ((basemem = (char *)sbrk((uword)memincb)) == (char *)-1) {
-        wrterr("Workspace memory unavailable.");
-        exit(1);
-    }
-    topmem = basemem + memincb;
-    maxmem = basemem + databts;
+    sysmm_init();
 
     /*
        /   All compiler registers are initially zero, except for XL and XR
