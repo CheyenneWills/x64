@@ -149,10 +149,10 @@ OUTPUT, TERMINAL
 /                       in bytes
 */
 
-#define HEAP_INCR   16 * 1024 * 1024 /* default 64Mbytes */
+#define HEAP_INCR   4 * 1024 * 1024 /* default 64Mbytes */
 #define HEAP_MAX    MAXUINT 		 /* default limited by system */
-#define HEAP_MIN    16 * 1024 * 1024 /* default 16Mbytes */
-#define OBJECT_SIZE 16 * 1024 * 1024 /* default 16Mbytes */
+#define HEAP_MIN    4 * 1024 * 1024 /* default 16Mbytes */
+#define OBJECT_SIZE 4 * 1024 * 1024 /* default 16Mbytes */
 
 /*
  *  Define the maximum nesting allowed of INCLUDE files
