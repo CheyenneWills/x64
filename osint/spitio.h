@@ -23,9 +23,6 @@ typedef long FILEPOS; /* 32-bit file positions */
 /   kept non-relocatable, so that it can be freely moved around the heap by
 /   the garbage collector.
 /
-/    WARNING:  INPBUF and TTYBUF are manually assembled into inter.asm and
-/              inter.s, and must be changed in all versions if this structure
-/              is altered.
 */
 
 struct iobfblk {

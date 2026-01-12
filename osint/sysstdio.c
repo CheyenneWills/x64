@@ -27,7 +27,9 @@ Copyright 2012-2017 David Shields
 void
 stdioinit()
 {
-    inpiob.bfb = MP_OFF(pinpbuf, struct iobfblk *);
+    inpbuf = calloc(1, BFSIZE + 1024);
+    inpbuf->size = 1024;
+    inpiob.bfb = inpbuf;
 }
 
 /*

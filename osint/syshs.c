@@ -245,11 +245,11 @@ zyshs()
      */
     scp = WA(struct scblk *);
     if (scp->scget == TYPE_SCL && !scp->sclen) {
-        gethost(ptscblk, tscblk_length);
-        if (ptscblk->sclen == 0) {
+        gethost(tscblk, tscblk_length);
+        if (tscblk->sclen == 0) {
             return EXIT_4;
         }
-        SET_XL(ptscblk);
+        SET_XL(tscblk);
         return EXIT_3;
     }
 
@@ -264,32 +264,32 @@ zyshs()
             case -1:
                 icp = XL(struct icblk *);
                 if (getint(icp, &val)) {
-                    pticblk->icget = TYPE_ICL;
-                    SET_XR(pticblk);
+                    ticblk.icget = TYPE_ICL;
+                    SET_XR(&ticblk);
                     switch ((int)val) {
                         case 0:
-                            pticblk->icval = memincb;
+                            ticblk.icval = memincb;
                             return EXIT_8;
                         case 1:
-                            pticblk->icval = databts;
+                            ticblk.icval = databts;
                             return EXIT_8;
                         case 2:
-                            pticblk->icval = (long)basemem;
+                            ticblk.icval = (long)basemem;
                             return EXIT_8;
                         case 3:
-                            pticblk->icval = (long)topmem;
+                            ticblk.icval = (long)topmem;
                             return EXIT_8;
                         case 4:
-                            pticblk->icval = stacksiz - 400; /* safety margin */
+                            ticblk.icval = stacksiz - 400; /* safety margin */
                             return EXIT_8;
-                        case 5:                              /* stack in use */
-                            pticblk->icval = stacksiz - (XS(long) - (long)lowsp);
+                        case 5:                            /* stack in use */
+                            ticblk.icval = stacksiz - (XS(long) - (long)lowsp);
                             return EXIT_8;
                         case 6:
-                            pticblk->icval = sizeof(long);
+                            ticblk.icval = sizeof(long);
                             return EXIT_8;
                         case 7:
-                            pticblk->icval = stacksiz - ((char *)lowspminx - (char *)lowsp);
+                            ticblk.icval = stacksiz - ((char *)lowspminx - (char *)lowsp);
                             return EXIT_8;
                         default:
                             return EXIT_1;
@@ -303,20 +303,20 @@ zyshs()
                      */
             case 0:
                 if (uarg) {
-                    cpys2sc(uarg, ptscblk, tscblk_length);
-                    SET_XL(ptscblk);
+                    cpys2sc(uarg, tscblk, tscblk_length);
+                    SET_XL(tscblk);
                     return EXIT_3;
                 } else if ((val = cmdcnt) != 0) {
-                    ptscblk->sclen = 0;
-                    while (ptscblk->sclen < tscblk_length - 2 &&
-                           arg2scb((int)val++, gblargc, gblargv, ptscblk,
-                                   tscblk_length - ptscblk->sclen) > 0) {
-                        ptscblk->schar[ptscblk->sclen++] = ' ';
+                    tscblk->sclen = 0;
+                    while (tscblk->sclen < tscblk_length - 2 &&
+                           arg2scb((int)val++, gblargc, gblargv, tscblk,
+                                   tscblk_length - tscblk->sclen) > 0) {
+                        tscblk->schar[tscblk->sclen++] = ' ';
                     }
-                    if (ptscblk->sclen) {
-                        --ptscblk->sclen;
+                    if (tscblk->sclen) {
+                        --tscblk->sclen;
                     }
-                    SET_XL(ptscblk);
+                    SET_XL(tscblk);
                     return EXIT_3;
                 } else {
                     return EXIT_4;
@@ -332,15 +332,15 @@ zyshs()
                 }
                 save2str(&cmd, &path);
                 save0(); /* made sure fd 0 OK */
-                pticblk->icval = dosys(cmd, path);
+                ticblk.icval = dosys(cmd, path);
 
-                pticblk->icget = TYPE_ICL;
+                ticblk.icget = TYPE_ICL;
                 restore2str();
                 restore0();
-                if (pticblk->icval < 0) {
+                if (ticblk.icval < 0) {
                     return EXIT_6;
                 }
-                SET_XR(pticblk);
+                SET_XR(&ticblk);
                 return EXIT_8;
             }
 
@@ -350,8 +350,8 @@ zyshs()
             case 2:
                 icp = XL(struct icblk *);
                 if (getint(icp, &val)) {
-                    ptscblk->sclen = 0;
-                    retval = arg2scb((int)val, gblargc, gblargv, ptscblk,
+                    tscblk->sclen = 0;
+                    retval = arg2scb((int)val, gblargc, gblargv, tscblk,
                                      tscblk_length);
                     if (retval < 0) {
                         return EXIT_6;
@@ -359,7 +359,7 @@ zyshs()
                     if (retval == 0) {
                         return EXIT_1;
                     }
-                    SET_XL(ptscblk);
+                    SET_XL(tscblk);
                     return EXIT_3;
                 } else {
                     return EXIT_1;
@@ -370,9 +370,9 @@ zyshs()
                      */
             case 3:
                 if (cmdcnt) {
-                    pticblk->icget = TYPE_ICL;
-                    pticblk->icval = cmdcnt;
-                    SET_XR(pticblk);
+                    ticblk.icget = TYPE_ICL;
+                    ticblk.icval = cmdcnt;
+                    SET_XR(&ticblk);
                     return EXIT_8;
                 } else {
                     return EXIT_6;
@@ -388,10 +388,10 @@ zyshs()
                     if (scp->sclen == 0) {
                         return EXIT_1;
                     }
-                    if (rdenv(scp, ptscblk) < 0) {
+                    if (rdenv(scp, tscblk) < 0) {
                         return EXIT_6;
                     }
-                    SET_XL(ptscblk);
+                    SET_XL(tscblk);
                     return EXIT_3;
                 } else {
                     return EXIT_1;

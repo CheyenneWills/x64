@@ -24,7 +24,9 @@ Copyright 2012-2017 David Shields
 void
 ttyinit()
 {
-    ttyiobin.bfb = MP_OFF(pttybuf, struct iobfblk *);
+    ttybuf = calloc(1, BFSIZE + 256);
+    inpbuf->size = 256;
+    ttyiobin.bfb = ttybuf;
 }
 
 /*

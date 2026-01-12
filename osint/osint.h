@@ -135,7 +135,7 @@ enum CALLS {
 extern word gbcnt, headv, mxlen, stage, timsx, dnamb, dnamp, state, stbas,
   statb, polct, typet, lowspmin, flprt, flptr, gtcef, hshtb, pmhbs, r_fcb,
   c_aaa, c_yyy, g_aaa, w_yyy, r_cod, kvstn, kvdmp, kvftr, kvcom, kvpfl,
-  cswfl, stmcs, stmct, ticblk, tscblk, id1blk, id2blk, inpbuf, ttybuf,
+  cswfl, stmcs, stmct,
   end_min_data;
 
 /*
@@ -153,13 +153,6 @@ extern void s_aaa();
 extern void s_yyy();
 
 /* Some shorthand notations */
-#define pid1blk GET_DATA_OFFSET(id1blk, struct scblk *)
-#define pid2blk GET_DATA_OFFSET(id2blk, struct scblk *)
-#define pinpbuf GET_DATA_OFFSET(inpbuf, struct iobfblk *)
-#define pttybuf GET_DATA_OFFSET(ttybuf, struct bfblk *)
-#define pticblk GET_DATA_OFFSET(ticblk, struct icblk *)
-#define ptscblk GET_DATA_OFFSET(tscblk, struct scblk *)
-
 #define TYPE_EFC GET_CODE_OFFSET(b_efc, word)
 #define TYPE_ICL GET_CODE_OFFSET(b_icl, word)
 #define TYPE_SCL GET_CODE_OFFSET(b_scl, word)

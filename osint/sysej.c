@@ -47,7 +47,7 @@ close_all(struct chfcb *chb)
 int
 zysej()
 {
-
+    int exitcode = WB(int);
     if (!in_gbcol) { /* Only if not mid-garbage collection */
         close_all(XL(struct chfcb *));
 
@@ -57,9 +57,12 @@ zysej()
             ;
 #endif                           /* EXTFUN */
     }
-    /*
-       /    Pass &CODE to function __exit.  Don't call standard exit function,
-       /    because of its association with the stdio package.
-     */
-    exit(WB(int));
+    /* Return all remaining memory allocations */
+    free(lowsp);   /* Return minimal stack */
+    free(basemem); /* Return minimal dynamic */
+    free(inpbuf);  /* Return stdio buffer */
+    free(ttybuf);  /* Return tty buffer */
+
+    /* Exit */
+    exit(exitcode);
 }

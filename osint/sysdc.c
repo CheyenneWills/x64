@@ -52,7 +52,7 @@ zysdc()
 
         write(STDERRFD, "  Release ", 10);
         write(STDERRFD, pheadv->schar, pheadv->sclen);
-        write(STDERRFD, pid1blk->schar, pid1blk->sclen);
+        write(STDERRFD, id1blk->schar, id1blk->sclen);
         wrterr(cprtmsg);
     }
     return NORMAL_RETURN;

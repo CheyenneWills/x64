@@ -42,15 +42,15 @@ osopen(struct ioblk *ioptr)
      */
     scptr = ((struct scblk *)(ioptr->fnm)); /* point to filename SCBLK */
     if (ioptr->flg2 & IO_ENV) {
-        if (optfile(scptr, ptscblk)) {
+        if (optfile(scptr, tscblk)) {
             return -1;
         }
-        scptr = ptscblk;
-        ptscblk->sclen = lenfnm(scptr); /* remove any options */
+        scptr = tscblk;
+        tscblk->sclen = lenfnm(scptr); /* remove any options */
     }
 
-    cp = scptr->schar;                  /* point to filename string */
-    len = lenfnm(scptr);                /* get length of filename */
+    cp = scptr->schar;                 /* point to filename string */
+    len = lenfnm(scptr);               /* get length of filename */
 
     /*
        /    Handle pipes here.

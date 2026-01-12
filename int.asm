@@ -267,61 +267,6 @@ save_ra:    d_real      0.0         ; saved ra value
 minimal_id: d_word      0           ; id for call to minimal from c. see proc minimal below.
 
 ;
-%define setreal 0
-
-;     setup a number of internal addresses in the compiler that cannot
-;     be directly accessed from within c because of naming difficulties.
-
-      global      id1
-id1:  dd   0
-%if setreal == 1
-      d_word           2
-
-       d_word         1
-      db  "1x\x00\x00\x00"
-%endif
-
-      global      id1blk
-id1blk      d_word       152
-      d_word        0
-      times 152 db 0
-
-      global      id2blk
-id2blk      d_word       152
-      d_word        0
-      times 152 db 0
-
-      global      ticblk
-ticblk:     d_word       0
-      d_word      0
-
-      global      tscblk
-tscblk:      d_word       512
-      d_word      0
-      times 512 db 0
-
-;     standard input buffer block.
-
-      global      inpbuf
-inpbuf:     d_word      0                 ; type word
-      d_word      0                 ; block length
-      d_word      1024              ; buffer size
-      d_word      0                 ; remaining chars to read
-      d_word      0                 ; offset to next character to read
-      d_word      0                 ; file position of buffer
-      d_word      0                 ; physical position in file
-      times 1024 db 0         ; buffer
-
-      global      ttybuf
-ttybuf:     d_word        0   ; type word
-      d_word        0               ; block length
-      d_word        260             ; buffer size  (260 ok in ms-dos with cinread())
-      d_word        0               ; remaining chars to read
-      d_word        0               ; offset to next char to read
-      d_word        0               ; file position of buffer
-      d_word        0               ; physical position in file
-      times 260 db 0          ; buffer
-;
 ;     save and restore minimal and interface registers on stack.
 ;     used by any routine that needs to call back into the minimal
 ;     code in such a way that the minimal code might trigger another
