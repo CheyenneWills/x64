@@ -39,15 +39,15 @@ int
 zyspl()
 {
     /* Make simple polling case the fastest by avoiding switch statement */
-    if(WA(word) == 0) {
+    if (WA(word) == 0) {
 #if !ENGINE
         pollevent();
 #endif                     /* !ENGINE */
         SET_WA(stmtDelay); /* Poll finished or Continue */
 #if !ENGINE
-        if(brkpnd) {
-            brkpnd = 0; /* User interrupt */
-            rearmbrk(); /* allow breaks again */
+        if (brkpnd) {
+            brkpnd = 0;    /* User interrupt */
+            rearmbrk();    /* allow breaks again */
             return EXIT_1;
         }
 #endif

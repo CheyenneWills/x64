@@ -45,17 +45,18 @@ oswrite(word mode, word linesiz, word recsiz, struct ioblk *ioptr,
 
     do {
         /* If line mode, limit characters written on a line */
-        if(mode == 1 && recsiz > linesiz)
+        if (mode == 1 && recsiz > linesiz) {
             linelen = linesiz;
-        else
+        } else {
             linelen = recsiz;
+        }
         recsiz -= linelen;
 
         /*
            /  If in line mode, temperarily replace the characte following the
            /  string (record) to be written with EOL.
          */
-        if(mode == 1) {
+        if (mode == 1) {
             saveloc = cp + linelen;
             savech = *saveloc;
             *saveloc = EOL;
@@ -65,10 +66,10 @@ oswrite(word mode, word linesiz, word recsiz, struct ioblk *ioptr,
         /*
            /  If unbuffered (IO_WRC), write the string directly to the file
          */
-        if(ioptr->flg1 & IO_WRC) {
+        if (ioptr->flg1 & IO_WRC) {
             int actcnt;
             actcnt = write(fdn, cp, linelen);
-            if(actcnt != linelen) {
+            if (actcnt != linelen) {
                 ioerrcnt++;
             }
             cp += actcnt;
@@ -85,15 +86,16 @@ oswrite(word mode, word linesiz, word recsiz, struct ioblk *ioptr,
            /     file prior to copying data to it.
          */
         else {
-            while(linelen > 0 && !ioerrcnt) {
+            while (linelen > 0 && !ioerrcnt) {
 
                 /*
                  *   If no room in buffer (currently full), make room
                  * by flushing the buffer.
                  *
                  */
-                if(bfptr->next == bfptr->size)
+                if (bfptr->next == bfptr->size) {
                     ioerrcnt += flush(ioptr);
+                }
 
                 /*
                  *   If the current buffer write-in position is non-zero,
@@ -109,7 +111,7 @@ oswrite(word mode, word linesiz, word recsiz, struct ioblk *ioptr,
                  * load, then it must be copied to the buffer.
                  *
                  */
-                else if(bfptr->next || linelen < bfptr->size) {
+                else if (bfptr->next || linelen < bfptr->size) {
                     char *r;
                     word n;
 
@@ -120,15 +122,17 @@ oswrite(word mode, word linesiz, word recsiz, struct ioblk *ioptr,
                      * characters being written.
                      *
                      */
-                    if(!bfptr->fill && ioptr->flg1 & IO_INP && testty(fdn))
-                        if(fillbuf(ioptr) < 0) {
+                    if (!bfptr->fill && ioptr->flg1 & IO_INP && testty(fdn)) {
+                        if (fillbuf(ioptr) < 0) {
                             ioerrcnt++;
                             break;
                         }
+                    }
 
                     n = bfptr->size - bfptr->next; /* space in buffer */
-                    if(n > linelen)                /* if don't need it all */
+                    if (n > linelen) {             /* if don't need it all */
                         n = linelen;
+                    }
                     linelen -= n;
 
                     r = bfptr->buf +
@@ -136,14 +140,15 @@ oswrite(word mode, word linesiz, word recsiz, struct ioblk *ioptr,
                     bfptr->next += n;
 
                     /* copy n characters from *cp to *r */
-                    if(n & 1)
+                    if (n & 1) {
                         *r++ = *cp++;
-                    if(n & 2) {
+                    }
+                    if (n & 2) {
                         *r++ = *cp++;
                         *r++ = *cp++;
                     }
                     n >>= 2;
-                    while(--n >= 0) {
+                    while (--n >= 0) {
                         *r++ = *cp++;
                         *r++ = *cp++;
                         *r++ = *cp++;
@@ -151,8 +156,9 @@ oswrite(word mode, word linesiz, word recsiz, struct ioblk *ioptr,
                     }
 
                     ioptr->flg2 |= IO_DIR; /* mark buffer dirty */
-                    if(bfptr->next > bfptr->fill)
+                    if (bfptr->next > bfptr->fill) {
                         bfptr->fill = bfptr->next;
+                    }
                 }
 
                 /*
@@ -162,7 +168,7 @@ oswrite(word mode, word linesiz, word recsiz, struct ioblk *ioptr,
                  * the buffer and write as many multiples of the buffer
                  * as possible.
                  */
-                else { /* n==bfptr->size means ignore buffer contents */
+                else {               /* n==bfptr->size means ignore buffer contents */
                     word n, m;
 
                     fsyncio(ioptr);  /* synchronize file and buffer */
@@ -170,10 +176,11 @@ oswrite(word mode, word linesiz, word recsiz, struct ioblk *ioptr,
 
                     n = (linelen / bfptr->size) * bfptr->size;
                     m = write(fdn, cp, n);
-                    if(m != n)
+                    if (m != n) {
                         ioerrcnt++;
+                    }
 
-                    if(m > 0) {
+                    if (m > 0) {
                         cp += m;
                         linelen -= m;
                         bfptr->offset += m;
@@ -187,11 +194,11 @@ oswrite(word mode, word linesiz, word recsiz, struct ioblk *ioptr,
            /  If in line mode, restore the character(s) that were temporarily
            /  replaced with EOL.
          */
-        if(mode == 1) {
+        if (mode == 1) {
             *saveloc = savech;
             cp--;
         }
-    } while(recsiz > 0 && !ioerrcnt);
+    } while (recsiz > 0 && !ioerrcnt);
 
     /*
        /    Return number of errors.

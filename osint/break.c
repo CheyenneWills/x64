@@ -19,8 +19,8 @@ int brkpnd;
 #if defined(USE_SIGACTION)
 static void catchbrk(int sig, siginfo_t *info, void *context);
 static struct sigaction istat, hstat, qstat;
-static struct sigaction sighandler = { .sa_flags = SA_SIGINFO,
-                                       .sa_sigaction = &catchbrk };
+static struct sigaction sighandler = {.sa_flags = SA_SIGINFO,
+                                      .sa_sigaction = &catchbrk};
 
 void
 startbrk(void) /* start up break logic */
@@ -68,7 +68,7 @@ static void catchbrk(int sig);
 static void (*cstat)(int signal);
 
 void
-startbrk(void) /* start up break logic */
+startbrk(void)                        /* start up break logic */
 {
     brkpnd = 0;
     cstat = signal(SIGINT, catchbrk); /* Catch ctrl-c */

@@ -23,7 +23,7 @@ checkfpu(void)
 {
     return -1; /* Hardware flting pt always present */
 }
-# else /* FLTHDWR */
+# else         /* FLTHDWR */
 int
 checkfpu(void)
 {
@@ -31,5 +31,5 @@ checkfpu(void)
                   80387) */
 }
 
-# endif /* FLTHDWR */
-#endif  /* FLOAT */
+# endif        /* FLTHDWR */
+#endif         /* FLOAT */

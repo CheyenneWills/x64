@@ -389,8 +389,8 @@ struct xnblk {
             short xn1st;  /*    non-zero = first-ever call */
             short xnsave; /*    non-zero = first call after reload */
             far void (*xncbp)(
-                void);   /*    callback function prior to exiting */
-            short xnpad; /*    pad to dword boundary */
+              void);      /*    callback function prior to exiting */
+            short xnpad;  /*    pad to dword boundary */
         } ef;
     } xnu;
 };
@@ -440,12 +440,12 @@ struct arblk2 {            /* Two dimensional array */
 };
 
 # define ndim 3  /* For example, 3-dimensional array */
-struct arblkn {  /* N-dimensional array */
-    mword arblk; /* type word (ARBLK) */
-    mword aridv; /* identifier value */
-    mword arlen; /* length of ARBLK in bytes */
-    mword arofs; /* offset in arblk to arpro field */
-    mword arndm; /* number of dimensions */
+struct arblkn {            /* N-dimensional array */
+    mword arblk;           /* type word (ARBLK) */
+    mword aridv;           /* identifier value */
+    mword arlen;           /* length of ARBLK in bytes */
+    mword arofs;           /* offset in arblk to arpro field */
+    mword arndm;           /* number of dimensions */
     struct {
         mword arlbd;       /* low bound (first subscript) */
         mword ardim;       /* dimension (first subscript) */
@@ -489,10 +489,10 @@ struct bfblk {
  */
 
 struct cdblk {
-    mword cdjmp; /* ptr to routine to execute statement */
-    mword cdstm; /* statement number */
-    mword cdsln; /* source file line number */
-    mword cdlen; /* length of CDBLK in bytes */
+    mword cdjmp;             /* ptr to routine to execute statement */
+    mword cdstm;             /* statement number */
+    mword cdsln;             /* source file line number */
+    mword cdlen;             /* length of CDBLK in bytes */
     union {
         struct cdblk *cdnxt; /* if failure exit is next statement */
         struct vrblk *cdlab; /* if failure exit is a simple label */

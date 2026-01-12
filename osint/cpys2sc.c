@@ -31,9 +31,10 @@ cpys2sc(char *cp, struct scblk *scptr, word maxlen)
 
     scptr->typ = TYPE_SCL;
     scbcp = scptr->str;
-    for(i = 0; i < maxlen && ((*scbcp++ = *cp++) != 0); i++)
+    for (i = 0; i < maxlen && ((*scbcp++ = *cp++) != 0); i++)
         ;
     scptr->len = i;
-    while(i++ & (sizeof(word) - 1))
+    while (i++ & (sizeof(word) - 1)) {
         *scbcp++ = 0;
+    }
 }

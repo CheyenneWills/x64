@@ -22,7 +22,7 @@ Copyright 2012-2017 David Shields
 
 #ifndef errno
 int errno;
-# endif
+#endif
 
 extern double inf;     /* infinity */
 extern word reg_flerr; /* Floating point error */
@@ -37,8 +37,9 @@ f_atn(void)
 
     reg_ra = atan(reg_ra);
     mxcsr = _mm_getcsr();
-    if(mxcsr & _MM_EXCEPT_UNDERFLOW)
+    if (mxcsr & _MM_EXCEPT_UNDERFLOW) {
         reg_ra = 0;
+    }
 }
 
 /*
@@ -47,10 +48,11 @@ f_atn(void)
 void
 f_chp(void)
 {
-    if(reg_ra >= 0.0)
+    if (reg_ra >= 0.0) {
         reg_ra = floor(reg_ra);
-    else
+    } else {
         reg_ra = ceil(reg_ra);
+    }
 }
 
 /*
@@ -62,8 +64,9 @@ f_cos(void)
     unsigned int mxcsr;
     reg_ra = cos(reg_ra);
     mxcsr = _mm_getcsr();
-    if(mxcsr & _MM_EXCEPT_UNDERFLOW)
+    if (mxcsr & _MM_EXCEPT_UNDERFLOW) {
         reg_ra = 0;
+    }
 }
 
 /*
@@ -76,10 +79,11 @@ f_etx(void)
     errno = 0;
     reg_ra = exp(reg_ra);
     mxcsr = _mm_getcsr();
-    if(mxcsr & _MM_EXCEPT_UNDERFLOW)
+    if (mxcsr & _MM_EXCEPT_UNDERFLOW) {
         reg_ra = 0;
-    else if(errno)
+    } else if (errno) {
         reg_ra = inf;
+    }
 }
 
 /*
@@ -93,10 +97,11 @@ f_lnf(void)
 
     reg_ra = log(reg_ra);
     mxcsr = _mm_getcsr();
-    if(mxcsr & _MM_EXCEPT_UNDERFLOW)
+    if (mxcsr & _MM_EXCEPT_UNDERFLOW) {
         reg_ra = 0;
-    else if(errno)
+    } else if (errno) {
         reg_ra = inf;
+    }
 }
 
 /*
@@ -108,8 +113,9 @@ f_sin(void)
     unsigned int mxcsr;
     reg_ra = sin(reg_ra);
     mxcsr = _mm_getcsr();
-    if(mxcsr & _MM_EXCEPT_UNDERFLOW)
+    if (mxcsr & _MM_EXCEPT_UNDERFLOW) {
         reg_ra = 0;
+    }
 }
 
 /*
@@ -121,8 +127,9 @@ f_sqr(void)
     unsigned int mxcsr;
     reg_ra = sqrt(reg_ra);
     mxcsr = _mm_getcsr();
-    if(mxcsr & _MM_EXCEPT_UNDERFLOW)
+    if (mxcsr & _MM_EXCEPT_UNDERFLOW) {
         reg_ra = 0;
+    }
 }
 
 /*
@@ -135,8 +142,9 @@ f_tan(void)
     errno = 0;
     reg_ra = tan(reg_ra);
     mxcsr = _mm_getcsr();
-    if(mxcsr & _MM_EXCEPT_UNDERFLOW)
+    if (mxcsr & _MM_EXCEPT_UNDERFLOW) {
         reg_ra = 0;
-    else if(errno)
+    } else if (errno) {
         reg_ra = inf;
+    }
 }

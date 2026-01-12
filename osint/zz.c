@@ -71,9 +71,9 @@ prtval(long reg)
     /*    } */
 
     /*    else if (reg >= 0 && reg < 300000) { */
-    if(reg >= 0 && reg < 100000) {
+    if (reg >= 0 && reg < 100000) {
         fprintf(stderr, " %8ld ", reg);
-    } else if(reg >= off_c_aaa && reg <= off_w_yyy) {
+    } else if (reg >= off_c_aaa && reg <= off_w_yyy) {
         fprintf(stderr, " Z%ld ", reg);
     } else {
         fprintf(stderr, " %8lxx", reg & 0xffffffff);
@@ -150,12 +150,13 @@ zz_str()
     cp = zz_charp;
     int i;
     fprintf(stderr, "zz_str  ");
-    for(i = 0; i < 20; i++) {
+    for (i = 0; i < 20; i++) {
         char c = *cp++;
-        if(c >= 32 && c <= 126)
+        if (c >= 32 && c <= 126) {
             fprintf(stderr, "%c", c);
-        else
+        } else {
             break;
+        }
     }
     fprintf(stderr, "\n");
 }
@@ -171,8 +172,9 @@ zz()
 
     zz_calls++;
 
-    if(zz_calls > 50000)
+    if (zz_calls > 50000) {
         return;
+    }
 
     /*
     return;
@@ -188,35 +190,42 @@ zz()
     /* print registers that have changed since last statement */
 
     /* see if any have changed. */
-    if(save_xl != last_xl)
+    if (save_xl != last_xl) {
         changed += 1;
-    if(save_xr != last_xr)
+    }
+    if (save_xr != last_xr) {
         changed += 1;
+    }
 
     /*    if (save_xs != last_xs)  changed += 1; */
 
     /*    if (save_cp != last_cp)  changed += 1; */
-    if(save_wa != last_wa)
+    if (save_wa != last_wa) {
         changed += 1;
-    if(save_wb != last_wb)
+    }
+    if (save_wb != last_wb) {
         changed += 1;
-    if(save_wc != last_wc)
+    }
+    if (save_wc != last_wc) {
         changed += 1;
-    if(save_w0 != last_w0)
+    }
+    if (save_w0 != last_w0) {
         changed += 1;
-    if(save_ra != last_ra)
+    }
+    if (save_ra != last_ra) {
         changed += 1;
+    }
     changed = 0; /* bypass printout */
-    if(changed) {
+    if (changed) {
 
         /* marked changed Minimal registers with "!" to make it easy to search
    backward for last statement that changed a register. */
         prtnl();
-        if(save_xl != last_xl) {
+        if (save_xl != last_xl) {
             prtdif("XL.esi", last_xl, save_xl, listed);
             listed += 1;
         }
-        if(save_xr != last_xr) {
+        if (save_xr != last_xr) {
             prtdif("XR.edi", last_xr, save_xr, listed);
             listed += 1;
         }
@@ -228,23 +237,23 @@ zz()
         /*        if (save_cp != last_cp) */
 
         /*            { prtdif("CP.ebp", last_cp, save_cp, listed); listed += 1; } */
-        if(save_w0 != last_w0) {
+        if (save_w0 != last_w0) {
             prtdif("W0.eax", last_w0, save_w0, listed);
             listed += 1;
         }
-        if(save_wa != last_wa) {
+        if (save_wa != last_wa) {
             prtdif("WA.ecx", last_wa, save_wa, listed);
             listed += 1;
         }
-        if(save_wb != last_wb) {
+        if (save_wb != last_wb) {
             prtdif("WB.ebx", last_wb, save_wb, listed);
             listed += 1;
         }
-        if(save_wc != last_wc) {
+        if (save_wc != last_wc) {
             prtdif("WC.edx", last_wc, save_wc, listed);
             listed += 1;
         }
-        if(save_ra != last_ra) {
+        if (save_ra != last_ra) {
             prtdifr("RA    ", last_ra, save_ra, listed);
             listed += 1;
         }
@@ -258,7 +267,7 @@ zz()
     prtregs = 0;
     prtregs = 1;
 
-    if(prtregs) {
+    if (prtregs) {
 
         /* print register values before the statement was executed */
         prtreg("XL.esi", save_xl);
@@ -279,7 +288,7 @@ zz()
 
     /*    } */
     /* display instruction pointer and description of current statement. */
-    if(zz_zz != zz_last) {
+    if (zz_zz != zz_last) {
 
         /*    fprintf(stderr, "\n%8xx %s\n", zz_ip, p); */
 

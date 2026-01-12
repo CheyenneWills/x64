@@ -373,7 +373,7 @@ OUTPUT, TERMINAL
 
 #ifdef PRIVATEBLOCKS
 # include "extern32.h"
-#else /* PRIVATEBLOCKS */
+#else  /* PRIVATEBLOCKS */
 # include "spitblks.h"
 # include "spitio.h"
 #endif /* PRIVATEBLOCKS */

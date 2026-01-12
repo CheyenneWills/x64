@@ -38,7 +38,7 @@ unsigned char *bufp;
 void
 close_all(struct chfcb *chb)
 {
-    while(chb != 0) {
+    while (chb != 0) {
         osclose(((struct ioblk *)(((struct fcblk *)(chb->fcp))->iob)));
         chb = ((struct chfcb *)(chb->nxt));
     }
@@ -48,14 +48,14 @@ int
 zysej()
 {
 
-    if(!in_gbcol) { /* Only if not mid-garbage collection */
+    if (!in_gbcol) { /* Only if not mid-garbage collection */
         close_all(XL(struct chfcb *));
 
 #if EXTFUN
-        scanef();               /* prepare to scan for external functions */
-        while(nextef(&bufp, 1)) /* perform closing callback to some */
+        scanef();                /* prepare to scan for external functions */
+        while (nextef(&bufp, 1)) /* perform closing callback to some */
             ;
-#endif /* EXTFUN */
+#endif                           /* EXTFUN */
     }
     /*
        /    Pass &CODE to function __exit.  Don't call standard exit function,

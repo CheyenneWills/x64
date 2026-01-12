@@ -28,7 +28,7 @@ Copyright 2012-2017 David Shields
 # include <dlfcn.h>
 
 typedef struct xnblk XFNode, *pXFNode;
-typedef mword (*PFN)(); /* pointer to function */
+typedef mword (*PFN)();             /* pointer to function */
 
 static union block *scanp;          /* used by scanef/nextef */
 static pXFNode xnfree = (pXFNode)0; /* list of freed blocks */
@@ -50,32 +50,32 @@ extern double f_sqr(double ra);
 extern double f_tan(double ra);
 
 static APDF flttab = {
-    (double (*)())f_2_i, /* float to integer */
-    i_2_f,               /* integer to float */
-    f_add,               /* floating add */
-    f_sub,               /* floating subtract */
-    f_mul,               /* floating multiply */
-    f_div,               /* floating divide */
-    f_neg,               /* floating negage */
-    f_atn,               /* arc tangent */
-    f_chp,               /* chop */
-    f_cos,               /* cosine */
-    f_etx,               /* exponential */
-    f_lnf,               /* natural log */
-    f_sin,               /* sine */
-    f_sqr,               /* square root */
-    f_tan                /* tangent */
+  (double (*)())f_2_i, /* float to integer */
+  i_2_f,               /* integer to float */
+  f_add,               /* floating add */
+  f_sub,               /* floating subtract */
+  f_mul,               /* floating multiply */
+  f_div,               /* floating divide */
+  f_neg,               /* floating negage */
+  f_atn,               /* arc tangent */
+  f_chp,               /* chop */
+  f_cos,               /* cosine */
+  f_etx,               /* exponential */
+  f_lnf,               /* natural log */
+  f_sin,               /* sine */
+  f_sqr,               /* square root */
+  f_tan                /* tangent */
 };
 
 misc miscinfo = {
-    0x105,                          /* internal version number */
-    GCCi32 ? t_lnx8632 : t_lnx8664, /* environment */
-    0,                              /* spare */
-    0,                              /* number of arguments */
-    0,                              /* pointer to type table */
-    0,                              /* pointer to XNBLK */
-    0,                              /* pointer to EFBLK */
-    (APDF *)flttab,                 /* pointer to flttab */
+  0x105,                          /* internal version number */
+  GCCi32 ? t_lnx8632 : t_lnx8664, /* environment */
+  0,                              /* spare */
+  0,                              /* number of arguments */
+  0,                              /* pointer to type table */
+  0,                              /* pointer to XNBLK */
+  0,                              /* pointer to EFBLK */
+  (APDF *)flttab,                 /* pointer to flttab */
 };
 
 /* Assembly-language helper needed for final linkage to function:
@@ -115,10 +115,11 @@ callef(struct efblk *efb, union block **sp, mword nargs)
     mword *s;
 
     pnode = ((pXFNode)(efb->efcod));
-    if(pnode == NULL)
+    if (pnode == NULL) {
         return (union block *)-1L;
+    }
 
-    if(!initsels) { /* one-time initializations */
+    if (!initsels) {               /* one-time initializations */
         pTYPET = (mword(*)[])GET_DATA_OFFSET(TYPET, muword);
         miscinfo.ptyptab = pTYPET; /* pointer to table of data types */
         initsels++;
@@ -133,10 +134,12 @@ callef(struct efblk *efb, union block **sp, mword nargs)
      * has the effect of providing the function with a 1 or a 0 if this is
      * the first call or a subsequent call respectively.
      */
-    if(pnode->xnu.ef.xn1st)
+    if (pnode->xnu.ef.xn1st) {
         pnode->xnu.ef.xn1st--;
-    if(pnode->xnu.ef.xnsave)
+    }
+    if (pnode->xnu.ef.xnsave) {
         pnode->xnu.ef.xnsave--;
+    }
 
     /* Count number of stack words needed for arguments during actual call.
      * No Convert (type 0), Integer (type 2), and File (type 4) need one mword,
@@ -146,13 +149,15 @@ callef(struct efblk *efb, union block **sp, mword nargs)
      * only odd-numbered argument types need two words.
      */
     nbytes = (nargs + 2) *
-                 sizeof(mword) + /* presult, pinfo + args (1 mword each) */
+               sizeof(mword) +       /* presult, pinfo + args (1 mword each) */
              MINFRAME -
-             ARGPUSHSIZE; /* in/local save area + struct-ret adr */
+             ARGPUSHSIZE;            /* in/local save area + struct-ret adr */
 
-    for(i = nargs; i--;)
-        if(efb->eftar[i] & 1)        /* type 1 and type 3 require */
+    for (i = nargs; i--;) {
+        if (efb->eftar[i] & 1) {     /* type 1 and type 3 require */
             nbytes += sizeof(mword); /* two words each on stack */
+        }
+    }
 
     /* For SPARC, the number of words reserved for arguments on the stack
      * must be six or greater, and must be even (stack pointer must be
@@ -188,82 +193,86 @@ callef(struct efblk *efb, union block **sp, mword nargs)
      *  low memory  |===========================| --------------------------
      *
      */
-    if(nbytes < MINFRAME)
+    if (nbytes < MINFRAME) {
         nbytes = MINFRAME;
+    }
 
     type = callextfun(efb, sp - 1, nargs,
                       SA(nbytes)); /* make call with Stack Aligned nbytes */
 
     result = (union block *)ptscblk;
-    switch(type) {
+    switch (type) {
 
-    case BL_XN: /* XNBLK    external block */
-        result->xnb.xnlen =
-            ((result->xnb.xnlen + sizeof(mword) - 1) & -sizeof(mword)) +
-            FIELDOFFSET(struct xnblk, xnu.xndta[0]);
-    case BL_AR: /* ARBLK    array */
-    case BL_CD: /* CDBLK    code */
-    case BL_EX: /* EXBLK    expression */
-    case BL_IC: /* ICBLK    integer */
-    case BL_NM: /* NMBLK    name */
-    case BL_P0: /* P0BLK    pattern, 0 args */
-    case BL_P1: /* P1BLK    pattern, 1 arg */
-    case BL_P2: /* P2BLK    pattern, 2 args */
-    case BL_RC: /* RCBLK    real */
-    case BL_SC: /* SCBLK    string */
-    case BL_SE: /* SEBLK    expression */
-    case BL_TB: /* TBBLK    table */
-    case BL_VC: /* VCBLK    vector (array) */
-    case BL_XR: /* XRBLK    external, relocatable contents */
-    case BL_PD: /* PDBLK    program defined datatype */
-        result->scb.sctyp = (*pTYPET)[type];
-        break;
+        case BL_XN: /* XNBLK    external block */
+            result->xnb.xnlen =
+              ((result->xnb.xnlen + sizeof(mword) - 1) & -sizeof(mword)) +
+              FIELDOFFSET(struct xnblk, xnu.xndta[0]);
+        case BL_AR: /* ARBLK    array */
+        case BL_CD: /* CDBLK    code */
+        case BL_EX: /* EXBLK    expression */
+        case BL_IC: /* ICBLK    integer */
+        case BL_NM: /* NMBLK    name */
+        case BL_P0: /* P0BLK    pattern, 0 args */
+        case BL_P1: /* P1BLK    pattern, 1 arg */
+        case BL_P2: /* P2BLK    pattern, 2 args */
+        case BL_RC: /* RCBLK    real */
+        case BL_SC: /* SCBLK    string */
+        case BL_SE: /* SEBLK    expression */
+        case BL_TB: /* TBBLK    table */
+        case BL_VC: /* VCBLK    vector (array) */
+        case BL_XR: /* XRBLK    external, relocatable contents */
+        case BL_PD: /* PDBLK    program defined datatype */
+            result->scb.sctyp = (*pTYPET)[type];
+            break;
 
-    case BL_NC: /* return result block unchanged */
-        break;
+        case BL_NC: /* return result block unchanged */
+            break;
 
-    case BL_FS: /* string pointer at tscblk.str */
-        result->fsb.fstyp = (*pTYPET)[BL_SC];
-        p = result->fsb.fsptr;
-        length = result->fsb.fslen;
-        if(!length)
-            break; /* return null string result */
-        MINSAVE();
-        SET_WA(length);
-        MINIMAL(MINIMAL_ALOCS); /* allocate string storage */
-        result = XR(union block *);
-        MINRESTORE();
-        q = result->scb.scstr;
-        while(length--)
-            *q++ = *p++;
-        break;
+        case BL_FS: /* string pointer at tscblk.str */
+            result->fsb.fstyp = (*pTYPET)[BL_SC];
+            p = result->fsb.fsptr;
+            length = result->fsb.fslen;
+            if (!length) {
+                break; /* return null string result */
+            }
+            MINSAVE();
+            SET_WA(length);
+            MINIMAL(MINIMAL_ALOCS); /* allocate string storage */
+            result = XR(union block *);
+            MINRESTORE();
+            q = result->scb.scstr;
+            while (length--) {
+                *q++ = *p++;
+            }
+            break;
 
-    case BL_FX: /* pointer to external data at tscblk.str */
-        length = ((result->fxb.fxlen + sizeof(mword) - 1) & -sizeof(mword)) +
-                 FIELDOFFSET(struct xnblk, xnu.xndta[0]);
-        if(length > GET_MIN_VALUE(mxlen, mword)) {
+        case BL_FX: /* pointer to external data at tscblk.str */
+            length = ((result->fxb.fxlen + sizeof(mword) - 1) & -sizeof(mword)) +
+                     FIELDOFFSET(struct xnblk, xnu.xndta[0]);
+            if (length > GET_MIN_VALUE(mxlen, mword)) {
+                result = (union block *)0;
+                break;
+            }
+            r = result->fxb.fxptr;
+            MINSAVE();
+            SET_WA(length);
+            MINIMAL(MINIMAL_ALLOC); /* allocate block storage */
+            result = XR(union block *);
+            MINRESTORE();
+            result->xnb.xnlen = length;
+            result->xnb.xntyp = (*pTYPET)[BL_XN];
+            s = result->xnb.xnu.xndta;
+            length =
+              (length - FIELDOFFSET(struct xnblk, xnu.xndta[0])) / sizeof(mword);
+            while (length--) {
+                *s++ = *r++;
+            }
+            break;
+
+        case FAIL: /* fail */
+        default:
             result = (union block *)0;
             break;
-        }
-        r = result->fxb.fxptr;
-        MINSAVE();
-        SET_WA(length);
-        MINIMAL(MINIMAL_ALLOC); /* allocate block storage */
-        result = XR(union block *);
-        MINRESTORE();
-        result->xnb.xnlen = length;
-        result->xnb.xntyp = (*pTYPET)[BL_XN];
-        s = result->xnb.xnu.xndta;
-        length =
-            (length - FIELDOFFSET(struct xnblk, xnu.xndta[0])) / sizeof(mword);
-        while(length--)
-            *s++ = *r++;
-        break;
-
-    case FAIL: /* fail */
-    default:
-        result = (union block *)0;
-        break;
     }
     return result;
 }
@@ -291,13 +300,13 @@ loadDll(char *dllName, char *fcnName, PFN *ppfnProcAddress)
 # else
     handle = dlopen(dllName, RTLD_LAZY);
 # endif
-    if(!handle) {
+    if (!handle) {
         fcnName = dlerror();
         return -1;
     }
 
     *ppfnProcAddress = (PFN)dlsym(handle, fcnName);
-    if(!*ppfnProcAddress) {
+    if (!*ppfnProcAddress) {
         dlclose(handle);
         return -1;
     }
@@ -327,25 +336,25 @@ loadef(mword fd, char *filename)
     PFN pfn = *(PFN *)filename;
     pXFNode pnode;
 
-    if(xnfree) {        /* Are these any free nodes to use? */
-        pnode = xnfree; /* Yes, seize one */
+    if (xnfree) {               /* Are these any free nodes to use? */
+        pnode = xnfree;         /* Yes, seize one */
         xnfree = (pXFNode)pnode->xnu.ef.xnpfn;
     } else {
-        MINSAVE(); /* No */
+        MINSAVE();              /* No */
         SET_WA(sizeof(XFNode));
         MINIMAL(MINIMAL_ALOST); /* allocate from static region */
         pnode = XR(pXFNode);    /* get node to hold information */
         MINRESTORE();
     }
 
-    pnode->xntyp = TYPE_XNT;       /* B_XNT type word */
-    pnode->xnlen = sizeof(XFNode); /* length of this block */
-    pnode->xnu.ef.xnhand = handle; /* record DLL handle */
-    pnode->xnu.ef.xnpfn = pfn;     /* record function entry address */
-    pnode->xnu.ef.xn1st = 2;       /* flag first call to function */
-    pnode->xnu.ef.xnsave = 0;      /* not reload from save file */
+    pnode->xntyp = TYPE_XNT;                 /* B_XNT type word */
+    pnode->xnlen = sizeof(XFNode);           /* length of this block */
+    pnode->xnu.ef.xnhand = handle;           /* record DLL handle */
+    pnode->xnu.ef.xnpfn = pfn;               /* record function entry address */
+    pnode->xnu.ef.xn1st = 2;                 /* flag first call to function */
+    pnode->xnu.ef.xnsave = 0;                /* not reload from save file */
     pnode->xnu.ef.xncbp = (void far (*)())0; /* no callback  declared */
-    return (void *)pnode; /* Return node to store in EFBLK */
+    return (void *)pnode;                    /* Return node to store in EFBLK */
 }
 
 /*
@@ -397,38 +406,41 @@ nextef(unsigned char **bufp, int io)
     pXFNode pnode;
 
     MINSAVE();
-    for(dnamp = GET_MIN_VALUE(dnamp, union block *); scanp < dnamp;
-        scanp = ((union block *)(MP_OFF(scanp, muword) + blksize))) {
+    for (dnamp = GET_MIN_VALUE(dnamp, union block *); scanp < dnamp;
+         scanp = ((union block *)(MP_OFF(scanp, muword) + blksize))) {
         type = scanp->scb.sctyp; /* any block type lets us access type word */
         SET_WA(type);
         SET_XR(scanp);
-        MINIMAL(MINIMAL_BLKLN); /* get length of block in bytes */
+        MINIMAL(MINIMAL_BLKLN);  /* get length of block in bytes */
         blksize = WA(mword);
-        if(type != ef_type) /* keep searching if not EFBLK */
+        if (type != ef_type) {   /* keep searching if not EFBLK */
             continue;
+        }
         pnode =
-            ((pXFNode)(scanp->efb
-                           .efcod)); /* it's an EFBLK; get address of XNBLK */
-        if(!pnode)                   /* keep searching if no longer in use */
+          ((pXFNode)(scanp->efb
+                       .efcod)); /* it's an EFBLK; get address of XNBLK */
+        if (!pnode) {            /* keep searching if no longer in use */
             continue;
+        }
 
-        switch(io) {
-        case -1:
-            result = (void *)pnode;         /* return pointer to XNBLK */
-            *bufp = (unsigned char *)scanp; /* return pointer to EFBLK */
-            break;
-        case 0:
-            result = (void *)-1; /* can't reload DLL */
-            break;
-        case 1:
-            if(pnode->xnu.ef.xncbp) /* is there a callback routine? */
-                if(pnode->xnu.ef.xnsave >= 0) {
-                    (pnode->xnu.ef.xncbp)();
-                    pnode->xnu.ef.xnsave = -1;
+        switch (io) {
+            case -1:
+                result = (void *)pnode;         /* return pointer to XNBLK */
+                *bufp = (unsigned char *)scanp; /* return pointer to EFBLK */
+                break;
+            case 0:
+                result = (void *)-1;            /* can't reload DLL */
+                break;
+            case 1:
+                if (pnode->xnu.ef.xncbp) {      /* is there a callback routine? */
+                    if (pnode->xnu.ef.xnsave >= 0) {
+                        (pnode->xnu.ef.xncbp)();
+                        pnode->xnu.ef.xnsave = -1;
+                    }
                 }
-            *bufp = (unsigned char *)pnode->xnu.ef.xnpfn;
-            result = (void *)1; /* phony non-zero size of code */
-            break;
+                *bufp = (unsigned char *)pnode->xnu.ef.xnpfn;
+                result = (void *)1; /* phony non-zero size of code */
+                break;
         }
         /* point to next block */
         scanp = ((union block *)(MP_OFF(scanp, muword) + blksize));
@@ -442,11 +454,12 @@ nextef(unsigned char **bufp, int io)
 int
 renames(char *oldname, char *newname)
 {
-    if(link(oldname, newname) == 0) {
+    if (link(oldname, newname) == 0) {
         unlink(oldname);
         return 0;
-    } else
+    } else {
         return -1;
+    }
 }
 
 /*
@@ -468,17 +481,19 @@ unldef(struct efblk *efb)
     unsigned char *bufp;
 
     pnode = ((pXFNode)(efb->efcod));
-    if(pnode == NULL)
+    if (pnode == NULL) {
         return;
+    }
 
-    if(pnode->xnu.ef.xncbp) /* is there a callback routine? */
-        if(pnode->xnu.ef.xnsave >= 0) {
+    if (pnode->xnu.ef.xncbp) { /* is there a callback routine? */
+        if (pnode->xnu.ef.xnsave >= 0) {
             (pnode->xnu.ef.xncbp)();
             pnode->xnu.ef.xnsave = -1;
         }
+    }
 
-    efb->efcod = 0;                /* remove pointer to XNBLK */
-    dlclose(pnode->xnu.ef.xnhand); /* close use of handle */
+    efb->efcod = 0;                    /* remove pointer to XNBLK */
+    dlclose(pnode->xnu.ef.xnhand);     /* close use of handle */
 
     pnode->xnu.ef.xnpfn = (PFN)xnfree; /* put back on free list */
     xnfree = pnode;
@@ -516,13 +531,15 @@ unldef(struct efblk *efb)
 File_handle
 spit_open(char *Name, Open_method Method, File_mode Mode, int Action)
 {
-    if((Method & MethodMask) == O_RDONLY) /* if opening for read only */
-        Method &= ~(O_CREAT | O_TRUNC);   /* guarantee these bits off */
-    else if(Action & IO_WRITE_THRU)       /* else must be a write */
+    if ((Method & MethodMask) == O_RDONLY) { /* if opening for read only */
+        Method &= ~(O_CREAT | O_TRUNC);      /* guarantee these bits off */
+    } else if (Action & IO_WRITE_THRU) {     /* else must be a write */
         Method |= O_SYNC;
+    }
 
-    if((Method & O_CREAT) & (Action & IO_FAIL_IF_EXISTS))
+    if ((Method & O_CREAT) & (Action & IO_FAIL_IF_EXISTS)) {
         Method |= O_EXCL;
+    }
 
     return open(Name, Method, (Mode & IO_EXECUTABLE) ? 0777 : 0666);
 }
@@ -535,7 +552,7 @@ sbrkx(long incr)
     static char *curr;
     void *result;
 
-    if(!base) { /* if need to initialize */
+    if (!base) { /* if need to initialize */
         char *first_base;
         unsigned long size;
 
@@ -548,14 +565,16 @@ sbrkx(long incr)
 
         do {
             first_base = (char *)malloc(size);
-            if(first_base != 0)
+            if (first_base != 0) {
                 break;
+            }
 
             size -= (1 * 1024 * 1024);
-        } while(size >= (20 * maxsize)); /* arbitrary lower limit */
+        } while (size >= (20 * maxsize)); /* arbitrary lower limit */
 
-        if(!first_base)
+        if (!first_base) {
             return (void *)-1;
+        }
 
         base = first_base;
 
@@ -568,15 +587,17 @@ sbrkx(long incr)
          * the heap at a nice high address that isn't likely to change as
          * the size of the SPITBOL system changes.
          */
-        if(base < (char *)maxsize)
+        if (base < (char *)maxsize) {
             base = (char *)maxsize;
+        }
 
         curr = base;
         endofmem = first_base + size;
     }
 
-    if(curr + incr > endofmem)
+    if (curr + incr > endofmem) {
         return (void *)-1;
+    }
 
     result = curr;
     curr += incr;
@@ -657,7 +678,8 @@ makeexec(struct scblk *scptr, int type)
 word
 uppercase(word c)
 {
-    if(c >= 'a' && c <= 'z')
+    if (c >= 'a' && c <= 'z') {
         c += 'A' - 'a';
+    }
     return c;
 }

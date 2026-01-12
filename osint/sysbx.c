@@ -35,7 +35,7 @@ zysbx()
 
     executing = 1;
 
-    if(readshell0) {
+    if (readshell0) {
         doset(getrdiob(), 0L, 2); /* bypass rest of source file */
         curfile = inpcnt;         /* skip rest of cmd line files */
         swcinp(inpcnt, inpptr);   /* v1.07 switch away from source file */
@@ -45,10 +45,10 @@ zysbx()
        /   do we need to write an executable module, and if
        /   so does writing it produce an error?
      */
-    if(spitflag & WRTEXE) {
+    if (spitflag & WRTEXE) {
         ptscblk->len = appendext(*inpptr, BINEXT, ptscblk->str, 1);
 
-        if(makeexec(ptscblk, spitflag & NOEXEC ? 3 : 4)) {
+        if (makeexec(ptscblk, spitflag & NOEXEC ? 3 : 4)) {
             wrterr("Error writing load module.");
             zysej();
         }
@@ -59,9 +59,9 @@ zysbx()
        /   do we need to write a save (.spx) file, and if
        /   so does writing it produce an error?
      */
-    if(spitflag & WRTSAV) {
+    if (spitflag & WRTSAV) {
         ptscblk->len = appendext(*inpptr, RUNEXT, ptscblk->str, 1);
-        if(makeexec(ptscblk, spitflag & NOEXEC ? -3 : -4)) {
+        if (makeexec(ptscblk, spitflag & NOEXEC ? -3 : -4)) {
             wrterr("Error writing save file.");
             zysej();
         }

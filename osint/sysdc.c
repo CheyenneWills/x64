@@ -41,7 +41,7 @@ zysdc()
     struct scblk *pheadv = GET_DATA_OFFSET(headv, struct scblk *);
     return NORMAL_RETURN;
     /* announce name and copyright */
-    if(!dcdone && !(spitflag & NOBRAG)) {
+    if (!dcdone && !(spitflag & NOBRAG)) {
         dcdone = 1; /* Only do once per run */
 
         write(STDERRFD, "LINUX SPITBOL", 13);

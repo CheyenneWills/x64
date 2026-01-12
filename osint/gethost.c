@@ -33,18 +33,17 @@ gethost(struct scblk *scptr, word maxlen)
     int cnt = 0;
     word fd;
 
-    if((fd = spit_open(HOST_FILE, O_RDONLY, IO_PRIVATE | IO_DENY_WRITE,
-                       IO_OPEN_IF_EXISTS))
-       >= 0) {
+    if ((fd = spit_open(HOST_FILE, O_RDONLY, IO_PRIVATE | IO_DENY_WRITE,
+                        IO_OPEN_IF_EXISTS)) >= 0) {
         cnt = read(fd, scptr->str, maxlen);
         close(fd);
     }
 
-    if(cnt > 0 && scptr->str[cnt - 1] == EOL) {
+    if (cnt > 0 && scptr->str[cnt - 1] == EOL) {
         scptr->str[--cnt] = 0;
     }
 
-    if(cnt == 0) {
+    if (cnt == 0) {
         /* Could not read spithost file.  Construct string instead */
         char *scp;
 

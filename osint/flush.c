@@ -25,16 +25,18 @@ flush(struct ioblk *ioptr)
     int ioerrcnt = 0;
     word n;
 
-    if(bfptr) {                         /* if buffer */
-        if(ioptr->flg2 & IO_DIR) {      /* if dirty */
+    if (bfptr) {                        /* if buffer */
+        if (ioptr->flg2 & IO_DIR) {     /* if dirty */
             ioerrcnt += fsyncio(ioptr); /* synchronize file and buffer */
-            if(bfptr->fill) {
+            if (bfptr->fill) {
                 n = write(ioptr->fdn, bfptr->buf, bfptr->fill);
-                if(n != bfptr->fill)
+                if (n != bfptr->fill) {
                     ioerrcnt++;
+                }
 
-                if(n > 0)
+                if (n > 0) {
                     bfptr->curpos += n;
+                }
             }
             ioptr->flg2 &= ~IO_DIR;
         }
@@ -62,13 +64,14 @@ fsyncio(struct ioblk *ioptr)
     struct bfblk *bfptr = ((struct bfblk *)(ioptr->bfb));
     FILEPOS n;
 
-    if(bfptr) {
-        if(bfptr->offset != bfptr->curpos) {
+    if (bfptr) {
+        if (bfptr->offset != bfptr->curpos) {
             n = LSEEK(ioptr->fdn, bfptr->offset, 0);
-            if(n >= 0)
+            if (n >= 0) {
                 bfptr->curpos = n;
-            else
+            } else {
                 return 1; /* I/O error */
+            }
         }
     }
     return 0;

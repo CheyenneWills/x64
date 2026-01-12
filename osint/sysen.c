@@ -31,12 +31,14 @@ zysen()
     struct ioblk *iob = ((struct ioblk *)(fcb->iob));
 
     /* ensure the file is open */
-    if(!(iob->flg1 & IO_OPN))
+    if (!(iob->flg1 & IO_OPN)) {
         return EXIT_1;
+    }
 
     /* now close it */
-    if(osclose(iob))
+    if (osclose(iob)) {
         return EXIT_3;
+    }
 
     return NORMAL_RETURN;
 }
