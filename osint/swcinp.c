@@ -347,7 +347,7 @@ appendext(char *path, char *ext, char *result, int force)
 
     p = result;
     q = pathlast(path);
-    r = (char *)0;
+    r = NULL;
     do {
         if (path >= q && *path == EXT) {
             r = p;
@@ -355,7 +355,7 @@ appendext(char *path, char *ext, char *result, int force)
     } while ((*p++ = *path++) != 0);
 
     p--;
-    if (r != (char *)0) {
+    if (r != NULL) {
         if (force) {
             p = r;    /* copy over old extension */
         } else {
@@ -363,7 +363,7 @@ appendext(char *path, char *ext, char *result, int force)
         }
     }
 
-    p = mystrcpy(p, ext);
+    p = strcpy(p, ext);
     return p - result;
 }
 #endif /* !(RUNTIME) */

@@ -252,12 +252,12 @@ filenamearg(int argc, char *argv[])
             while (*++cp)
                 ;
         } else {
-            return (char *)0;
+            return NULL;
         }
     } else {
         result = argv[++i];
         if (i == argc || (result[0] == '-' && result[1] != '\0')) {
-            return (char *)0; /* V1.08 */
+            return NULL; /* V1.08 */
         }
     }
     return result;

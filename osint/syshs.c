@@ -142,7 +142,7 @@ save2str(char **s1p, char **s2p)
 char *
 getstring(struct scblk *scp, char *cp)
 {
-    return checkstr(scp) ? savestr(scp, cp) : (char *)0L;
+    return checkstr(scp) ? savestr(scp, cp) : NULL;
 }
 
 /*

@@ -248,7 +248,7 @@ callef(struct efblk *efb, union block **sp, mword nargs)
             length = ((result->fxb.fxlen + sizeof(mword) - 1) & -sizeof(mword)) +
                      FIELDOFFSET(struct xnblk, xnu.xndta[0]);
             if (length > GET_MIN_VALUE(mxlen, mword)) {
-                result = (union block *)0;
+                result = NULL;
                 break;
             }
             r = result->fxb.fxptr;
@@ -269,7 +269,7 @@ callef(struct efblk *efb, union block **sp, mword nargs)
 
         case FAIL: /* fail */
         default:
-            result = (union block *)0;
+            result = NULL;
             break;
     }
     return result;

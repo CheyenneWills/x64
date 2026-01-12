@@ -39,8 +39,8 @@ zysou()
         SET_XR(blk->bcb.bcbuf);
     }
 
-    if (fcb == (struct fcblk *)0 || fcb == (struct fcblk *)1) {
-        if (!fcb) {
+    if ((uintptr_t)fcb == 0 || (uintptr_t)fcb == 1) {
+        if ((uintptr_t)fcb == 0) {
             result = zyspi();
         } else {
             result = zyspr();

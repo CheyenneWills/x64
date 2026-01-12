@@ -35,7 +35,6 @@ oswrite(word mode, word linesiz, word recsiz, struct ioblk *ioptr,
 
 {
     char *saveloc, savech;
-    char savech2;
 
     char *cp = scptr->str;
     struct bfblk *bfptr = ((struct bfblk *)(ioptr->bfb));

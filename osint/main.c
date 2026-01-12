@@ -37,12 +37,9 @@ Copyright 2012-2017 David Shields
 # define DEBUG 0
 #endif
 
-void setout(void);
-
 int
 main(int argc, char **argv)
 {
-    int i;
     /*
        /   Save command line parameters in global storage, in case they are
        needed /   later.
@@ -72,22 +69,22 @@ main(int argc, char **argv)
             exit(1);
         }
 
-        cmdcnt = 1;                 /* allow access to command line args */
-        inpptr = 0;                 /* no compilation input files */
-        inpcnt = 0;                 /* ditto */
-        outptr = 0;                 /* no compilation output file */
-        pathptr = (char *)-1L;      /* include paths unknown */
-        clrbuf();                   /* no chars left in std input buffer */
+        cmdcnt = 1;            /* allow access to command line args */
+        inpptr = 0;            /* no compilation input files */
+        inpcnt = 0;            /* ditto */
+        outptr = 0;            /* no compilation output file */
+        pathptr = (char *)-1L; /* include paths unknown */
+        clrbuf();              /* no chars left in std input buffer */
         sfn = 0;
 # if FLOAT
-        hasfpu = checkfpu();        /* check for floating point hardware */
-# endif                             /* FLOAT */
-        heapmove();                 /* move the heap up */
-        malloc_empty();             /* mark the malloc region as empty */
-        zysdc();                    /* Brag if necessary */
-        restart((char *)0L, lowsp); /* call restart to continue execution */
+        hasfpu = checkfpu();   /* check for floating point hardware */
+# endif                        /* FLOAT */
+        heapmove();            /* move the heap up */
+        malloc_empty();        /* mark the malloc region as empty */
+        zysdc();               /* Brag if necessary */
+        restart(NULL, lowsp);  /* call restart to continue execution */
     }
-#endif                              /* EXECFILE */
+#endif                         /* EXECFILE */
 
     /*
      *  Process command line arguments
@@ -118,7 +115,7 @@ main(int argc, char **argv)
         case 1:                     /* save file loaded */
             inpcnt = 0;             /* v1.02 no more cmd line files */
             swcinp(inpcnt, inpptr); /* v1.01 */
-            restart((char *)0L, lowsp);
+            restart(NULL, lowsp);
 
         case 0:                     /* not a save file */
 #if RUNTIME

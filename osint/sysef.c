@@ -27,9 +27,9 @@ Copyright 2012-2017 David Shields
 /    using a C struct!
 */
 static struct scblk ffscblk = {
-  0,   /*  type word - ignore */
-  1,   /*  string length */
-  '\f' /*  string is a form-feed */
+  .typ = 0,      /*  type word - ignore */
+  .len = 1,      /*  string length */
+  .str[0] = '\f' /*  string is a form-feed */
 };
 
 int
