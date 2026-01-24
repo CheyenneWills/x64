@@ -558,9 +558,10 @@ spit_open(char *Name, Open_method Method, File_mode Mode, int Action)
 int
 makeexec(struct scblk *scptr, int type)
 {
+    return 0;
+#if 0	
     word save_wa, save_wb, save_ia, save_xr;
     int result;
-
     /* save zysxi()'s argument registers (but not XL) */
     save_wa = reg_wa;
     save_wb = reg_wb;
@@ -581,6 +582,7 @@ makeexec(struct scblk *scptr, int type)
     reg_ia = save_ia;
     reg_xr = save_xr;
     return result;
+#endif
 }
 
 /*  uppercase( word )

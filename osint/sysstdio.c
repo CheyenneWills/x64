@@ -49,7 +49,7 @@ stdioinit()
 */
 
 int
-zyspr()
+zyspr(struct minimal_regs *minregs)
 {
     /*
        /    Do writes in line mode.
@@ -83,7 +83,7 @@ zyspr()
 */
 
 int
-zysrd()
+zysrd(struct minimal_regs *minregs)
 {
 
     word length;

@@ -215,7 +215,6 @@ NoInit(word *lmodstk);
  */
 extern int reg_size;
 extern char cprtmsg[];
-extern word reg_block;
 extern void *compsp; /*  minimal stack pointer - set when leaving minimal space */
 
 #if ENGINE

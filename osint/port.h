@@ -98,6 +98,7 @@ Copyright 2012-2017 David Shields
 
 typedef long word;           /* minimal word as signed */
 typedef unsigned long uword; /* minimal word as unsigned value */
+#define CFP_B sizeof(uword)  /* Number of bytes per word */
 
 /*   Define the default end of line characters.  Use Unix definition as the
  * default. */

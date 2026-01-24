@@ -45,7 +45,7 @@ close_all(struct chfcb *chb)
 }
 
 int
-zysej()
+zysej(struct minimal_regs *minregs)
 {
     int exitcode = WB(int);
     if (!in_gbcol) { /* Only if not mid-garbage collection */

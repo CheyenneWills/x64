@@ -49,7 +49,7 @@ word msgcopy(word n, unsigned char ERRDIST *source, char *dest);
 word special(word c);
 
 int
-zysem()
+zysem(struct minimal_regs *minregs)
 {
     tscblk->sclen = msgcopy(WA(word), errors, tscblk->schar);
     SET_XR(tscblk);

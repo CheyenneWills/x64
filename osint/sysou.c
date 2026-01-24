@@ -22,7 +22,7 @@ Copyright 2012-2017 David Shields
 #include "port.h"
 
 int
-zysou()
+zysou(struct minimal_regs *minregs)
 {
     struct fcblk *fcb = WA(struct fcblk *);
     union block *blk = XR(union block *);
@@ -41,9 +41,9 @@ zysou()
 
     if ((uintptr_t)fcb == 0 || (uintptr_t)fcb == 1) {
         if ((uintptr_t)fcb == 0) {
-            result = zyspi();
+            result = zyspi(minregs);
         } else {
-            result = zyspr();
+            result = zyspr(minregs);
         }
         if (result == NORMAL_RETURN) {
             return NORMAL_RETURN;

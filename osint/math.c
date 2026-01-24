@@ -24,21 +24,20 @@ Copyright 2012-2017 David Shields
 int errno;
 #endif
 
-extern double inf;     /* infinity */
-extern word reg_flerr; /* Floating point error */
+extern double inf; /* infinity */
 
 /*
  * f_atn - arctangent
  */
 void
-f_atn(void)
+f_atn(struct minimal_regs *minregs)
 {
     unsigned int mxcsr;
 
-    reg_ra = atan(reg_ra);
+    SET_RA(atan(RA(double)));
     mxcsr = _mm_getcsr();
     if (mxcsr & _MM_EXCEPT_UNDERFLOW) {
-        reg_ra = 0;
+        SET_RA(0.0);
     }
 }
 
@@ -46,12 +45,12 @@ f_atn(void)
  * f_chp - chop
  */
 void
-f_chp(void)
+f_chp(struct minimal_regs *minregs)
 {
-    if (reg_ra >= 0.0) {
-        reg_ra = floor(reg_ra);
+    if (RA(double) >= 0.0) {
+        SET_RA(floor(RA(double)));
     } else {
-        reg_ra = ceil(reg_ra);
+        SET_RA(ceil(RA(double)));
     }
 }
 
@@ -59,13 +58,13 @@ f_chp(void)
  * f_cos - cosine
  */
 void
-f_cos(void)
+f_cos(struct minimal_regs *minregs)
 {
     unsigned int mxcsr;
-    reg_ra = cos(reg_ra);
+    SET_RA(cos(RA(double)));
     mxcsr = _mm_getcsr();
     if (mxcsr & _MM_EXCEPT_UNDERFLOW) {
-        reg_ra = 0;
+        SET_RA(0.0);
     }
 }
 
@@ -73,16 +72,16 @@ f_cos(void)
  * f_etx - e to the x
  */
 void
-f_etx(void)
+f_etx(struct minimal_regs *minregs)
 {
     unsigned int mxcsr;
     errno = 0;
-    reg_ra = exp(reg_ra);
+    SET_RA(exp(RA(double)));
     mxcsr = _mm_getcsr();
     if (mxcsr & _MM_EXCEPT_UNDERFLOW) {
-        reg_ra = 0;
+        SET_RA(0.0);
     } else if (errno) {
-        reg_ra = inf;
+        SET_RA(inf);
     }
 }
 
@@ -90,17 +89,17 @@ f_etx(void)
  * f_lnf - natureg_ral log
  */
 void
-f_lnf(void)
+f_lnf(struct minimal_regs *minregs)
 {
     unsigned int mxcsr;
     errno = 0;
 
-    reg_ra = log(reg_ra);
+    SET_RA(log(RA(double)));
     mxcsr = _mm_getcsr();
     if (mxcsr & _MM_EXCEPT_UNDERFLOW) {
-        reg_ra = 0;
+        SET_RA(0.0);
     } else if (errno) {
-        reg_ra = inf;
+        SET_RA(inf);
     }
 }
 
@@ -108,13 +107,13 @@ f_lnf(void)
  * f_sin - sine
  */
 void
-f_sin(void)
+f_sin(struct minimal_regs *minregs)
 {
     unsigned int mxcsr;
-    reg_ra = sin(reg_ra);
+    SET_RA(sin(RA(double)));
     mxcsr = _mm_getcsr();
     if (mxcsr & _MM_EXCEPT_UNDERFLOW) {
-        reg_ra = 0;
+        SET_RA(0.0);
     }
 }
 
@@ -122,13 +121,13 @@ f_sin(void)
  * f_sqr - square root  (reg_range checked by caller)
  */
 void
-f_sqr(void)
+f_sqr(struct minimal_regs *minregs)
 {
     unsigned int mxcsr;
-    reg_ra = sqrt(reg_ra);
+    SET_RA(sqrt(RA(double)));
     mxcsr = _mm_getcsr();
     if (mxcsr & _MM_EXCEPT_UNDERFLOW) {
-        reg_ra = 0;
+        SET_RA(0.0);
     }
 }
 
@@ -136,15 +135,15 @@ f_sqr(void)
  * f_tan - tangent
  */
 void
-f_tan(void)
+f_tan(struct minimal_regs *minregs)
 {
     unsigned int mxcsr;
     errno = 0;
-    reg_ra = tan(reg_ra);
+    SET_RA(tan(RA(double)));
     mxcsr = _mm_getcsr();
     if (mxcsr & _MM_EXCEPT_UNDERFLOW) {
-        reg_ra = 0;
+        SET_RA(0.0);
     } else if (errno) {
-        reg_ra = inf;
+        SET_RA(inf);
     }
 }

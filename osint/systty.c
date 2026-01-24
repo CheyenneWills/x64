@@ -44,7 +44,7 @@ ttyinit()
 */
 
 int
-zyspi()
+zyspi(struct minimal_regs *minregs)
 {
     word retval;
 
@@ -75,7 +75,7 @@ zyspi()
 */
 
 int
-zysri()
+zysri(struct minimal_regs *minregs)
 {
     word length;
     struct scblk *scb = XR(struct scblk *);

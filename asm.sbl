@@ -402,7 +402,6 @@ init
 *  revision history:
 
    version = 'v1.12'
-   rcode = '_rc_'
 
 *  keyword initialization
 
@@ -488,6 +487,7 @@ init
    ia = 'ia'
    ra = 'ra'
    cp = 'r13'
+   rcode = 'r15'
 
 *  cp is kept in memory
 
@@ -1266,7 +1266,7 @@ g_jsr
    jsr_calls = jsr_calls +  1
    jsr_label = 'call_' jsr_calls
    jsr_label_norm = jsr_label
-   genop('dec','m_word [' rcode ']')
+   genop('dec',rcode)
    genop('js',jsr_label_norm)
    z_suspend = 0
 
@@ -1362,7 +1362,7 @@ g_exi
 
    differ(t2,'n') eq(prc.args)   genop('ret')   :s(opdone)
    t3 = ident(t3) '0'
-   genop('mov','m_word [' rcode ']',+t3)
+   genop('mov',rcode,+t3)
    ident(t2,'n')              :s(g_exi.1)
    genop('ret')               :(opdone)
 
@@ -1420,7 +1420,7 @@ g_ppm.loop.next
 g_ppm.loop
 
    lab_next = genlab()
-   genop('dec','m_word [' rcode ']')
+   genop('dec',rcode)
    genop('jns',lab_next)
    ident(incode,'ppm')           :s(g_ppm.loop.ppm)
 
@@ -1429,7 +1429,7 @@ g_ppm.loop
 
 g_ppm.loop.err
 
-   genop('mov','m_word [' rcode ']', +t1)
+   genop('mov',rcode, +t1)
    genop('jmp','err_')
                      :(g_ppm.loop.next)
 g_ppm.loop.ppm
@@ -1459,7 +1459,7 @@ g_ppm.2
 g_erb
    errfile =  i.text(i1) ' ' i.text(i2)
 *       set rcode to error code and branch to error handler
-   genop('mov', 'm_word [' rcode ']',  +(i.text(i1)))
+   genop('mov', rcode,  +(i.text(i1)))
    genop('jmp','err_')
                      :(opdone)
 
@@ -3179,7 +3179,7 @@ g_sec.7
 
    n1 = max.err + 8
    output = '  max.err ' max.err
-   genopl('err_:','xchg',wa,'m_word [' rcode ']') :(opdone)
+   genopl('err_:','xchg',wa,rcode) :(opdone)
 
 *  14.2  END
 

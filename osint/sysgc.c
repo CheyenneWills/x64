@@ -29,7 +29,7 @@ Copyright 2012-2017 David Shields
 #include "save.h"
 
 int
-zysgc()
+zysgc(struct minimal_regs *minregs)
 {
     in_gbcol = XR(word); /* retain information */
     return NORMAL_RETURN;

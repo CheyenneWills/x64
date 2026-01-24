@@ -22,6 +22,9 @@ Copyright 2012-2017 David Shields
 int
 main(int argc, char **argv)
 {
+    struct minimal_regs initial_regs, *minregs = &initial_regs;
+    memset(&initial_regs, 0, sizeof(initial_regs));
+
     /*
      * Save command line parameters in global storage, in case they are needed
      * later.
@@ -46,7 +49,7 @@ main(int argc, char **argv)
     if (inpptr) {
         sfn = *inpptr; /* pointer to first file name */
     } else {
-        zysdc();
+        zysdc(NULL);
         wrterr("");
         prompt();
     }
@@ -56,7 +59,7 @@ main(int argc, char **argv)
      */
     swcinp(inpcnt, inpptr);
 
-    switch (getsave(getrdfd())) {
+    switch (getsave(minregs, getrdfd())) {
         case 1:                     /* save file loaded */
             wrterr("SPITBOL restart is currently broken");
             inpcnt = 0;             /* v1.02 no more cmd line files */
@@ -86,7 +89,7 @@ main(int argc, char **argv)
     SET_CP(0);
     SET_IA(0);
 
-    SET_WA(0);
+    SET_WA(compsp);
     long mxint = INT64_MAX;
 
     /*    reg_wb = mxint; */
@@ -98,7 +101,7 @@ main(int argc, char **argv)
     /*
      * Startup compiler.
      */
-    startup();
+    startup(minregs, minimal_start);
 
     /*
      * Never returns. exit is via exit().
@@ -130,7 +133,7 @@ setout(void)
     /*
      *  Brag prior to calling swcoup
      */
-    zysdc();
+    zysdc(NULL);
 
     /*
      * Switch to proper output file.

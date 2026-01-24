@@ -46,7 +46,7 @@ static void closeloadfile(void *fd);
 #endif /* EXTFUN */
 
 int
-zysld()
+zysld(struct minimal_regs *minregs)
 {
 #if EXTFUN
     void *fd; /* keep stack word-aligned */

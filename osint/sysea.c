@@ -52,7 +52,7 @@ enum stage {
 };
 
 int
-zysea()
+zysea(struct minimal_regs *minregs)
 {
     struct scblk *fnscblk = XL(struct scblk *);
     char *p;

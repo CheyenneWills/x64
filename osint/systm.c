@@ -28,7 +28,7 @@ Copyright 2012-2017 David Shields
 #define CLK_TCK 100
 
 int
-zystm()
+zystm(struct minimal_regs *minregs)
 {
 
     struct timespec tim;

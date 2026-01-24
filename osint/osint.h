@@ -14,12 +14,7 @@ Copyright 2012-2017 David Shields
 /*
  *  Set up externals for all the compiler's registers.
  */
-
-extern word reg_cp, reg_wa, reg_wb, reg_wc, reg_xr, reg_xl, reg_xs, reg_w0, reg_pc;
-extern signed char reg_fl;
-extern word reg_flerr;
-extern long reg_ia;
-extern double reg_ra, *reg_rp;
+extern void *lowspmin, *lowspminx;
 extern uword minimal_id;
 
 /*
@@ -35,32 +30,43 @@ extern uword minimal_id;
  *  Macros to fetch a value of appropriate type from a compiler register
  */
 
-#define CP(type) ((type)reg_cp)
-#define IA(type) ((type)reg_ia)
-#define W0(type) ((type)reg_w0)
-#define WA(type) ((type)reg_wa)
-#define WB(type) ((type)reg_wb)
-#define WC(type) ((type)reg_wc)
-#define XR(type) ((type)reg_xr)
-#define XL(type) ((type)reg_xl)
-#define PC(type) ((type)reg_pc)
-#define XS(type) ((type)reg_xs)
-#define RA(type) ((type)reg_ra)
+struct minimal_regs {
+    long reg_ia;
+    double reg_ra;
+    uword reg_xr;
+    uword reg_xl;
+    uword reg_wa;
+    uword reg_wb;
+    uword reg_wc;
+    uword reg_cp;
+    uword reg_pc;
+    uword reg_xs;
+};
+
+#define CP(type) ((type)(minregs->reg_cp))
+#define IA(type) ((type)(minregs->reg_ia))
+#define WA(type) ((type)(minregs->reg_wa))
+#define WB(type) ((type)(minregs->reg_wb))
+#define WC(type) ((type)(minregs->reg_wc))
+#define XR(type) ((type)(minregs->reg_xr))
+#define XL(type) ((type)(minregs->reg_xl))
+#define PC(type) ((type)(minregs->reg_pc))
+#define XS(type) ((type)(minregs->reg_xs))
+#define RA(type) ((type)(minregs->reg_ra))
 
 /*
  *  Macros to set a value of appropriate type into a compiler register.
  */
-#define SET_CP(val) (reg_cp = (word)(val))
-#define SET_IA(val) (reg_ia = (val))
-#define SET_W0(val) (reg_w0 = (word)(val))
-#define SET_WA(val) (reg_wa = (word)(val))
-#define SET_WB(val) (reg_wb = (word)(val))
-#define SET_WC(val) (reg_wc = (word)(val))
-#define SET_XR(val) (reg_xr = (word)(val))
-#define SET_XL(val) (reg_xl = (word)(val))
-#define SET_PC(val) (reg_pc = (word)(val))
-#define SET_XS(val) (reg_xs = (word)(val))
-#define SET_RA(val) (reg_ra = (double)(val))
+#define SET_CP(val) ((minregs->reg_cp) = (word)(val))
+#define SET_IA(val) ((minregs->reg_ia) = (val))
+#define SET_WA(val) ((minregs->reg_wa) = (word)(val))
+#define SET_WB(val) ((minregs->reg_wb) = (word)(val))
+#define SET_WC(val) ((minregs->reg_wc) = (word)(val))
+#define SET_XR(val) ((minregs->reg_xr) = (word)(val))
+#define SET_XL(val) ((minregs->reg_xl) = (word)(val))
+#define SET_PC(val) ((minregs->reg_pc) = (word)(val))
+#define SET_XS(val) ((minregs->reg_xs) = (word)(val))
+#define SET_RA(val) ((minregs->reg_ra) = (double)(val))
 
 /*
  *  Return values to take exit N from interface
@@ -84,14 +90,7 @@ extern uword minimal_id;
  *   Function to call into MINIMAL code.
  *   The argument is an ordinal number defined below.
  */
-extern void minimal(void);
-extern void popregs(void);
-extern void pushregs(void);
-#define MINIMAL(cn)                                                           \
- minimal_id = cn;                                                             \
- minimal();
-#define MINSAVE() pushregs()
-#define MINRESTORE() popregs()
+extern void minimal(struct minimal_regs *minregs, long id);
 
 /*
  *    Ordinals for MINIMAL calls from C.

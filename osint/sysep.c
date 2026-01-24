@@ -20,7 +20,7 @@ Copyright 2012-2017 David Shields
 #include "port.h"
 
 int
-zysep()
+zysep(struct minimal_regs *minregs)
 {
     write(1, "\f", 1);
     return NORMAL_RETURN;

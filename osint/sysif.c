@@ -45,7 +45,7 @@ openprev()
 }
 
 int
-zysif()
+zysif(struct minimal_regs *minregs)
 {
     struct scblk *fnscb = XL(struct scblk *);
     struct scblk *pnscb = XR(struct scblk *);

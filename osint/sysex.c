@@ -27,7 +27,7 @@ Copyright 2012-2017 David Shields
 #include "port.h"
 
 int
-zysex()
+zysex(struct minimal_regs *minregs)
 {
 #if EXTFUN
     struct efblk *efb = XL(struct efblk *);

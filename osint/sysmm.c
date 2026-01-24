@@ -64,31 +64,6 @@ Copyright 2012-2017 David Shields
 #include "port.h"
 #include <string.h>
 #include <stdint.h>
-int
-zysmm(void)
-{
-    long n;
-
-    SET_XR(0); /* Assume allocation will fail */
-
-    /*
-     * If not already at maximum allocation, try to get more memory.
-     */
-    if (topmem + heap_inc > maxmem) {
-        n = moremem(heap_inc);
-        if (n < 0) {
-            return NORMAL_RETURN;
-        }
-        topmem += n;              /*  adjust current top address */
-
-        SET_XR(n / sizeof(word)); /*  set # of words obtained */
-    } else {
-        topmem += heap_inc;
-        SET_XR(heap_inc / sizeof(word));
-    }
-    return NORMAL_RETURN;
-}
-
 /*
  * moremem(n) - Attempt to fetch n bytes more memory.
  *        Returns number of bytes actually obtained.
@@ -99,15 +74,17 @@ zysmm(void)
  * any of minimal's pointers if necessary via relcr and
  * reloc.
  */
-long
-moremem(long n)
+
+static long
+moremem(struct minimal_regs *oregs, long n)
 {
     uintptr_t curralloc;
+    struct minimal_regs save_regs, *minregs = &save_regs;
     void *newalloc;
     long curr_dnam_offset = GET_MIN_VALUE(dnamb, char *) - basemem;
+
     curralloc = (uintptr_t)basemem;
     word adjusts[15];
-    word saveregs[10];
     memset(adjusts, 0, sizeof(adjusts));
 
     n &= -(long)sizeof(word);
@@ -125,46 +102,61 @@ moremem(long n)
             wrterr("internal system error -- SYSMM");
             exit(1);
         }
-        /* Save regs */
-        saveregs[0] = reg_wa;
-        saveregs[1] = reg_wb;
-        saveregs[2] = reg_wc;
-        saveregs[3] = reg_xr;
-        saveregs[4] = reg_xl;
-        saveregs[5] = reg_ia;
-        saveregs[6] = reg_cp;
-        saveregs[7] = (word)compsp;
-        saveregs[8] = (word)reg_pc;
-        SET_WA(&s_aaa);
-        SET_WB(&c_aaa);
-        SET_WC(&g_aaa);
+        memcpy(minregs, oregs, sizeof(*minregs));
         SET_XR(newalloc);
         SET_CP(newalloc + curr_dnam_offset);
         SET_XL(adjusts);
-        MINIMAL(minimal_relcr);
-        MINIMAL(minimal_reloc);
+        SET_WC(&g_aaa);
+        SET_WB(&c_aaa);
+        SET_WA(&s_aaa);
+        minimal(minregs, minimal_relcr);
+
+        memcpy(&save_regs, oregs, sizeof(*minregs));
+        SET_XL(adjusts);
+        minimal(minregs, minimal_reloc);
 
         /* Relocate any addresses in stack */
+        memcpy(minregs, oregs, sizeof(*minregs));
+        SET_XL(adjusts);
+
         SET_WB(compsp + sizeof(word));
         SET_WA(highsp);
-        MINIMAL(minimal_relaj);
+        minimal(minregs, minimal_relaj);
 
         /* Handle any relocations within the saved registers */
-        SET_WB(&saveregs[0]);
-        SET_WA(&saveregs[8]);
-        MINIMAL(minimal_relaj);
-        reg_wa = saveregs[0];
-        reg_wb = saveregs[1];
-        reg_wc = saveregs[2];
-        reg_xr = saveregs[3];
-        reg_xl = saveregs[4];
-        reg_ia = saveregs[5];
-        reg_cp = saveregs[6];
-        compsp = (void *)saveregs[7];
-        reg_pc = saveregs[8];
+        memcpy(minregs, oregs, sizeof(*minregs));
+        SET_XL(adjusts);
+        SET_WB(oregs);
+        SET_WA((uintptr_t)oregs + sizeof(*oregs));
+        minimal(minregs, minimal_relaj);
     }
     heap_alloced_size += n;
     return n;
+}
+
+int
+zysmm(struct minimal_regs *minregs)
+{
+    long n;
+
+    SET_XR(0); /* Assume allocation will fail */
+
+    /*
+     * If not already at maximum allocation, try to get more memory.
+     */
+    if (topmem + heap_inc > maxmem) {
+        n = moremem(minregs, heap_inc);
+        if (n < 0) {
+            return NORMAL_RETURN;
+        }
+        topmem += n;              /*  adjust current top address */
+
+        SET_XR(n / sizeof(word)); /*  set # of words obtained */
+    } else {
+        topmem += heap_inc;
+        SET_XR(heap_inc / sizeof(word));
+    }
+    return NORMAL_RETURN;
 }
 
 /* Initialize memory */
@@ -176,6 +168,10 @@ sysmm_init(void)
 
     /* Allocate the stack */
     lowsp = calloc(1, stacksiz);
+    lowspmin = lowsp + 400;
+    compsp = lowsp + stacksiz;
+    highsp = compsp;
+    lowspminx = highsp;
 
     if (heap_max != MAXUINT && heap_initial_size > heap_max) {
         heap_initial_size = heap_max;
