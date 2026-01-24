@@ -1473,7 +1473,7 @@ g_prc
    prc.args = getarg(i2)
    ppm_cases[thislabel] = i.text(i2)
    max_exi = gt(prc.args,max_exi) prc.args
-   genop('align','32')
+   genop('align','16')
    genopl(thislabel)
    thislabel =
    prc.type = i.text(i1)            :($('g_prc.' prc.type))
@@ -1693,7 +1693,7 @@ g_sss
 
 g_rtn
 
-   genop('align','32')
+   genop('align','16')
    genopl(thislabel)
    thislabel =                 
                               :(opdone)
