@@ -165,10 +165,10 @@ do_dvi:
     cqo
     idiv    r10
     mov     ia,w0
-    xor     w0,w0
+    xor     w0_e,w0_e
     ret
 do_dvi_over:
-    xor     w0,w0
+    xor     w0_e,w0_e
     cmp     al,-128
     ret
 
@@ -183,9 +183,9 @@ do_rmi:
     cqo
     idiv    r10
     mov     ia,wc
-    xor     w0,w0
+    xor     w0_e,w0_e
     ret
 do_rmi_over:
-    xor     w0,w0
+    xor     w0_e,w0_e
     cmp     al,-128
     ret

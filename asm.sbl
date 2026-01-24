@@ -614,38 +614,38 @@ init
    op_w = 'q'
    op_c = 'b'
 
-*  target register assignments
+* Registers (actual mappings are in int.h)
+
+   w0 = 'w0'
+   w0_e = 'w0_e'
+
+   wa = 'wa'
+   wa_e = 'wa_e'
+
+   wb = 'wb'
+   wb_e = 'wb_e'
+
+   wc = 'wc'
+   wc_e = 'wc_e'
+
+   ia = 'ia'
+   ia_e = 'ia_e'
+
+   ra = 'ra'
 
    cp = 'cp'
 
-*  w0 is temp register
-
-   w0 = 'rax'
-
-   wa = 'rcx'
-
-   wb = 'rbx'
-   wb = 'wb'
-
-   wc = 'rdx'
-
-   ia = 'r12'
-   ra = 'xmm12'
-
-   cp = 'r13'
-
-   xl = 'rsi'
    xl = 'xl'
-   xt = xl
+   xl_e = 'xl_e'
+   xt = 'xt'
+   xt_e = 'xt_e'
 
-   xr = 'rdi'
    xr = 'xr'
+   xr_e = 'xr_e'
 
-   xs = 'rsp'
+   xs = 'xs'
    r_lowspmin = 'r8'; r_lowspminx = 'r9'
 
-   w0 = 'w0'; wa = 'wa'; wb = 'wb'; wc = 'wc'
-   xl = 'xl'; xr = 'xr'; xs = 'xs'; xt = xl
 
 *  internal work registers
 *  r10, r11 scope only within individual minimal opcodes
@@ -656,8 +656,6 @@ init
 *  _ia_ is mapped to _r12_ in nasm.h.
 *  _ra_ is mapped to _xmm12_ in nasm.h
 
-   ia = 'ia'
-   ra = 'ra'
    cp = 'r13'
    rcode = 'r15'
 
@@ -982,6 +980,31 @@ reglow
    error('bad argument to reglow')        :(return)
 
 reglow_end
+-stitl regxor(s)
+   define('regxor(s)')                  :(regxor_end)
+
+* Returns the 32bit version of a register
+* xor will sign extend and the xor instruction
+* is 1 byte smaller than the 64bit version.
+
+regxor
+
+   regxor = ident(s,'w0')  'w0_e'        :s(return)
+   regxor = ident(s,'wa')  'wa_e'        :s(return)
+   regxor = ident(s,'wb')  'wb_e'        :s(return)
+   regxor = ident(s,'wc')  'wc_e'        :s(return)
+   regxor = ident(s,'xr')  'xr_e'        :s(return)
+   regxor = ident(s,'xl')  'xl_e'        :s(return)
+   regxor = ident(s,'xt')  'xt_e'        :s(return)
+   regxor = ident(s,'rax') 'eax'         :s(return)
+   regxor = ident(s,'rbx') 'ebx'         :s(return)
+   regxor = ident(s,'rcx') 'ecx'         :s(return)
+   regxor = ident(s,'rdx') 'edx'         :s(return)
+   regxor = ident(s,'r15') 'r15d'        :s(return)
+   regxor = ident(s,'r12') 'r12d'        :s(return)
+   regxor = s                            :(return)
+
+regxor_end
 
 -stitl report(num,text)
 
@@ -1400,7 +1423,7 @@ g_exi
 
    differ(t2,'n') eq(prc.args)   genop('ret')   :s(opdone)
    t3 = ident(t3) '0'
-   (ident(t3,'0') genop('xor',rcode,rcode), genop('mov',rcode,+t3))
+   (ident(t3,'0') genop('xor',regxor(rcode) ,regxor(rcode)), genop('mov',rcode,+t3))
    ident(t2,'n')              :s(g_exi.1)
    genop('ret')               :(opdone)
 
@@ -1512,17 +1535,17 @@ g_dcv
 
 g_zer
 
-   ident(i.text(i1),'(xr)+') genop('xor',w0, w0)
+   ident(i.text(i1),'(xr)+') genop('xor',regxor(w0), regxor(w0))
 +        genop('stos_w')            :s(opdone)
    isreg(i1)               :s(g_zer1)
    ident(i.text(i1),'-(xs)')        :s(g_zer.xs)
-   genop('xor',w0, w0)
+   genop('xor',regxor(w0), regxor(w0))
    genop('mov',getarg(i1),w0)       :(opdone)
 
 g_zer1
 
    t1 = getarg(i1)
-   genop('xor',t1,t1)            :(opdone)
+   genop('xor',regxor(t1),regxor(t1))            :(opdone)
 
 g_zer.xs
 
@@ -2054,7 +2077,7 @@ g_rno
 *  Negate real accumulator (change sign)
 
 g_ngr genop('movsd', 'xmm0', 'm_real [zeron]')
-      genop('pxor', ra, 'xmm0')   :(opdone)
+      genop('xorps', ra, 'xmm0')   :(opdone)
 *  *   5.10 REQ  _plbl_
 
 *  Jump to _plbl_ if (RA) eq 0.0
@@ -2088,7 +2111,7 @@ g_rgt jop = 'ja'              :(g_r1)
 g_rle jop = 'jbe'             :(g_r1)
 g_rlt jop = 'jb'
 g_r1
-   genop('pxor', 'xmm0', 'xmm0')
+   genop('xorps', 'xmm0', 'xmm0')
    genop('ucomisd', ra, 'xmm0')
    genop(jop,getarg(i1))            :(opdone)
 
@@ -2430,8 +2453,8 @@ g_trc
 *       genop('loop',t1)
    genop('dec',wa)
    genop('jnz',t1)
-   genop('xor',xl,xl)
-   genop('xor',xr,xr)
+   genop('xor',regxor(xl),regxor(xl))
+   genop('xor',regxor(xr),regxor(xr))
                      :(opdone)
 *  *   6.10 FLC  _w_
 
@@ -2636,7 +2659,7 @@ g_mfi.2
 *  (may lose precision in some cases)
 
 g_itr
-   genop('pxor', ra, ra)
+   genop('xorps', ra, ra)
    genop('cvtsi2sd', ra, ia)  :(opdone)
 
 *  *   8.6   RTI  _plbl_

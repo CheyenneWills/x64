@@ -31,22 +31,30 @@
         %define m_reall oword   ; 128-bit
 ; N INCLUDE
         %define xl      rsi
+        %define xl_e    esi
         %define xr      rdi
+        %define xr_e    edi
         %define xt      rsi
+        %define xt_e    esi
         %define xs      rsp
 
         %define w0      rax
+        %define w0_e    eax
 
         %define wa      rcx
+        %define wa_e    ecx
         %define wa_l    cl
 
         %define wb      rbx
+        %define wb_e    rbx
         %define wb_l    bl
 
         %define wc      rdx
+        %define wc_e    edx
         %define wc_l    dl
 
         %define ia      r12
+        %define ia_e    r12d
         %define ra      xmm12
 
 ;       %define cfp_b   8
