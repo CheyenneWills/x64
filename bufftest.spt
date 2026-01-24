@@ -1,0 +1,21 @@
+   &trim = 1 ; &anchor = 1
+   &dump = 0
+   input(.corpus_data, 10, 'sbl.min')
+   l.time = s.time = time()
+   corpus = buffer(100000)
+read.loop   append(corpus, corpus_data)   :s(read.loop)
+   output = 'Input finished. cpu time: '
++     (time() - s.time) / 1000.0 ' secs'
++     ' size of corpus: ' size(corpus) ' chars'
+   l.time = time()
+
+match.loop  corpus (tab(*n) breakx('g')) . p
++  @n 'mov' = 'xxx'   :f(match.done)
+   cnt = cnt + 1  :(match.loop)
+
+match.done output = 'match finished. cpu time: '
++  (time() - l.time) / 1000.0 ' secs'
++  ' number of replacements ' cnt
++  ' final size: ' size(corpus) ' chars'
++  ' total time: ' (time() - s.time) / 100000.0 ' secs'
+end

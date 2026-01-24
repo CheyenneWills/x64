@@ -1656,7 +1656,7 @@
 .def   .cinc                 define to include -include control card
 .def   .ciod                 if defined, default delimiter is
 .def   .cmth                 define to include extended math functions
-.def   .cnbf                 define to omit buffer extension
+*      .cnbf                 define to omit buffer extension
 .def   .cnbt                 define to omit batch initialisation
 *      .cnci                 define to enable sysci routine
 *      .cncr                 define to enable syscr routine
