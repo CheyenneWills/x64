@@ -190,8 +190,8 @@ lowspmin: d_word      0             ; Bottom of stack (r8 in minimal)
       global      lowspminx
 lowspminx: d_word     0             ; Lowest stack used (r9 in minimal)
 
-      global      osisp                   ; CCW not global
-osisp:      d_word          0             ; osint's stack pointer
+      global      osint_sp                   ; CCW not global
+osint_sp:      d_word          0             ; osint's stack pointer
 
       align cfp_b
 
@@ -275,13 +275,13 @@ startup:
 
 ;     uses: rax
 
-;     output: register wa, sp, lowspmin, compsp, osisp set up per diagram:
+;     output: register wa, sp, lowspmin, compsp, osint_sp set up per diagram:
 
 ;  C stack - (used when executing C code)
 ;  +--------------------+                                             
 ;  |  C stack -         |
-;  |    //////          |   o osisp set to RSP when entering minimal
-;  |                    |   o RSP set to osisp when leaving minimal
+;  |    //////          |   o osint_sp set to RSP when entering minimal
+;  |                    |   o RSP set to osint_sp when leaving minimal
 ;  +--------------------+
 ;                 
 ;  Minimal stack (static size, not relocated) 
@@ -334,7 +334,7 @@ minimal:
       push  r14
       push  r15
       push  r10                     ; Save for return
-      mov   m_word [osisp],rsp      ; save osint stack pointer
+      mov   m_word [osint_sp],rsp      ; save osint stack pointer
 ; Load minimal registers from the passed parameter      
       mov   r12, m_word [r10 + (0 * 8)]   ; IA
       movsd xmm12, m_real [r10 + (1 * 8)] ; RA
@@ -358,7 +358,7 @@ minimal:
 
 ; Return from Minimal
       mov   r11,rsp
-      mov   rsp,m_word [osisp]      ; switch back to osint stack
+      mov   rsp,m_word [osint_sp]      ; switch back to osint stack
 ; Update minimal_regs
       pop   r10
       mov   m_word [r10 + (0 * 8)], r12   ; IA
@@ -443,7 +443,7 @@ do_syscall:
       pop   rax                      ; Pop return address
       mov   r10,rsp                  ; Save 
       mov   m_word [compsp],rsp
-      mov   rsp,m_word [osisp]       ; Switch to C stack
+      mov   rsp,m_word [osint_sp]       ; Switch to C stack
       mov   rbp,rsp
       sub   rsp,(8*10)+8             ; space for 10 registers + alignment
       and   rsp,-16                  ; 16byte alignment
@@ -491,7 +491,7 @@ syscall_exit:
       mov   r14, [rsp + (8 * 8)]      ; PC (Return Addr)
       mov   r10, [rsp + (9 * 8)]      ; XS (Minimal Stack)
 
-      mov   m_word [osisp],rbp      ; Save C stack
+      mov   m_word [osint_sp],rbp      ; Save C stack
       mov   rsp,r10                 ; Back to minimal
       cld
       jmp   r14
@@ -610,7 +610,7 @@ re2:  push  rax                     ; transfer word of stack
 
 re3:  cld
       mov   m_word [compsp],rsp           ; save compiler's stack pointer
-      mov   rsp,m_word [osisp]            ; back to osint's stack pointer
+      mov   rsp,m_word [osint_sp]            ; back to osint's stack pointer
       and   rsp,0xfffffffffffffff0  ; 16byte alignment
       call   rereloc                ; relocate compiler pointers into stack
       mov   rax,m_word [statb]            ; start of static region to rdi

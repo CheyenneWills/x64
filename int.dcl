@@ -18,7 +18,6 @@
 ;
     section .text
 
-    extern  osisp
     extern  compsp
     extern  inf
     extern  neg1f
