@@ -219,8 +219,7 @@ init
 +        'rov[plbl]rsh[w,val]rsx[w,(x)]rti[*plbl]rtn[none]sbi[ops]'
 +        'sbr[ops]sch[reg,opc]scp[reg]sec[none sec]sin[none]sqr[none]ssl[opw]'
 +        'sss[opw]sti[ops]str[ops]sub[opn,opv]tan[none]then[then]trc[none]'
-+        'ttl[none ttl]undef[undef]wtb[reg]xob[w,opw]zer[opn]zgb[opn]zrb[w,plbl]'
-+        'zzz[int]' )
++        'ttl[none ttl]undef[undef]wtb[reg]xob[w,opw]zer[opn]zgb[opn]zrb[w,plbl]' )
 
 *   prctab is table of procedures declared in inp that is used to
 *   check for consistency of inp/prc statements.
