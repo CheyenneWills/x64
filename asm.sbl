@@ -342,11 +342,196 @@ flush_end
 * Optimization flush
 * Our chance to perform peep-hole optimizations
 *
-   define('oflush()i') :(oflush_end)
+   define('oflush()i,lastop,os,on') :(oflush_end)
 oflush
    ident(odrain)                             :s(return)
    odrain =
    eq(ostmts.n)                              :s(return)
+
+   os = array(ostmts.n * 2)
+
+* Peep-hole optimizations
+* look for 2 jmps in a row with the 2nd jmp without a label
+   i = gt(ostmts.n, 1) 1                     :f(opt1_done)
+   lastop =
+   on = 0
+opt1_l
+   os[on = on + 1] = ostmts[i]
+   ident(t.label(ostmts[i]))
++  ident(t.opc(ostmts[i]))                   :s(opt1_n)
+
+   (leq(lastop,'jmp'), leq(lastop,'ret'))
++  (ident(t.label(ostmts[i])) leq(t.opc(ostmts[i]),'jmp')) :f(opt1_n)
+
+   on = on - 1                               :(opt1_nn)  
+
+opt1_n
+   lastop = differ(t.opc(ostmts[i])) t.opc(ostmts[i])
+opt1_nn
+   le(i = i + 1, ostmts.n - 1)               :s(opt1_l)
+opt1_x
+   os[on = on + 1] = ostmts[ostmts.n]
+   i = 1
+opt1_c
+   ostmts[i] = os[i]
+   le(i = i + 1, on)                         :s(opt1_c)
+   ostmts.n = on
+opt1_done
+
+* Look for 
+* l: xor w0_e,w0_e         l: xor w0_e,w0_e
+*    stos_w                   rep stosq
+*    dec wa                   
+*    jnz l                    
+   i = ge(ostmts.n, 4) 1                     :f(opt2_done)
+   on = 0
+opt2_l
+   os[on = on + 1] = ostmts[i]
+   
+   differ(t.label(ostmts[i]))
++         (leq(t.opc(ostmts[i]), 'xor') leq(t.op1(ostmts[i]),'w0_e'),
++          leq(t.opc(ostmts[i]), 'mov') leq(t.op1(ostmts[i]),'w0'))
++  ident(t.label(ostmts[i + 1])) leq(t.opc(ostmts[i + 1]), 'stos_w')
++  ident(t.label(ostmts[i + 2])) leq(t.opc(ostmts[i + 2]), 'dec')
++  leq(t.op1(ostmts[i + 2]), 'wa')
++  ident(t.label(ostmts[i + 3])) leq(t.opc(ostmts[i + 3]), 'jnz')
++  leq(t.label(ostmts[i]), t.op1(ostmts[i + 3]) ':') :f(opt2_n)
+
+   os[on = on + 1] = ostmts[i + 1]
+   t.opc(os[on]) = 'rep stos_w'
+   i = i + 3
+opt2_n
+   le(i = i + 1, ostmts.n - 4)               :s(opt2_l)
+
+opt2_x
+   os[on = on + 1] = ostmts[i]
+   le(i = i + 1, ostmts.n)                   :s(opt2_x)
+
+   i = 1
+opt2_c
+   ostmts[i] = os[i]
+   le(i = i + 1, on)                         :s(opt2_c)
+   ostmts.n = on
+opt2_done
+
+* Look for 
+*    mov {reg},m_word [bitsn] l: mov {reg},{x}
+*    and {reg},{x}               and {reg},{bitsn}
+
+   i = ge(ostmts.n, 2) 1                     :f(opt3_done)
+   on = 0
+opt3_l
+   os[on = on + 1] = copy(ostmts[i])
+   t.op1(os[on]) allregisters.p              :f(opt3_n)
+   leq(t.opc(os[on]), 'mov')                 :f(opt3_n)
+   t1 = t.op2(os[on])
+   t1 'm_word [' ('bits' span(nos)) . t2 ']' :f(opt3_n)
+   t2 = bits.tab[t2]                         :f(opt3_n)
+   differ(t2)                                :f(opt3_n)
+
+   leq(t.opc(ostmts[i + 1]), 'and') leq(t.op1(ostmts[i + 1]), t.op1(os[on])) :f(opt3_n)
+
+   t.op2(os[on]) = t.op2(ostmts[i + 1])
+   os[on = on + 1] = copy(ostmts[i = i + 1])
+   t.op2(os[on]) = t2
+
+opt3_n
+   le(i = i + 1, ostmts.n - 2)               :s(opt3_l)
+
+* Pick up last set of lines
+opt3_x
+   os[on = on + 1] = ostmts[i]
+   le(i = i + 1, ostmts.n)                   :s(opt3_x)
+
+   i = 1
+opt3_c
+   ostmts[i] = os[i]
+   le(i = i + 1, on)                         :s(opt3_c)
+   ostmts.n = on
+opt3_done
+
+* Look for 
+*    and {reg}                      and {reg},...
+*    test {reg}                     {conditional}
+*    {conditional}
+
+   i = ge(ostmts.n, 3) 1                     :f(opt4_done)
+   on = 0
+opt4_l
+   os[on = on + 1] = copy(ostmts[i])
+
+   (leq(t.opc(os[on]), 'and') leq(t.opc(ostmts[i + 1]), 'test')) :f(opt4_n)
+   (t.op1(os[on]) ? allregisters.p)                              :f(opt4_n)
+   (leq(t.op1(os[on]), t.op1(ostmts[i + 1])))                    :f(opt4_n)
+   (leq(t.op1(os[on]), t.op2(ostmts[i + 1])))                    :f(opt4_n)
+   (t.opc(ostmts[i + 2]) ? 'j')                                  :f(opt4_n)
+  
+   os[on = on + 1] = copy(ostmts[i + 2])
+   t.comment(os[on]) = t.comment(ostmts[i + 1])
+* Drop the 'test'
+   i = i + 2
+opt4_n
+   le(i = i + 1, ostmts.n - 3)               :s(opt4_l)
+
+* Pick up last set of lines
+opt4_x
+   os[on = on + 1] = ostmts[i]
+   le(i = i + 1, ostmts.n)                   :s(opt4_x)
+
+   i = 1
+opt4_c
+   ostmts[i] = os[i]
+   le(i = i + 1, on)                         :s(opt4_c)
+   ostmts.n = on
+opt4_done
+
+
+* Replace memory constant references
+
+   i = gt(ostmts.n, 1) 1                     :f(opt5_done)
+   on = 0
+opt5_l
+   os[on = on + 1] = copy(ostmts[i])
+
+   t.op2(os[on]) 'm_word [' (bits span(nos)) . t1 = 
++                differ(bitstab[t1]) bitstab[t1]      :s(opt5_n)
+
+* handle integer constants
+   t.op2(os[on]) 'm_word [' ('intv' break(']')) . t1 ']' =
++                differ(intconsts[t1]) intconsts[t1]  :f(opt5_n)
+   leq(t.opc(os[on]),'mov') leq(t.op2(os[on]), 0)     :f(opt5_nzer)
+   t.opc(os[on]) = 'xor'
+   t.op2(os[on]) = t.op1(os[on]) '_e'
+   t.op1(os[on]) = t.op1(os[on]) '_e'                 :(opt5_n)
+opt5_nzer
+   leq(t.opc(os[on]),'add') leq(t.op2(os[on]),'1')    :f(opt5_dec)
+   t.opc(os[on]) = 'inc'
+   t.op2(os[on]) =                                    :(opt5_n)
+
+opt5_dec   
+   leq(t.opc(os[on]),'sub') leq(t.op2(os[on]),'1')    :f(opt5_n)
+   t.opc(os[on]) = 'dec'
+   t.op2(os[on]) = 
+
+   
+opt5_n
+   le(i = i + 1, ostmts.n)                  :s(opt5_l)
+
+   i = 1
+opt5_c
+   ostmts[i] = os[i]
+   le(i = i + 1, on)                         :s(opt5_c)
+   ostmts.n = on
+opt5_done
+
+
+*
+* Optimization done
+*
+
+*
+* We an now write the data
+*
    i = 1
 o_flushl
    write_asm(ostmts[i])
@@ -439,6 +624,7 @@ genopl_end
 *  'rep *op* loop' instruction.
 
 genrep
+   genop('rep ' op) :(return)
    l1 = genlab()
    l2 = genlab()
    genopl(l1 ':')
@@ -682,6 +868,11 @@ init
    cp = 'r13'
    rcode = 'r15'
 
+   allregisters.p =    
++        w0 | w0_e | wa | wa_e | wb | wb_e | wc | wc_e | ia | ia_e |
++        ra | cp | xl | xl_e | xt | xt_e | xr | xr_e | xs | r_lowspmin | r_lowspminx |
++        r10 | r11 |  cp | rcode
+
 *  cp is kept in memory
 
 * symbolic target assignments
@@ -778,6 +969,12 @@ config_done
 
 *  other definitions that are dependent upon things defined in the machine definition file,
 *  and cannot be built until after the definition file has been read in.
+   bits.tab = initmap('bits0:0 bits1:1 bits2:2 bits3:4 bits4:8 bits5:16 bits6:32 '
++                     'bits7:64 bits8:128 bits9:256 bits10:512 bits11:1024 bits12:2048')
+
+   intconsts = initmap('intv0:0 intv1:1 intv2:2 intvt:10 intvh:100 intvth:1000')
+   
+* Get the input file
 
    filenami = 'sbl.lex'
    input(.infile,1,filenami)        :s(inputok)
@@ -2811,8 +3008,7 @@ g_mvc
    ne(cfp_b,cfp_c) genop('shl', wa, 'log_cfp_b')
    ne(cfp_b,cfp_c)               :s(g_mvw)
    t1 = genlab()
-   genop('rep')
-   genop('movs_b')
+   genop('rep movs_b')
                      :(opdone)
 
 *  *  9.2  MVW
@@ -2839,7 +3035,7 @@ g_mvc
 g_mvw
 
    genop('shr',wa,'log_cfp_b')
-   genop('rep','movs_w')
+   genop('rep movs_w')
                      :(opdone)
 
 *  *   9.3   MWB
