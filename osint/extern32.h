@@ -47,14 +47,14 @@ typedef double (*APDF[])();
  */
 
 typedef struct misc {
-    short vers;           /* version number of interface */
-    unsigned char ext;    /* host environment, see ext_type below */
-    unsigned char spare;  /* reserved */
-    mword nargs;          /* number of args to function */
-    mword (*ptyptab)[];   /* pointer to table of data types */
-    struct xnblk *pxnblk; /* ptr to xnblk describing function */
-    struct efblk *pefblk; /* ptr to efblk describing function */
-    APDF *pflttab;        /* ptr to array of floating point fncs */
+    short vers;            /* version number of interface */
+    unsigned char ext;     /* host environment, see ext_type below */
+    unsigned char spare;   /* reserved */
+    mword nargs;           /* number of args to function */
+    mword (*ptyptab)[];    /* pointer to table of data types */
+    struct xnblk *pxnblk;  /* ptr to xnblk describing function */
+    struct efblk *pefblk;  /* ptr to efblk describing function */
+    APDF *pflttab;         /* ptr to array of floating point fncs */
 } misc;
 
 enum ext_type {            /* Executing under: */

@@ -44,15 +44,14 @@ Init(long spitflag, DFLT_FLAGS);  /*  flags to be given to compiler */
 /*
 /   Memory variables that control compiler's dynamic area and stack.
 */
-Init(uword memincb, CHUNK_B_SIZE); /*  meminc converted to bytes */
-Init(uword databts, HEAP_SIZE * sizeof(word)); /*  max size in bytes of data area */
-NoInit(char *basemem);          /*  base of dynamic memory */
-NoInit(char *topmem);           /*  current top of dynamic memory */
-NoInit(char *maxmem);           /*  maximum top of dynamic memory */
+Init(uword memincb, CHUNK_B_SIZE);               /*  meminc converted to bytes */
+Init(uword databts, HEAP_SIZE * sizeof(word));   /*  max size in bytes of data area */
+NoInit(char *basemem);                           /*  base of dynamic memory */
+NoInit(char *topmem);                            /*  current top of dynamic memory */
+NoInit(char *maxmem);                            /*  maximum top of dynamic memory */
 Init(uword maxsize, OBJECT_SIZE * sizeof(word)); /*  maximum size element in dyn. memory */
-Init(uword stacksiz, STACK_SIZE); /*  maximum size of stack in bytes */
-NoInit(char *lowsp);              /*  lowest legal sp value */
-
+Init(uword stacksiz, STACK_SIZE);                /*  maximum size of stack in bytes */
+NoInit(char *lowsp);                             /*  lowest legal sp value */
 
 /*
 /   Variables that describe access to standard input and output files.
@@ -76,17 +75,17 @@ NoInit(char *pathptr);     /*  include file paths */
 
 NoInit(word bfblksize);
 NoInit(struct ioblk *save_iob);
-Init(word in_gbcol, 0);   /* record whether in GBCOL or not */
-Init(int mallocSys, 0);   /* Kludgy Intel interlock with malloc and free */
-Init(int first_time, -1); /* Flag for systm.c */
-NoInit(long start_time);  /* record start-up time for systm.c */
-NoInit(char savexl);      /* used by syshs.c */
+Init(word in_gbcol, 0);                 /* record whether in GBCOL or not */
+Init(int mallocSys, 0);                 /* Kludgy Intel interlock with malloc and free */
+Init(int first_time, -1);               /* Flag for systm.c */
+NoInit(long start_time);                /* record start-up time for systm.c */
+NoInit(char savexl);                    /* used by syshs.c */
 NoInit(char savexr);
 NoInit(int inc_fd[INCLUDE_DEPTH]);      /* used by sysif.c */
 NoInit(int fd);                         /*  "    "   " */
 NoInit(FILEPOS inc_pos[INCLUDE_DEPTH]); /*  "    "   " */
 
-Init(word maxf, -1); /* number of files specified this way -1 */
+Init(word maxf, -1);                    /* number of files specified this way -1 */
 
 /*
 /    Structure to record i/o files specified on command line
@@ -159,7 +158,7 @@ Init(struct ioblk inpiob, inpiobinit);
 Init(struct ioblk oupiob, outiobinit);
 
 NoInit(char namebuf[256]);
-NoInit(int save_fd0); /* Hold current fd 0 for swcinp */
+NoInit(int save_fd0);     /* Hold current fd 0 for swcinp */
 
 Init(int expanding, 0);   /* non-zero if doing expansion */
 Init(int compressing, 0); /* non-zero if doing expansion */
@@ -168,13 +167,13 @@ NoInit(int bufcnt);
 NoInit(unsigned char *bufptr);
 NoInit(int bit_count);
 NoInit(unsigned long bit_buffer);
-NoInit(short int *code_value); /* This is the code value array */
+NoInit(short int *code_value);       /* This is the code value array */
 NoInit(
-    short unsigned int *prefix_code); /* This array holds the prefix codes */
+  short unsigned int *prefix_code);  /* This array holds the prefix codes */
 NoInit(
-    unsigned char *append_character); /* This array holds the appended chars */
-NoInit(unsigned char *decode_stack);  /* This array holds the decoded string */
-NoInit(unsigned char *buffer);        /* Read/write buffer */
+  unsigned char *append_character);  /* This array holds the appended chars */
+NoInit(unsigned char *decode_stack); /* This array holds the decoded string */
+NoInit(unsigned char *buffer);       /* Read/write buffer */
 
 NoInit(int aoutfd);
 NoInit(FILEPOS fp);
@@ -197,7 +196,7 @@ extern int reg_size;
 extern int hasfpu;
 extern char cprtmsg[];
 extern word reg_block;
-extern void *compsp;      /*  minimal stack pointer - set when leaving minimal space */
+extern void *compsp; /*  minimal stack pointer - set when leaving minimal space */
 
 #if ENGINE
 

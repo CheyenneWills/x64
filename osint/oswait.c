@@ -30,7 +30,7 @@ oswait(int pid)
     int deadpid, status;
     struct chfcb *chptr;
 #if defined(USE_SIGACTION)
-    struct sigaction ignore = { .sa_handler = SIG_IGN };
+    struct sigaction ignore = {.sa_handler = SIG_IGN};
     struct sigaction istat, qstat, hstat;
     sigaction(SIGINT, &ignore, &istat);
     sigaction(SIGQUIT, &ignore, &qstat);
@@ -42,13 +42,13 @@ oswait(int pid)
     qstat = signal(SIGQUIT, SIG_IGN);
     hstat = signal(SIGHUP, SIG_IGN);
 #endif
-    while((deadpid = wait(&status)) != pid && deadpid != -1) {
-        for(chptr = GET_MIN_VALUE(r_fcb, struct chfcb *); chptr != 0;
-            chptr = ((struct chfcb *)(chptr->nxt))) {
-            if(deadpid ==
-               ((struct ioblk *)(((struct fcblk *)(chptr->fcp))->iob))->pid) {
+    while ((deadpid = wait(&status)) != pid && deadpid != -1) {
+        for (chptr = GET_MIN_VALUE(r_fcb, struct chfcb *); chptr != 0;
+             chptr = ((struct chfcb *)(chptr->nxt))) {
+            if (deadpid ==
+                ((struct ioblk *)(((struct fcblk *)(chptr->fcp))->iob))->pid) {
                 ((struct ioblk *)(((struct fcblk *)(chptr->fcp))->iob))
-                    ->flg2 |= IO_DED;
+                  ->flg2 |= IO_DED;
                 break;
             }
         }

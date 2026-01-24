@@ -47,13 +47,14 @@ zyspi()
     word retval;
 
     retval =
-        oswrite(1, ttyiobout.len, WA(word), &ttyiobout, XR(struct scblk *));
+      oswrite(1, ttyiobout.len, WA(word), &ttyiobout, XR(struct scblk *));
 
     /*
        /    Return error if oswrite fails.
      */
-    if(retval != 0)
+    if (retval != 0) {
         return EXIT_1;
+    }
 
     return NORMAL_RETURN;
 }
@@ -86,14 +87,15 @@ zysri()
     savechr = *saveptr;
 
     ((struct bfblk *)(ttyiobin.bfb))->size =
-        ++length; /* Size includes extra byte for \n */
+      ++length; /* Size includes extra byte for \n */
 
     length = osread(1, length, &ttyiobin, scb);
 
     *saveptr = savechr; /* Restore saved char */
 
-    if(length < 0)
+    if (length < 0) {
         return EXIT_1;
+    }
 
     /*
        /    Line read OK, so set string length and return normally.
@@ -107,8 +109,9 @@ void
 ttyoutfdn(File_handle h)
 {
     ttyiobout.fdn = h;
-    if(testty(h))
+    if (testty(h)) {
         ttyiobout.flg1 &= ~IO_COT;
-    else
+    } else {
         ttyiobout.flg1 |= IO_COT;
+    }
 }

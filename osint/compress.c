@@ -56,8 +56,8 @@ This file is part of Macro SPITBOL.
 
 #if LZWBITS == 14
 # define TABLE_SIZE 18041 /* The string table size needs to be a */
-#endif                    /* prime number that is somewhat larger */
-#if LZWBITS == 13         /* than 2**LZWBITS */
+#endif            /* prime number that is somewhat larger */
+#if LZWBITS == 13 /* than 2**LZWBITS */
 # define TABLE_SIZE 9029
 #endif
 #if LZWBITS == 12
@@ -94,24 +94,27 @@ static int find_match(int hash_prefix, unsigned int hash_character);
 int
 doexpand(int bits, char *freeptr, uword size)
 {
-    if(!(bits | expanding)) /* If not expanding, nothing to do */
+    if (!(bits | expanding)) { /* If not expanding, nothing to do */
         return 0;
+    }
 
-    if(!bits && expanding) { /* Turn off expansion */
-        if(extra)
-            sbrk(-extra); /* release any extra memory acquired */
+    if (!bits && expanding) { /* Turn off expansion */
+        if (extra) {
+            sbrk(-extra);     /* release any extra memory acquired */
+        }
         extra = 0;
         expanding = 0;
         return 0;
     }
 
-    if(bits == LZWBITS) { /* turn on expansion */
-        if(EMEMORY <= size)
-            extra = 0; /* no extra memory needed */
-        else {
+    if (bits == LZWBITS) {          /* turn on expansion */
+        if (EMEMORY <= size) {
+            extra = 0;              /* no extra memory needed */
+        } else {
             extra = EMEMORY - size; /* extra memory needed */
-            if((char *)sbrk((uword)extra) == (char *)-1)
-                return 1; /* not available */
+            if ((char *)sbrk((uword)extra) == (char *)-1) {
+                return 1;           /* not available */
+            }
         }
         expanding = bits;
 
@@ -137,12 +140,13 @@ input_code(word fd)
 {
     unsigned int return_value;
 
-    while(bit_count <= 24) {
-        if(bufcnt <= 0) {
+    while (bit_count <= 24) {
+        if (bufcnt <= 0) {
             bufcnt = read(fd, buffer, BUFF_SIZE);
-            if(bufcnt < 0)
+            if (bufcnt < 0) {
                 return MAX_VALUE;
-            if(!bufcnt) {    /* provide 0 at EOF until ... */
+            }
+            if (!bufcnt) {   /* provide 0 at EOF until ... */
                 *buffer = 0; /* ... bit_buffer is shifted out */
                 bufcnt++;
             }
@@ -164,8 +168,8 @@ output_code(unsigned int code)
     bit_buffer |= (unsigned long)code << (32 - LZWBITS - bit_count);
     bit_count += LZWBITS;
 
-    while(bit_count >= 8) {
-        if(bufcnt >= BUFF_SIZE) {
+    while (bit_count >= 8) {
+        if (bufcnt >= BUFF_SIZE) {
             wrtaout((unsigned char *)buffer, bufcnt);
             bufptr = buffer;
             bufcnt = 0;
@@ -188,10 +192,10 @@ decode_string(unsigned char *buffer, unsigned int code)
     int i;
 
     i = 0;
-    while(code > 255) {
+    while (code > 255) {
         *buffer++ = append_character[code];
         code = prefix_code[code];
-        if(i++ >= 4000) {
+        if (i++ >= 4000) {
             wrterr("Fatal error during save file expansion.");
             exit(1);
         }
@@ -223,11 +227,13 @@ expand(int fd, unsigned char *startadr, uword size)
     unsigned int new_code;
     unsigned int next_code;
 
-    if(!expanding)
+    if (!expanding) {
         return rdaout(fd, startadr, size);
+    }
 
-    if(!size)
+    if (!size) {
         return 0;
+    }
 
     next_code = 256;           /* This is the next available code to define */
     old_code = input_code(fd); /* Read in the first code, initialize the */
@@ -240,7 +246,7 @@ expand(int fd, unsigned char *startadr, uword size)
        LZW file /    until it sees the special code used to indicate the end of
        the data.
      */
-    while((new_code = input_code(fd)) != MAX_VALUE) {
+    while ((new_code = input_code(fd)) != MAX_VALUE) {
         /*
            /    This code checks for the special
            STRING+CHARACTER+STRING+CHARACTER+STRING /    case, which
@@ -248,7 +254,7 @@ expand(int fd, unsigned char *startadr, uword size)
            last code, adding a single character tothe end of the decode
            string
          */
-        if(new_code >= next_code) {
+        if (new_code >= next_code) {
             *decode_stack = character;
             string = decode_string(decode_stack + 1, old_code);
         }
@@ -256,14 +262,15 @@ expand(int fd, unsigned char *startadr, uword size)
         /*
            /   Otherwise we do a straight decode of the new code.
          */
-        else
+        else {
             string = decode_string(decode_stack, new_code);
+        }
 
         /*
            /    Now we output the decoded string in reverse order
          */
         character = *string;
-        while(string >= decode_stack) {
+        while (string >= decode_stack) {
             *startadr++ = *string--;
             size--;
         }
@@ -271,14 +278,15 @@ expand(int fd, unsigned char *startadr, uword size)
         /*
            /    Finally, if possible, add a new code to the string table.
          */
-        if(next_code <= MAX_CODE) {
+        if (next_code <= MAX_CODE) {
             prefix_code[next_code] = old_code;
             append_character[next_code] = character;
             next_code++;
         }
         old_code = new_code;
-        if(next_code > MAX_CODE)
+        if (next_code > MAX_CODE) {
             next_code = 256; /* Restart codes when it gets too big */
+        }
     }
     return (size == 0 ? 0 : -2);
 }
@@ -296,20 +304,23 @@ find_match(int hash_prefix, unsigned int hash_character)
     int offset;
 
     index = (hash_character << HASHING_SHIFT) ^ hash_prefix;
-    if(index == 0)
+    if (index == 0) {
         offset = 1;
-    else
+    } else {
         offset = TABLE_SIZE - index;
+    }
 
-    for(;;) {
-        if(code_value[index] == -1)
+    for (;;) {
+        if (code_value[index] == -1) {
             return index;
-        if(prefix_code[index] == hash_prefix
-           && append_character[index] == hash_character)
+        }
+        if (prefix_code[index] == hash_prefix && append_character[index] == hash_character) {
             return index;
+        }
         index -= offset;
-        if(index < 0)
+        if (index < 0) {
             index += TABLE_SIZE;
+        }
     }
 }
 
@@ -319,28 +330,32 @@ find_match(int hash_prefix, unsigned int hash_character)
 int
 docompress(int bits, char *freeptr, uword size)
 {
-    if(!(bits | compressing)) /* If not compressing, nothing to do */
+    if (!(bits | compressing)) { /* If not compressing, nothing to do */
         return 0;
+    }
 
-    if(!bits && compressing) { /* Turn off compression */
-        output_code(0);        /* This code flushes the output buffer */
-        if(bufcnt)
+    if (!bits && compressing) { /* Turn off compression */
+        output_code(0);         /* This code flushes the output buffer */
+        if (bufcnt) {
             wrtaout((unsigned char *)buffer, bufcnt);
+        }
         bufcnt = 0;
-        if(extra)
+        if (extra) {
             sbrk(-extra); /* release any extra memory acquired */
+        }
         extra = 0;
         compressing = 0;
         return 0;
     }
 
-    if(bits == LZWBITS) { /* turn on compression */
-        if(CMEMORY <= size)
-            extra = 0; /* no extra memory needed */
-        else {
+    if (bits == LZWBITS) {          /* turn on compression */
+        if (CMEMORY <= size) {
+            extra = 0;              /* no extra memory needed */
+        } else {
             extra = CMEMORY - size; /* extra memory needed */
-            if((char *)sbrk((uword)extra) == (char *)-1)
-                return 1; /* not available */
+            if ((char *)sbrk((uword)extra) == (char *)-1) {
+                return 1;           /* not available */
+            }
         }
         compressing = bits;
 
@@ -380,11 +395,13 @@ compress(unsigned char *startadr, uword size)
     unsigned int character;
     unsigned int next_code;
 
-    if(!compressing)
+    if (!compressing) {
         return wrtaout(startadr, size);
+    }
 
-    if(!size)
+    if (!size) {
         return 0;
+    }
 
     next_code = 256; /* next_code is the next available string code */
 
@@ -399,22 +416,21 @@ compress(unsigned char *startadr, uword size)
        all of /    the input has been exhausted.  Note that it clears the table
        and starts over /    when all of the possible codes have been define.
      */
-    while(size--) {
+    while (size--) {
         character = *startadr++;
 
-        index
-            = find_match(string_code, character); /* See if the string is in */
-        if(code_value[index] != -1)               /* the table.  If it is, */
-            string_code = code_value[index];      /* get the code value.  If */
-        else { /* the string is not in the */
-            /* table, try to add it. */ if(next_code <= MAX_CODE) {
+        index = find_match(string_code, character); /* See if the string is in */
+        if (code_value[index] != -1) {              /* the table.  If it is, */
+            string_code = code_value[index];        /* get the code value.  If */
+        } else {                                    /* the string is not in the */
+            /* table, try to add it. */ if (next_code <= MAX_CODE) {
                 code_value[index] = next_code++;
                 prefix_code[index] = string_code;
                 append_character[index] = character;
             }
-            output_code(string_code);  /* When a string is found */
-            string_code = character;   /* that is not in the table, */
-            if(next_code > MAX_CODE) { /* output the last string */
+            output_code(string_code);   /* When a string is found */
+            string_code = character;    /* that is not in the table, */
+            if (next_code > MAX_CODE) { /* output the last string */
                 /* after adding the new one */
                 /* Clear out the string hash table and restart
                  * codes */

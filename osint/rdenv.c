@@ -44,8 +44,9 @@ rdenv(struct scblk *varname, struct scblk *result)
 {
     char *p;
 
-    if((p = findenv(varname->str, varname->len)) == 0)
+    if ((p = findenv(varname->str, varname->len)) == 0) {
         return -1;
+    }
 
     cpys2sc(p, result, tscblk_length);
 
@@ -63,8 +64,9 @@ make_c_str(char *p)
     char rtn;
 
     rtn = *p;
-    if(rtn)
+    if (rtn) {
         *p = 0;
+    }
     return rtn;
 }
 
@@ -72,6 +74,7 @@ make_c_str(char *p)
 void
 unmake_c_str(char *p, char savech)
 {
-    if(savech)
+    if (savech) {
         *p = savech;
+    }
 }

@@ -27,16 +27,19 @@ initpath(char *name)
     int i;
 
     pathptr = findenv(name, length(name));
-    if(!pathptr) {
-        for(i = 0;; i++)
-            if((ucname[i] = uppercase(name[i])) == '\0')
+    if (!pathptr) {
+        for (i = 0;; i++) {
+            if ((ucname[i] = uppercase(name[i])) == '\0') {
                 break;
+            }
+        }
         pathptr = findenv(ucname, length(ucname));
     }
 
     /* skip leading paren if present */
-    if(pathptr && *pathptr == '(')
+    if (pathptr && *pathptr == '(') {
         pathptr++;
+    }
 }
 
 /*
@@ -49,35 +52,38 @@ trypath(char *name, char *file)
     char c;
 
     /* return 0 if no search path or fully-qualified name */
-    if(pathptr == (char *)0L || name[0] == FSEP
+    if (pathptr == (char *)0L || name[0] == FSEP
 #ifdef FSEP2
-       || name[0] == FSEP2
+        || name[0] == FSEP2
 #endif
     )
         return 0;
 
-    while(*pathptr == ' ') /* Skip initial blanks */
+    while (*pathptr == ' ') { /* Skip initial blanks */
         pathptr++;
-    if(!*pathptr)
+    }
+    if (!*pathptr) {
         return 0;
+    }
 
     do {
         c = (*file++ = *pathptr++);
     }
 #ifdef PSEP2
-    while(c && c != PSEP && c != PSEP2 && c != ')')
+    while (c && c != PSEP && c != PSEP2 && c != ')')
 #else
-    while(c && c != PSEP)
+    while (c && c != PSEP)
 #endif
-        ;
+      ;
 
-    if(!c)                    /* If exhausted the string, */
+    if (!c) {                 /* If exhausted the string, */
         pathptr = (char *)0L; /* clear pathptr so kick out on next call */
+    }
 
     file--;
     *file++ = FSEP;
 
-    while((*file++ = *name++) != 0)
+    while ((*file++ = *name++) != 0)
         ;
 
     *file = '\0';

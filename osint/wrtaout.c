@@ -37,24 +37,27 @@ openaout(char *fn, char *tmpfnbuf, int exe)
     mystrcpy(tmpfnbuf, fn);
     n = (unsigned int)clock();
     m = n = n - ((n / 10000) * 10000); /* put in range 0 - 9999 */
-    for(;;) {
-        p = pathlast(tmpfnbuf); /* p = address we can append to */
+    for (;;) {
+        p = pathlast(tmpfnbuf);        /* p = address we can append to */
         p = mystrcpy(p, "temp");
         p += stcu_d(p, n, 4);
         mystrcpy(p, ".tmp");
-        if(access(tmpfnbuf, 0) != 0)
+        if (access(tmpfnbuf, 0) != 0) {
             break;
+        }
         n++;
         n = n - ((n / 10000) * 10000); /* put in range 0 - 9999 */
-        if(m == n)
+        if (m == n) {
             return -1;
+        }
     }
 
-    if((aoutfd = spit_open(tmpfnbuf, O_WRONLY | O_TRUNC | O_CREAT,
-                           IO_PRIVATE | IO_DENY_READWRITE | exe
-                           /* ? 0777 : 0666 */,
-                           IO_REPLACE_IF_EXISTS | IO_CREATE_IF_NOT_EXIST)) < 0)
+    if ((aoutfd = spit_open(tmpfnbuf, O_WRONLY | O_TRUNC | O_CREAT,
+                            IO_PRIVATE | IO_DENY_READWRITE | exe
+                            /* ? 0777 : 0666 */,
+                            IO_REPLACE_IF_EXISTS | IO_CREATE_IF_NOT_EXIST)) < 0) {
         return -1;
+    }
     fp = (FILEPOS)0; /*   file position */
     return 0;
 }
@@ -74,8 +77,9 @@ openaout(char *fn, char *tmpfnbuf, int exe)
 int
 wrtaout(unsigned char *startadr, uword size)
 {
-    if((uword)write(aoutfd, startadr, size) != size)
+    if ((uword)write(aoutfd, startadr, size) != size) {
         return -2;
+    }
 
     fp += size; /*   advance file position */
     return 0;
@@ -107,12 +111,14 @@ seekaout(long pagesize)
        /   of desired length, then write a single character at that position.
        /   The file system will fill in seeked over characters.
      */
-    if((excess = ((long)fp & (pagesize - 1))) != 0) {
+    if ((excess = ((long)fp & (pagesize - 1))) != 0) {
         excess = pagesize - excess;
-        if(LSEEK(aoutfd, (FILEPOS)(excess - 1), 1) < (FILEPOS)0)
+        if (LSEEK(aoutfd, (FILEPOS)(excess - 1), 1) < (FILEPOS)0) {
             return -3;
-        if(write(aoutfd, "", 1) != 1)
+        }
+        if (write(aoutfd, "", 1) != 1) {
             return -4;
+        }
         fp += (FILEPOS)excess;
     }
 
@@ -135,13 +141,15 @@ word
 closeaout(char *fn, char *tmpfnbuf, word errflag)
 {
     close(aoutfd);
-    if(errflag == 0) {
-        unlink(fn); /* delete old file, if any */
-        if(rename(tmpfnbuf, fn) != 0)
+    if (errflag == 0) {
+        unlink(fn);       /* delete old file, if any */
+        if (rename(tmpfnbuf, fn) != 0) {
             errflag = -1; /* if can't rename it */
+        }
     }
-    if(errflag != 0) /* if failing, delete temp file */
+    if (errflag != 0) {   /* if failing, delete temp file */
         unlink(tmpfnbuf);
+    }
     return errflag;
 }
 
@@ -161,8 +169,9 @@ closeaout(char *fn, char *tmpfnbuf, word errflag)
 int
 rdaout(int fd, unsigned char *startadr, uword size)
 {
-    if((uword)read(fd, startadr, size) != size)
+    if ((uword)read(fd, startadr, size) != size) {
         return -2;
+    }
 
     fp += size; /*   advance file position */
     return 0;

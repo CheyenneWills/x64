@@ -53,7 +53,7 @@ zyspr()
        /    Do writes in line mode.
      */
 
-    if(oswrite(1, oupiob.len, WA(word), &oupiob, XR(struct scblk *)) < 0) {
+    if (oswrite(1, oupiob.len, WA(word), &oupiob, XR(struct scblk *)) < 0) {
         return EXIT_1;
     }
 
@@ -87,10 +87,10 @@ zysrd()
     word length;
     struct scblk *scb = XR(struct scblk *);
 
-    if(provide_name) {
+    if (provide_name) {
         /* Provide compiler with name of source file, if desired. */
         provide_name = 0;
-        if(sfn && sfn[0]) {
+        if (sfn && sfn[0]) {
             cpys2sc(sfn, scb, WC(word));
             return EXIT_1;
         }
@@ -101,14 +101,14 @@ zysrd()
        /    file, call function swcinp to switch to the next file, if any, except
        /       if within an include file.
      */
-    while((length = osread(1, WC(word), &inpiob, scb)) < 0) {
-        if(nesting || swcinp(inpcnt, inpptr) < 0) {
+    while ((length = osread(1, WC(word), &inpiob, scb)) < 0) {
+        if (nesting || swcinp(inpcnt, inpptr) < 0) {
             /* EOF */
             scb->len = 0;
             return EXIT_1;
         } else {
             /* Successful switch, report new file name if still in compilation phase */
-            if(!executing && sfn && sfn[0]) {
+            if (!executing && sfn && sfn[0]) {
                 cpys2sc(sfn, scb, WC(word));
                 return EXIT_1;
             }
@@ -118,18 +118,18 @@ zysrd()
     /*
        /    Special check for '#!' invocation.
      */
-    if(first_record && inpptr) {
+    if (first_record && inpptr) {
         first_record = 0;
-        if(scb->str[0] == '#' && scb->str[1] == '!') {
+        if (scb->str[0] == '#' && scb->str[1] == '!') {
             cmdcnt = gblargc - inpcnt + 1;
             inpcnt = 1;
-            while((length = osread(1, WC(word), &inpiob, scb)) < 0) {
-                if(swcinp(inpcnt, inpptr) < 0) {
+            while ((length = osread(1, WC(word), &inpiob, scb)) < 0) {
+                if (swcinp(inpcnt, inpptr) < 0) {
                     scb->len = 0;
                     return EXIT_1;
                 }
                 /* Successful switch, report new file name */
-                if(sfn && sfn[0]) {
+                if (sfn && sfn[0]) {
                     cpys2sc(sfn, scb, WC(word));
                     return EXIT_1;
                 }

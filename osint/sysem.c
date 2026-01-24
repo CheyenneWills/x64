@@ -65,12 +65,15 @@ zysem()
 word
 special(word c)
 {
-    if(c == 0)
+    if (c == 0) {
         return 0;
-    if(c < 32)
+    }
+    if (c < 32) {
         return c;
-    if(c < 128)
+    }
+    if (c < 128) {
         return 0;
+    }
     return (c - 96);
 }
 
@@ -99,8 +102,8 @@ msgcopy(word n, unsigned char ERRDIST *source, char *dest)
     /*
        /   Scan to first character of Nth string
      */
-    for(; n--;) {
-        for(; *source++;)
+    for (; n--;) {
+        for (; *source++;)
             ;
     }
 
@@ -110,11 +113,12 @@ msgcopy(word n, unsigned char ERRDIST *source, char *dest)
        /       from phrases array.
        /    If normal character, just copy it.
      */
-    for(; (c = *source++) != 0;) {
-        if((k = special(c)) != 0)
+    for (; (c = *source++) != 0;) {
+        if ((k = special(c)) != 0) {
             dest += msgcopy(k, phrases, dest);
-        else
+        } else {
             *dest++ = c;
+        }
     }
 
     /*

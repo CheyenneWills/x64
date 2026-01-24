@@ -63,19 +63,21 @@ lenfnm(struct scblk *scptr)
        /    Null strings have filenames with lengths of 0.
      */
     len = len2 = scptr->len;
-    if(len == 0)
+    if (len == 0) {
         return 0L;
+    }
 
     /*
        /   Here to examine end of string for "[option]".
      */
     cp = &scptr->str[--len2]; /* last char of strng */
-    if(*cp == ']') {          /* string end with "]" ? */
+    if (*cp == ']') {         /* string end with "]" ? */
         /* String ends with "]", find preceeding "[" */
-        while(len2--) {
-            if(*--cp == ']')
+        while (len2--) {
+            if (*--cp == ']') {
                 break;
-            if(*cp == '[') {
+            }
+            if (*cp == '[') {
                 /* valid option syntax, remove from length of
                  * string we'll examine */
                 len = cp - scptr->str;
@@ -92,17 +94,20 @@ lenfnm(struct scblk *scptr)
        /   Count characters through second occurrence of delimiting
        /   character.  lenfnm( "!!foo goo!" ) = 10
      */
-    if(*cp == '!') {
-        if(len < 3L) /* "!!" clearly invalid */
+    if (*cp == '!') {
+        if (len < 3L) {       /* "!!" clearly invalid */
             return -1L;
-        delim = *++cp;     /*  pick up delimiter */
-        if(*++cp == delim) /* "!!!" also invalid */
+        }
+        delim = *++cp;        /*  pick up delimiter */
+        if (*++cp == delim) { /* "!!!" also invalid */
             return -1L;
+        }
         /*  count chars up to delim */
-        for(cnt = 2; cnt < len && *cp++ != delim; cnt++)
+        for (cnt = 2; cnt < len && *cp++ != delim; cnt++)
             ;
-        if(*--cp == delim) /* if last char is delim then */
-            ++cnt;         /*   include it in the count */
+        if (*--cp == delim) { /* if last char is delim then */
+            ++cnt;            /*   include it in the count */
+        }
         return cnt;
     }
 
@@ -110,7 +115,7 @@ lenfnm(struct scblk *scptr)
        /   Here for a normal filename.  Just count the number of characters
        /   up to the first blank or end of string, whichever occurs first.
      */
-    for(cnt = 0; cnt < len && *cp++ != ' '; cnt++)
+    for (cnt = 0; cnt < len && *cp++ != ' '; cnt++)
         ;
     return cnt;
 }

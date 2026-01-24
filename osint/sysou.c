@@ -28,7 +28,7 @@ zysou()
     union block *blk = XR(union block *);
     int result;
 
-    if(blk->scb.typ == TYPE_SCL) {
+    if (blk->scb.typ == TYPE_SCL) {
         /* called with string, get length from SCBLK */
         SET_WA(blk->scb.len);
     } else {
@@ -39,25 +39,29 @@ zysou()
         SET_XR(blk->bcb.bcbuf);
     }
 
-    if(fcb == (struct fcblk *)0 || fcb == (struct fcblk *)1) {
-        if(!fcb)
+    if (fcb == (struct fcblk *)0 || fcb == (struct fcblk *)1) {
+        if (!fcb) {
             result = zyspi();
-        else
+        } else {
             result = zyspr();
-        if(result == NORMAL_RETURN)
+        }
+        if (result == NORMAL_RETURN) {
             return NORMAL_RETURN;
-        else
+        } else {
             return EXIT_2;
+        }
     }
 
     /* ensure iob is open, fail if unsuccessful */
-    if(!(((struct ioblk *)(fcb->iob))->flg1 & IO_OPN))
+    if (!(((struct ioblk *)(fcb->iob))->flg1 & IO_OPN)) {
         return EXIT_1;
+    }
 
     /* write the data, fail if unsuccessful */
-    if(oswrite(fcb->mode, fcb->rsz, WA(word), ((struct ioblk *)(fcb->iob)),
-               XR(struct scblk *)) != 0)
+    if (oswrite(fcb->mode, fcb->rsz, WA(word), ((struct ioblk *)(fcb->iob)),
+                XR(struct scblk *)) != 0) {
         return EXIT_2;
+    }
 
     /* normal return */
     return NORMAL_RETURN;

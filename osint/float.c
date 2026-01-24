@@ -31,7 +31,7 @@ This file is part of Macro SPITBOL.
 #include <math.h>
 #define FE_SBL_EXCEPT (FE_INVALID | FE_DIVBYZERO | FE_OVERFLOW | FE_UNDERFLOW)
 
-#if(FLOAT & !FLTHDWR) | EXTFUN
+#if (FLOAT & !FLTHDWR) | EXTFUN
 
 # if 0
 /* overflow codes */

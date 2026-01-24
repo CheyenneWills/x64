@@ -40,20 +40,22 @@ zyscm()
 {
     word result;
 
-    if(!kvcom_ptr) /* Cheap optimization to speed up */
+    if (!kvcom_ptr) {                               /* Cheap optimization to speed up */
         kvcom_ptr = GET_DATA_OFFSET(KVCOM, long *); /* &COMPARE consultation */
+    }
 
     result = gencmp(XL(char *), XR(char *), WA(word), WB(word), *kvcom_ptr);
 
     SET_XL(0);
 
-    if(result == 0x80000000)
+    if (result == 0x80000000) {
         return EXIT_1;
-    else if(result == 0)
+    } else if (result == 0) {
         return NORMAL_RETURN;
-    else if(result < 0)
+    } else if (result < 0) {
         return EXIT_2;
-    else
+    } else {
         return EXIT_3;
+    }
 }
 #endif /* ALTCOMP */

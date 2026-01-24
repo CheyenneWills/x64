@@ -27,8 +27,9 @@ struct termios termiosbuf;
 int
 testty(int fd)
 {
-    if(fstat(fd, &statbuf))
+    if (fstat(fd, &statbuf)) {
         return -1;
+    }
     return S_ISCHR(statbuf.st_mode) ? 0 : -1;
 }
 
@@ -50,13 +51,15 @@ ttyraw(int fd, int flag)
 
 {
     /* read current params */
-    if(testty(fd))
+    if (testty(fd)) {
         return; /* exit if not tty */
+    }
     tcgetattr(fd, &termiosbuf);
-    if(flag)
+    if (flag) {
         termiosbuf.c_lflag &= ~(ICANON | ECHO); /* Setting */
-    else
-        termiosbuf.c_lflag |= (ICANON | ECHO); /* Clearing */
+    } else {
+        termiosbuf.c_lflag |= (ICANON | ECHO);  /* Clearing */
+    }
 
-    tcsetattr(fd, TCSANOW, &termiosbuf); /* store device flags */
+    tcsetattr(fd, TCSANOW, &termiosbuf);        /* store device flags */
 }

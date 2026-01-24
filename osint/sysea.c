@@ -31,8 +31,9 @@ eacpy(char *s1, char *s2, int n)
 {
     char *s0 = s1 + n;
 
-    while(n--)
+    while (n--) {
         *s1++ = *s2++;
+    }
     return s0;
 }
 
@@ -57,15 +58,15 @@ zysea()
     char *p;
 
     /* Display file name if present */
-    if(fnscblk->len) {
+    if (fnscblk->len) {
         p = ptscblk->str;
         p = eacpy(p, fnscblk->str, (int)fnscblk->len);
         /* Display line number if present */
-        if(WC(unsigned int)) {
+        if (WC(unsigned int)) {
             *p++ = '(';
             p += stcu_d(p, WC(unsigned int), 16);
             /* Display character position if present */
-            if(WB(unsigned int)) {
+            if (WB(unsigned int)) {
                 *p++ = ',';
                 p += stcu_d(p, WB(unsigned int) + 1, 16);
             }

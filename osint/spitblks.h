@@ -48,10 +48,10 @@ struct bsblk {
  */
 
 struct cdblk {
-    word cdjmp; /* ptr to routine to execute statement */
-    word cdstm; /* statement number */
-    word cdsln; /* source file line number */
-    word cdlen; /* length of CDBLK in bytes */
+    word cdjmp;              /* ptr to routine to execute statement */
+    word cdstm;              /* statement number */
+    word cdsln;              /* source file line number */
+    word cdlen;              /* length of CDBLK in bytes */
     union {
         struct cdblk *cdnxt; /* if failure exit is next statement */
         struct vrblk *cdlab; /* if failure exit is a simple label */

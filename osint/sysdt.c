@@ -49,8 +49,9 @@ zysdt()
 int
 storedate(char *cp, word maxlen)
 {
-    if(maxlen < 18)
+    if (maxlen < 18) {
         return 0;
+    }
 
     return datecvt(cp, 0);
 }
@@ -68,33 +69,33 @@ datecvt(char *cp, int type)
     tod = time(NULL);
     tm = localtime(&tod);
 
-    switch(type) {
-    default:
-    case 0: /* "MM/DD/YY hh:mm:ss" */
-        conv(cp, tm->tm_mon + 1);
-        cp[2] = '/';
-        conv(cp + 3, tm->tm_mday);
-        cp[5] = '/';
-        conv(cp + 6, tm->tm_year % 100); /* Prepare for year 2000! */
-        return 8 + timeconv(&cp[8], tm);
+    switch (type) {
+        default:
+        case 0: /* "MM/DD/YY hh:mm:ss" */
+            conv(cp, tm->tm_mon + 1);
+            cp[2] = '/';
+            conv(cp + 3, tm->tm_mday);
+            cp[5] = '/';
+            conv(cp + 6, tm->tm_year % 100); /* Prepare for year 2000! */
+            return 8 + timeconv(&cp[8], tm);
 
-    case 1: /* "MM/DD/YYYY hh:mm:ss" */
-        conv(cp, tm->tm_mon + 1);
-        cp[2] = '/';
-        conv(cp + 3, tm->tm_mday);
-        cp[5] = '/';
-        conv(cp + 6, (tm->tm_year + 1900) / 100);
-        conv(cp + 8, tm->tm_year % 100); /* Prepare for year 2000! */
-        return 10 + timeconv(&cp[10], tm);
+        case 1:                              /* "MM/DD/YYYY hh:mm:ss" */
+            conv(cp, tm->tm_mon + 1);
+            cp[2] = '/';
+            conv(cp + 3, tm->tm_mday);
+            cp[5] = '/';
+            conv(cp + 6, (tm->tm_year + 1900) / 100);
+            conv(cp + 8, tm->tm_year % 100); /* Prepare for year 2000! */
+            return 10 + timeconv(&cp[10], tm);
 
-    case 2: /* "YYYY-MM-DD/YYYY hh:mm:ss" */
-        conv(cp + 0, (tm->tm_year + 1900) / 100);
-        conv(cp + 2, tm->tm_year % 100); /* Prepare for year 2000! */
-        cp[4] = '-';
-        conv(cp + 5, tm->tm_mon + 1);
-        cp[7] = '-';
-        conv(cp + 8, tm->tm_mday);
-        return 10 + timeconv(&cp[10], tm);
+        case 2:                              /* "YYYY-MM-DD/YYYY hh:mm:ss" */
+            conv(cp + 0, (tm->tm_year + 1900) / 100);
+            conv(cp + 2, tm->tm_year % 100); /* Prepare for year 2000! */
+            cp[4] = '-';
+            conv(cp + 5, tm->tm_mon + 1);
+            cp[7] = '-';
+            conv(cp + 8, tm->tm_mday);
+            return 10 + timeconv(&cp[10], tm);
     }
 }
 

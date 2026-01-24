@@ -17,24 +17,27 @@ stc_d(char *out, unsigned int in, int outlen, int signflag)
     int i = 0;
     char *out0 = out;
 
-    if(outlen <= 0)
+    if (outlen <= 0) {
         return (0);
+    }
 
-    if(in == 0)
+    if (in == 0) {
         revnum[i++] = 0;
-    else
-        while(in) {
+    } else {
+        while (in) {
             revnum[i++] = in - (in / 10) * 10;
             in /= 10;
         }
+    }
 
-    if(signflag) {
+    if (signflag) {
         *out++ = '-';
         outlen--;
     }
 
-    for(; i && outlen; i--, outlen--)
+    for (; i && outlen; i--, outlen--) {
         *out++ = revnum[i - 1] + '0';
+    }
 
     *out = '\0';
 

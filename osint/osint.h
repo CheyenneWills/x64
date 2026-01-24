@@ -12,8 +12,8 @@ Copyright 2012-2017 David Shields
 */
 
 /*
-/   Set up externals for all the compiler's registers.
-*/
+ *  Set up externals for all the compiler's registers.
+ */
 
 extern word reg_cp, reg_wa, reg_wb, reg_wc, reg_xr, reg_xl, reg_xs, reg_w0;
 extern signed char reg_fl;
@@ -32,8 +32,8 @@ extern uword minimal_id;
 #define MP_OFF(cp, type) ((type)cp)
 
 /*
-/   Macros to fetch a value of appropriate type from a compiler register
-*/
+ *  Macros to fetch a value of appropriate type from a compiler register
+ */
 
 #define CP(type) ((type)reg_cp)
 #define IA(type) ((type)reg_ia)
@@ -48,8 +48,8 @@ extern uword minimal_id;
 #define RA(type) ((type)reg_ra)
 
 /*
-/   Macros to set a value of appropriate type into a compiler register.
-*/
+ *  Macros to set a value of appropriate type into a compiler register.
+ */
 #define SET_CP(val) (reg_cp = (word)(val))
 #define SET_IA(val) (reg_ia = (val))
 #define SET_W0(val) (reg_w0 = (word)(val))
@@ -63,8 +63,8 @@ extern uword minimal_id;
 #define SET_RA(val) (reg_ra = (double)(val))
 
 /*
-/   Return values to take exit N from interface
-*/
+ *  Return values to take exit N from interface
+ */
 #define EXIT_1 1
 #define EXIT_2 2
 #define EXIT_3 3
@@ -76,14 +76,14 @@ extern uword minimal_id;
 #define EXIT_9 9
 
 /*
-/    Return value to do a normal return from interface.
-*/
+ *   Return value to do a normal return from interface.
+ */
 #define NORMAL_RETURN 0
 
 /*
-/    Function to call into MINIMAL code.
-/    The argument is an ordinal number defined below.
-*/
+ *   Function to call into MINIMAL code.
+ *   The argument is an ordinal number defined below.
+ */
 extern void minimal(void);
 extern void popregs(void);
 extern void pushregs(void);
@@ -94,11 +94,11 @@ extern void pushregs(void);
 #define MINRESTORE() popregs()
 
 /*
-/    Ordinals for MINIMAL calls from C.
-/
-/   The order of entries here must correspond to the order of
-/   table entries in the INTER assembly language module.
-*/
+ *   Ordinals for MINIMAL calls from C.
+ *
+ * The order of entries here must correspond to the order of
+ * table entries in the INTER assembly language module.
+ */
 enum CALLS {
     minimal_relaj,
     minimal_relcr,
@@ -117,30 +117,30 @@ enum CALLS {
 };
 
 /*
-/    Function and macro to get/set value from/to MINIMAL dataspace.
-/    The argument is an ordinal number defined below.
-/       GET_DATA_OFFSET returns the address of a Minimal data value.
-/       GET_CODE_OFFSET returns the address of a Minimal routine.
-/    GET_MIN_VALUE returns the contents of an item of Minimal data.
-/    SET_MIN_VALUE sets the contents of an item of Minimal data.
-*/
+ *   Function and macro to get/set value from/to MINIMAL dataspace.
+ *   The argument is an ordinal number defined below.
+ *      GET_DATA_OFFSET returns the address of a Minimal data value.
+ *      GET_CODE_OFFSET returns the address of a Minimal routine.
+ *   GET_MIN_VALUE returns the contents of an item of Minimal data.
+ *   SET_MIN_VALUE sets the contents of an item of Minimal data.
+ */
 #define GET_CODE_OFFSET(vn, type) ((type)vn)
 #define GET_DATA_OFFSET(vn, type) ((type)&vn)
 #define GET_MIN_VALUE(vn, type) ((type)vn)
 #define SET_MIN_VALUE(vn, val, type) (*(type *)&vn = (type)(val))
 
 /*
-/   Names for accessing MINIMAL data values via GET_DATA_OFFSET macro.
-*/
+ *  Names for accessing MINIMAL data values via GET_DATA_OFFSET macro.
+ */
 extern word gbcnt, headv, mxlen, stage, timsx, dnamb, dnamp, state, stbas,
-    statb, polct, typet, lowspmin, flprt, flptr, gtcef, hshtb, pmhbs, r_fcb,
-    c_aaa, c_yyy, g_aaa, w_yyy, r_cod, kvstn, kvdmp, kvftr, kvcom, kvpfl,
-    cswfl, stmcs, stmct, ticblk, tscblk, id1blk, id2blk, inpbuf, ttybuf,
-    end_min_data;
+  statb, polct, typet, lowspmin, flprt, flptr, gtcef, hshtb, pmhbs, r_fcb,
+  c_aaa, c_yyy, g_aaa, w_yyy, r_cod, kvstn, kvdmp, kvftr, kvcom, kvpfl,
+  cswfl, stmcs, stmct, ticblk, tscblk, id1blk, id2blk, inpbuf, ttybuf,
+  end_min_data;
 
 /*
-/   Names for accessing MINIMAL code values via GET_CODE_OFFSET macro.
-*/
+ *  Names for accessing MINIMAL code values via GET_CODE_OFFSET macro.
+ */
 extern void b_efc();
 extern void b_icl();
 extern void b_rcl();

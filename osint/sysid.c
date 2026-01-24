@@ -50,8 +50,9 @@ zysid()
     *cp++ = ' ';
     *cp++ = ' ';
     s = ctime(&now);
-    for(i = 0; i < strlen(s); i++)
+    for (i = 0; i < strlen(s); i++) {
         *cp++ = s[i];
+    }
     pid2blk->len = pid2blk->len + 2 + strlen(s);
     SET_XL(pid2blk);
     return NORMAL_RETURN;

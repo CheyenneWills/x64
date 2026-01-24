@@ -66,18 +66,18 @@ main(int argc, char **argv)
        /   up for a restart.  Transfer control to function restart which
        actually /   resumes program execution.
      */
-    if(lmodstk) {
-        if(brk((char *)topmem) < 0) { /* restore topmem to its prior state */
+    if (lmodstk) {
+        if (brk((char *)topmem) < 0) { /* restore topmem to its prior state */
             wrterr("Insufficient memory to load.");
             exit(1);
         }
 
-        cmdcnt = 1;            /* allow access to command line args */
-        inpptr = 0;            /* no compilation input files */
-        inpcnt = 0;            /* ditto */
-        outptr = 0;            /* no compilation output file */
-        pathptr = (char *)-1L; /* include paths unknown */
-        clrbuf();              /* no chars left in std input buffer */
+        cmdcnt = 1;                 /* allow access to command line args */
+        inpptr = 0;                 /* no compilation input files */
+        inpcnt = 0;                 /* ditto */
+        outptr = 0;                 /* no compilation output file */
+        pathptr = (char *)-1L;      /* include paths unknown */
+        clrbuf();                   /* no chars left in std input buffer */
         sfn = 0;
 # if FLOAT
         hasfpu = checkfpu();        /* check for floating point hardware */
@@ -87,16 +87,16 @@ main(int argc, char **argv)
         zysdc();                    /* Brag if necessary */
         restart((char *)0L, lowsp); /* call restart to continue execution */
     }
-#endif /* EXECFILE */
+#endif                              /* EXECFILE */
 
     /*
      *  Process command line arguments
      */
     inpptr = getargs(argc, argv);
 
-    if(inpptr)
+    if (inpptr) {
         sfn = *inpptr; /* pointer to first file name */
-    else {
+    } else {
         zysdc();
         wrterr("");
         prompt();
@@ -112,23 +112,23 @@ main(int argc, char **argv)
      * test if floating point hardware present
      */
     hasfpu = checkfpu();
-#endif /* FLOAT */
+#endif                              /* FLOAT */
 
-    switch(getsave(getrdfd())) {
-    case 1:                     /* save file loaded */
-        inpcnt = 0;             /* v1.02 no more cmd line files */
-        swcinp(inpcnt, inpptr); /* v1.01 */
-        restart((char *)0L, lowsp);
+    switch (getsave(getrdfd())) {
+        case 1:                     /* save file loaded */
+            inpcnt = 0;             /* v1.02 no more cmd line files */
+            swcinp(inpcnt, inpptr); /* v1.01 */
+            restart((char *)0L, lowsp);
 
-    case 0: /* not a save file */
+        case 0:                     /* not a save file */
 #if RUNTIME
-        wrterr("SPITBOL save (.spx) file only!");
-#else  /* RUNTIME */
-        break;
-#endif /* RUNTIME */
+            wrterr("SPITBOL save (.spx) file only!");
+#else                               /* RUNTIME */
+            break;
+#endif                              /* RUNTIME */
 
-    case -1: /* error loading save file */
-        exit(1);
+        case -1:                    /* error loading save file */
+            exit(1);
     }
 
     /*
@@ -141,7 +141,7 @@ main(int argc, char **argv)
     /*
      *  Force the memory manager to initialize itself
      */
-    if(sbrk(0) == (char *)-1) {
+    if (sbrk(0) == (char *)-1) {
         wrterr("Insufficient memory.  Try smaller -d, -m, or -s command "
                "line options.");
         exit(1);
@@ -150,7 +150,7 @@ main(int argc, char **argv)
     /*
        /   Allocate stack
      */
-    if((lowsp = sbrk((uword)stacksiz)) == (char *)-1) {
+    if ((lowsp = sbrk((uword)stacksiz)) == (char *)-1) {
         wrterr("Stack memory unavailable.");
         exit(1);
     }
@@ -159,7 +159,7 @@ main(int argc, char **argv)
        /
      */
 
-    if((basemem = (char *)sbrk((uword)memincb)) == (char *)-1) {
+    if ((basemem = (char *)sbrk((uword)memincb)) == (char *)-1) {
         wrterr("Workspace memory unavailable.");
         exit(1);
     }
@@ -265,7 +265,7 @@ setout(void)
        to /   inform compiler and turn off header.
      */
     spitflag &= ~PRTICH;
-    if(testty(getprfd()) == 0) {
+    if (testty(getprfd()) == 0) {
         lnsppage = 0;
         spitflag |= (PRTICH | NOHEDR);
     }

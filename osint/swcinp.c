@@ -136,15 +136,16 @@ swcinp(int filecnt, char **fileptr)
      */
     sfn = "stdin";
 
-    if(originp < 0)
+    if (originp < 0) {
         originp = dup(0);
+    }
 
     /*
        /  Process files on command line, if any.
        /  Read file descriptor 0 provided by the shell when a '-'
        /  is encountered as a filename.
      */
-    if(curfile < filecnt) {
+    if (curfile < filecnt) {
         /*
            /  Point to next entry.  (Bump cmdcnt too!)
          */
@@ -160,7 +161,7 @@ swcinp(int filecnt, char **fileptr)
            /   If next entry is '-' then read file descriptor
            /   0 provided by the shell.
          */
-        if(*cp == '-') {
+        if (*cp == '-') {
             dup(originp); /* returns 0 */
             lastfd = 0;
             goto swci_exit;
@@ -170,48 +171,52 @@ swcinp(int filecnt, char **fileptr)
            /   Attempt to open file for reading.
          */
         sfn = cp;
-        for(i = 0;; i++) {
+        for (i = 0;; i++) {
             lastfd = -1;
-            switch(i) {
-            case 0: /* first pass, no alteration */
-                if((lastfd = tryopen(cp)) >= 0)
-                    goto swci_exit;
-                break;
+            switch (i) {
+                case 0: /* first pass, no alteration */
+                    if ((lastfd = tryopen(cp)) >= 0) {
+                        goto swci_exit;
+                    }
+                    break;
 #if !RUNTIME
-            case 1: /* try with .spt extension */
-                if(!executing && appendext(cp, COMPEXT, namebuf, 0))
-                    if((lastfd = tryopen(namebuf)) >= 0) {
-                        sfn = namebuf;
-                        goto swci_exit;
+                case 1: /* try with .spt extension */
+                    if (!executing && appendext(cp, COMPEXT, namebuf, 0)) {
+                        if ((lastfd = tryopen(namebuf)) >= 0) {
+                            sfn = namebuf;
+                            goto swci_exit;
+                        }
                     }
-                break;
-#endif /* !RUNTIME */
+                    break;
+#endif                  /* !RUNTIME */
 
-            case 2: /* try with .spx extension */
-                if(!executing && curfile == 1 &&
-                   appendext(cp, RUNEXT, namebuf, 0))
-                    if((lastfd = tryopen(namebuf)) >= 0) {
-                        sfn = namebuf;
-                        goto swci_exit;
+                case 2: /* try with .spx extension */
+                    if (!executing && curfile == 1 &&
+                        appendext(cp, RUNEXT, namebuf, 0)) {
+                        if ((lastfd = tryopen(namebuf)) >= 0) {
+                            sfn = namebuf;
+                            goto swci_exit;
+                        }
                     }
-                break;
-            case 3:
-                /*
-                   /   Error opening file, so issue a message and exit
-                 */
-                write(STDERRFD, "Can't open ", 11);
-                write(STDERRFD, cp, length(cp));
-                wrterr("");
-                exit(1);
+                    break;
+                case 3:
+                    /*
+                       /   Error opening file, so issue a message and exit
+                     */
+                    write(STDERRFD, "Can't open ", 11);
+                    write(STDERRFD, cp, length(cp));
+                    wrterr("");
+                    exit(1);
             }
         }
-    } else
+    } else {
         lastfd = -1; /* ATTEMPT TO FIX PIPE BUG FOR COPPEN 10-FEB-95 */
+    }
 
     sfn = "stdin";
 
-    if(readshell0) {
-        if(!executing && filecnt) {
+    if (readshell0) {
+        if (!executing && filecnt) {
             wrterr("No END statement found in source file(s)."); /* V1.16 */
             exit(1);
         }
@@ -241,7 +246,7 @@ swci_exit:
 void
 save0()
 {
-    if((save_fd0 = dup(0)) >= 0) {
+    if ((save_fd0 = dup(0)) >= 0) {
         close(0);
         clrbuf();
         dup(originp);
@@ -256,7 +261,7 @@ save0()
 void
 restore0()
 {
-    if(save_fd0 >= 0) {
+    if (save_fd0 >= 0) {
         close(0);
         clrbuf();
         dup(save_fd0);
@@ -272,8 +277,8 @@ int
 tryopen(char *cp)
 {
     int fd;
-    if((fd = spit_open(cp, O_RDONLY, IO_PRIVATE | IO_DENY_WRITE,
-                       IO_OPEN_IF_EXISTS)) >= 0) {
+    if ((fd = spit_open(cp, O_RDONLY, IO_PRIVATE | IO_DENY_WRITE,
+                        IO_OPEN_IF_EXISTS)) >= 0) {
         return fd;
     }
     return -1;
@@ -310,9 +315,9 @@ pathlast(char *path)
        /    of the path.  If found a slash, the last component starts one
        /    position to the right.
      */
-    while(len--) {
+    while (len--) {
         c = *--cp;
-        if(c == FSEP) {
+        if (c == FSEP) {
             ++cp;
             break;
         }
@@ -344,16 +349,18 @@ appendext(char *path, char *ext, char *result, int force)
     q = pathlast(path);
     r = (char *)0;
     do {
-        if(path >= q && *path == EXT)
+        if (path >= q && *path == EXT) {
             r = p;
-    } while((*p++ = *path++) != 0);
+        }
+    } while ((*p++ = *path++) != 0);
 
     p--;
-    if(r != (char *)0) {
-        if(force)
-            p = r; /* copy over old extension */
-        else
+    if (r != (char *)0) {
+        if (force) {
+            p = r;    /* copy over old extension */
+        } else {
             return 0; /* no force but extension present */
+        }
     }
 
     p = mystrcpy(p, ext);
@@ -369,7 +376,7 @@ appendext(char *path, char *ext, char *result, int force)
 char *
 mystrcpy(char *p, char *q)
 {
-    while((*p++ = *q++) != 0)
+    while ((*p++ = *q++) != 0)
         ;
     return p - 1;
 }
@@ -382,7 +389,7 @@ int
 length(char *cp)
 {
     char *p = cp;
-    while(*p++)
+    while (*p++)
         ;
     return p - cp - 1;
 }
@@ -391,7 +398,8 @@ int
 mystrncpy(char *p, char *q, int i)
 {
     int j = i;
-    while(j--)
+    while (j--) {
         *p++ = *q++;
+    }
     return i;
 }

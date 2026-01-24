@@ -33,27 +33,29 @@ osopen(struct ioblk *ioptr)
     /*
        /    If file already open, return.
      */
-    if(ioptr->flg1 & IO_OPN)
+    if (ioptr->flg1 & IO_OPN) {
         return 0;
+    }
 
     /*
        /    Establish a few pointers and filename length.
      */
     scptr = ((struct scblk *)(ioptr->fnm)); /* point to filename SCBLK */
-    if(ioptr->flg2 & IO_ENV) {
-        if(optfile(scptr, ptscblk))
+    if (ioptr->flg2 & IO_ENV) {
+        if (optfile(scptr, ptscblk)) {
             return -1;
+        }
         scptr = ptscblk;
         ptscblk->len = lenfnm(scptr); /* remove any options */
     }
 
-    cp = scptr->str;     /* point to filename string */
-    len = lenfnm(scptr); /* get length of filename */
+    cp = scptr->str;                  /* point to filename string */
+    len = lenfnm(scptr);              /* get length of filename */
 
     /*
        /    Handle pipes here.
      */
-    if(cp[0] == '!') {         /* if pipe ... */
+    if (cp[0] == '!') {        /* if pipe ... */
         ioptr->flg2 |= IO_PIP; /*   then set flag and */
         fd = ospipe(ioptr);    /*      let ospipe() do work */
     }
@@ -62,13 +64,12 @@ osopen(struct ioblk *ioptr)
        /   Handle files here.
      */
     else {
-        savech
-            = make_c_str(&cp[len]); /*   else temporarily terminate filename */
-        if(ioptr->flg1 & IO_OUP) {  /*  output file */
-            fd = -1;                /* force creat if not update or append */
+        savech = make_c_str(&cp[len]); /*   else temporarily terminate filename */
+        if (ioptr->flg1 & IO_OUP) {    /*  output file */
+            fd = -1;                   /* force creat if not update or append */
 
             /* Look for "-" as a file name.  Assign to fd 1 */
-            if(len == 1 && *cp == '-') {
+            if (len == 1 && *cp == '-') {
                 fd = STDERRFD; /* was STDOUTFD, changed for WinNT
                                 */
                 ioptr->flg1 |= IO_SYS;
@@ -84,27 +85,29 @@ osopen(struct ioblk *ioptr)
                 int mode = O_CREAT; /* create file if it doesn't
                                        exist */
 
-                if(ioptr->flg1 & IO_WRC
-                   && !(ioptr->action & IO_OPEN_IF_EXISTS))
+                if (ioptr->flg1 & IO_WRC && !(ioptr->action & IO_OPEN_IF_EXISTS)) {
                     mode |= O_WRONLY;
-                else
+                } else {
                     mode |= O_RDWR;
+                }
 
                 /* if not update or append mode */
-                if(!(ioptr->flg1 & (IO_INP | IO_APP)))
+                if (!(ioptr->flg1 & (IO_INP | IO_APP))) {
                     mode |= O_TRUNC; /* truncate existing file */
+                }
 
                 fd = spit_open(cp, mode, ioptr->share /* 0666 */,
                                ioptr->action);
             }
         } else { /* input-only file */
             /* Look for "-" as a file name.  Assign to fd 0 */
-            if(len == 1 && *cp == '-') {
+            if (len == 1 && *cp == '-') {
                 fd = STDINFD;
                 ioptr->flg1 |= IO_SYS;
-            } else
+            } else {
                 fd = spit_open(cp, O_RDONLY, ioptr->share /* 0 */,
                                ioptr->action);
+            }
         }
         unmake_c_str(&cp[len], savech); /* restore filename string */
     }
@@ -120,18 +123,20 @@ osopen(struct ioblk *ioptr)
        /
        /    and then do a normal return.
      */
-    if(fd != -1) {
+    if (fd != -1) {
         ioptr->fdn = (word)fd;
         ioptr->flg1 |= IO_OPN;
-        if(ioptr->flg1 & IO_OUP && testty(fd) == 0)
+        if (ioptr->flg1 & IO_OUP && testty(fd) == 0) {
             ioptr->flg1 |= IO_WRC;
+        }
 
-        if(ioptr->flg1 & IO_WRC)
+        if (ioptr->flg1 & IO_WRC) {
             ioptr->bfb = 0;
+        }
 
-        if((ioptr->flg1 & (IO_OUP | IO_APP)) == (IO_OUP | IO_APP)
-           && !(ioptr->flg2 & IO_PIP))
+        if ((ioptr->flg1 & (IO_OUP | IO_APP)) == (IO_OUP | IO_APP) && !(ioptr->flg2 & IO_PIP)) {
             doset(ioptr, 0L, 2);
+        }
         return 0;
     }
 

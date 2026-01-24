@@ -14,7 +14,7 @@ prompt(void)
 {
 #if RUNTIME
     wrterr("usage: spitrun [options] file[.spx] [program arguments]");
-#else /* RUNTIME */
+#else  /* RUNTIME */
 
     wrterr("usage: spitbol [options] files[.sbl or .spx] [args to HOST(2)]");
 
@@ -25,7 +25,7 @@ prompt(void)
     wrterr("options: (# is a decimal number)");
     wrterr("-u \"string\" data string available to program");
     wrterr("-#=file   associate file with I/O channel #");
-#else /* RUNTIME */
+#else   /* RUNTIME */
     wrterr("source files are concatenated, filename '-' is standard "
            "input/output");
     wrterr("# is a decimal number.  Append \"k\" for kilobytes, \"m\" for "
@@ -63,7 +63,7 @@ prompt(void)
     wrterr("-#=file[options]  associate file with I/O channel #");
     wrterr("option defaults: -F -d128m -i1m -m16m -s4m");
 
-#endif /* RUNTIME */
+#endif  /* RUNTIME */
 
     exit(0);
 }
