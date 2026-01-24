@@ -22,7 +22,6 @@
     extern  inf
     extern  neg1f
     extern  zeron
-    extern  mxcsr_set
 
 ; Math functions
     extern atn_
@@ -188,34 +187,5 @@ do_rmi:
     ret
 do_rmi_over:
     xor     w0,w0
-    cmp     al,-128
-    ret
-
-; Check ra for inf or fpe exception
-; clobbers xmm1
-; sets:
-;  unordered  ZF PF CF all 1  (either is NAN)
-;  GT         ZF PF CF all 0
-;  LT         ZF PF zero CF 1
-;  EQUAL      ZF 1 PF CF 0
-;
-do_chk_real_inf:
-    stmxcsr [mxcsr]                 ; get SSE status word
-    test    m_word [mxcsr], 0x000c  ; Overflow | divide by zero set ZF=1
-    jnz     do_chk_real_inf_except  ;
-    test    m_word [mxcsr], 0x0013  ; All others set as zero and ZF=0
-    jnz     do_chk_real_inf_zero    ; Set value as zero and return "okay"
-    movapd  xmm1,ra
-    andpd   xmm1,m_reall [neg1f]    ; Test for +/- NAN
-    ucomisd xmm1,m_real [inf]
-    je      do_chk_real_inf_except
-    cmp     al,al
-    ret
-do_chk_real_inf_zero:               ; Some exception, return a zero ZF=0
-    pxor    ra,ra
-    cmp     al,al
-    ret
-do_chk_real_inf_except:             ; Overflow ZF=1
-    xor     al,al
     cmp     al,-128
     ret

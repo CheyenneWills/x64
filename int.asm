@@ -31,7 +31,6 @@
 
       global      reg_size
 
-      global      mxcsr_set
       global      minimal
 
       extern      calltab
@@ -145,9 +144,9 @@ minimal_engts     equ   13
 
       align 8
 ;                          0x8000          0x1000           0x0800           0x0400        | 0x200               |  0x0100        | 0x0040
-mxcsr_set:   dd  0x9fc0  ; Flush to zero | Precision mask | Underflow mask | Overflow mask | Divide by Zero mask | Denormal mask | Denormals are zero
+mxcsr_minimal:   dd  0x9fc0  ; Flush to zero | Precision mask | Underflow mask | Overflow mask | Divide by Zero mask | Denormal mask | Denormals are zero
 ;
-mxcsr_save:  dd   0           ; Preserved mxcsr (restore when returning to C -- except for math functions)
+mxcsr_osint:  dd   0           ; Preserved mxcsr (restore when returning to C -- except for math functions)
 
       align 8
 ;  constants
@@ -254,7 +253,7 @@ calltab_engts equ   13
 startup:
       pop   rax               ; discard return
       cld                     ; default to up direction for string ops
-      stmxcsr [mxcsr_save]    ; Remember default mxcsr
+      stmxcsr [mxcsr_osint]    ; Remember default mxcsr
 ; Set initial registers
       mov   r8, m_word [lowspmin]   ; internal registers
       mov   r9, m_word [lowspminx]  ; internal registers
@@ -344,10 +343,11 @@ minimal:
       mov   rsp,m_word [compsp]     ; switch to compiler stack
       mov   r8, m_word [lowspmin]
       mov   r9, m_word [lowspminx]
+      ldmxcsr [mxcsr_minimal]
 
  min1:
       call   m_word [calltab+r11*cfp_b]    ; off to the minimal code
-
+      ldmxcsr [mxcsr_osint]
 ; Return from Minimal
       mov   r11,rsp
       mov   rsp,m_word [osint_sp]      ; switch back to osint stack
@@ -460,10 +460,11 @@ do_syscall:
 ; rsp at this point must be aligned on a 16 byte alignment +8
       mov   m_word [lowspmin],r8
       mov   m_word [lowspminx],r9
-      ldmxcsr [mxcsr_save]           ; Restore C rtl mxcsr register
+      ldmxcsr [mxcsr_osint]           ; Restore C rtl mxcsr register
       call  r15
 
 syscall_exit:
+      ldmxcsr [mxcsr_minimal]           ; restore minimal's mxcsr
       mov   r15,rax                 ; Set return code
       pop   rax                     ; throwaway - padding
       pop   rbp

@@ -269,7 +269,7 @@ error_end
 
 -stitl flush_deferred
    define('flush_deferred()i') :(flush_deferred_end)
-flush_deferred   
+flush_deferred
    eq(dstmts.n)               :s(return)
    i = 1
 flush_d_0
@@ -329,7 +329,7 @@ flush_5
    opcode = t.opc(astmts[i])
    (leq(opcode, 'jmp'), leq(opcode, 'ret'))  :f(flush_5a)
    flush_deferred()
-flush_5a   
+flush_5a
    le(i = i + 1, astmts.n)                   :s(flush_5)
 
 flush_6
@@ -368,7 +368,7 @@ genbop_end
 *  that must be executed after a unconditional branch
 *  or ret
 *  these will typically be a label followed by a series
-*  of tests and conditional jumps.  
+*  of tests and conditional jumps.
 *  Used to fallthrough the mainline code path.
 gendop
    dstmts[dstmts.n = dstmts.n + 1] = stmt    :(return)
@@ -697,7 +697,7 @@ config_done
 
     p.comregs = break(letters) . pre span(letters) . word
 
-*  error_labels records the label and error code used   
+*  error_labels records the label and error code used
    error_labels = table(500)
 
 *  for each statement, code in generated into three
@@ -720,7 +720,7 @@ config_done
 *  initialize variables
 
    labcnt = output_lines = input_lines = nstmts = ntarget = nerrors = 0
-  
+
    max_exi = 0
 
 *  initial patterns
@@ -1293,9 +1293,9 @@ g_jsr
 *  get count of following ppm statements
 
    jsr_count = ppm_cases[jsr_proc]
-   
+
    eq(jsr_count)              :s(opdone)
-  
+
    genop('test',rcode,rcode)
    jsr_rcode = 0
    jsr_label = genlab()
@@ -1356,7 +1356,7 @@ g_prc
    prc.args = getarg(i2)
    ppm_cases[thislabel] = i.text(i2)
    max_exi = gt(prc.args,max_exi) prc.args
-   
+
    t1 = 999
    errfile = t1 ' internal logic error      : fall through into entry point'
    error_labels['err_999'] = t1
@@ -1458,10 +1458,10 @@ g_ppm.err.2
    max.err = gt(t1,max.err) t1
    gendop(tstmt(,'je','err_' t1))
    error_labels['err_' t1] = t1
-                    
+
 * Check to see if ppm/err are all done
 g_ppm.loop.next
-   jsr_count = jsr_count - 1  
+   jsr_count = jsr_count - 1
    eq(jsr_count, 0)                           :f(opdone)
 
    t1 = 299
@@ -1581,7 +1581,7 @@ g_rtn
 
    genop('align','16')
    genopl(thislabel)
-   thislabel =                 
+   thislabel =
                               :(opdone)
 
 *  #### 2-   Operations on One Word Integer Values (addresses)
@@ -2011,25 +2011,14 @@ g_ldr
 g_str
    genop('movsd', getarg(i1, 'm_real'), ra)  :(opdone)
 g_adr
-   genop('ldmxcsr', '[mxcsr_set]')
-   genop('addsd', ra, getarg(i1, 'm_real'))  :(g_runder)
+   genop('addsd', ra, getarg(i1, 'm_real'))  :(opdone)
 g_sbr
-   genop('ldmxcsr', '[mxcsr_set]')
-   genop('subsd', ra, getarg(i1, 'm_real'))  :(g_runder)
+   genop('subsd', ra, getarg(i1, 'm_real'))  :(opdone)
 g_mlr
-   genop('ldmxcsr', '[mxcsr_set]')
-   genop('mulsd', ra, getarg(i1, 'm_real'))  :(g_runder)
+   genop('mulsd', ra, getarg(i1, 'm_real'))  :(opdone)
 g_dvr
-   genop('ldmxcsr', '[mxcsr_set]')
-   genop('divsd', ra, getarg(i1, 'm_real'))  :(g_runder)
+   genop('divsd', ra, getarg(i1, 'm_real'))  :(opdone)
 
-g_runder
-   genop('stmxcsr', '[mxcsr]')
-   genop('test', 'm_word [mxcsr]','0x0010')
-   genop('jz', (l1 = genlab()))
-   genop('pxor', ra, ra)
-   genop('ldmxcsr', '[mxcsr_set]')
-   genopl(l1 ':')                                :(opdone)
 
 *  *   5.7   ROV  _plbl_
 
@@ -2043,11 +2032,22 @@ g_runder
 *  overflow (ADR,SBR MLR DVR.
 
 g_rov
-   genop('call', 'do_chk_real_inf')
-   genop('jnz', getarg(i1))           :(opdone)
+   genop('ucomisd',ra,ra)
+   genop('jp', getarg(i1))
+   genop('movaps','xmm1',ra)
+   genop('andpd','xmm1','m_reall [neg1f]')
+   genop('ucomisd','xmm1','m_real [inf]')
+   genop('je',getarg(i1))              :(opdone)
+
 g_rno
-   genop('call', 'do_chk_real_inf')
-   genop('jz', getarg(i1))           :(opdone)
+   genop('ucomisd',ra,ra)
+   genop('jp', l1 = genlab())
+   genop('movaps','xmm1',ra)
+   genop('andpd','xmm1','m_reall [neg1f]')
+   genop('ucomisd','xmm1','m_real [inf]')
+   genop('ja',l1)
+   genop('jmp', getarg(i1))
+   genopl(l1 ':')                      :(opdone)
 
 *  *   5.9 NGR
 
@@ -2391,7 +2391,7 @@ g_cne memmem()
 g_cmc
 
    genop('repe','cmps_b')
-* The following cannot change condition   
+* The following cannot change condition
    genop('mov',xl,'0')
    genop('mov',xr,'0')
    t1 = getarg(i1)
@@ -3204,11 +3204,11 @@ g_sec.7
 g_end
    error_labels = convert(error_labels,'array')
    i = 0
-g_errlabels   
+g_errlabels
    elabel = error_labels[i = i + 1, 1]      :f(g_err1)
    rcode = error_labels[i, 2]
    genopl(elabel ':','mov', wa, rcode )
-   genop('jmp', 'error')                   
+   genop('jmp', 'error')
    flush()                                  :(g_errlabels)
 
 g_err1
