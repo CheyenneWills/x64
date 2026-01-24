@@ -253,8 +253,8 @@ putsave(
     svfheader.heapsize = (uword)(GET_MIN_VALUE(dnamp, char *) - basemem);
     svfheader.heapadr = basemem;
     svfheader.topmem = topmem;
-    svfheader.databts = (uword)databts;
-    svfheader.memincb = (uword)memincb;
+    svfheader.heap_max = (uword)heap_max;
+    svfheader.heap_inc = (uword)heap_inc;
     svfheader.maxsize = (uword)maxsize;
     svfheader.sec5size =
       (uword)(GET_CODE_OFFSET(s_yyy, char *) -
@@ -416,16 +416,16 @@ getsave(int fd)
                 goto reload_err;
             }
             topmem = basemem + s;
-            if (svfheader.databts > (uword)databts) {
-                databts = svfheader.databts;
+            if (svfheader.heap_max > (uword)heap_max) {
+                heap_max = svfheader.heap_max;
             }
-            if (svfheader.memincb > (uword)memincb) {
-                memincb = svfheader.memincb;
+            if (svfheader.heap_inc > (uword)heap_inc) {
+                heap_inc = svfheader.heap_inc;
             }
             if (svfheader.maxsize > (uword)maxsize) {
                 maxsize = svfheader.maxsize;
             }
-            maxmem = basemem + databts;
+            maxmem = basemem + heap_max;
 
             if (doexpand(svfheader.compress, basemem + svfheader.heapsize,
                          (uword)(topmem - (basemem + svfheader.heapsize)))) {

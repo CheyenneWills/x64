@@ -5,22 +5,22 @@ Copyright 2012-2017 David Shields
 */
 
 /*
-/   File:  PORT.H   (SPITBOL)   Version:  01.11
-/   ---------------------------------------------------
-/
-/   This header file contains manifest constants that describe system
-/   dependencies.  Many of these values will be changed when porting
-/   the OS interface to another machine/operating system.
-*/
+ *   File:  PORT.H   (SPITBOL)   Version:  01.11
+ *   ---------------------------------------------------
+ *
+ *   This header file contains manifest constants that describe system
+ *   dependencies.  Many of these values will be changed when porting
+ *   the OS interface to another machine/operating system.
+ */
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdint.h>
 #include <string.h>
 
 /*
-/       Turn off system-specific features unless specifically called for
-/       in systype.h.
-*/
+ *       Turn off system-specific features unless specifically called for
+ *       in systype.h.
+ */
 
 #ifndef ALTCOMP
 # define ALTCOMP 0 /* no alternate string comparison */
@@ -50,6 +50,7 @@ Copyright 2012-2017 David Shields
 # ifndef INTBITS
 #  define INTBITS 32
 #  define MAXINT 0x7FFFFFFFL
+#  define MAXUINT 0xFFFFFFFFL
 # endif
 # ifndef WORDBITS
 #  define WORDBITS 32
@@ -64,6 +65,7 @@ Copyright 2012-2017 David Shields
 # ifndef INTBITS
 #  define INTBITS 64
 #  define MAXINT 0x7FFFFFFFFFFFFFFFL
+#  define MAXUINT 0xFFFFFFFFFFFFFFFFUL
 # endif
 # ifndef WORDBITS
 #  define WORDBITS 64
@@ -139,27 +141,17 @@ OUTPUT, TERMINAL
 /
 /   All values can be overriden via command line options.
 /
-/   CHUNK_SIZE          the size of an allocation unit (chunk) used to
-/                       create the heap.  Defined in WORDS!
-/
-/   CHUNK_B_SIZE        CHUNK_SIZE in bytes.
-/
-/   HEAP_SIZE           the maximum size that spitbol's heap (dynamic area)
-/                       can become.  Defined in WORDS!
+/   HEAP_INCR           Initial heap allocation and increment in bytes
+/   HEAP_MIN            Minimal heap size
 /
 /   OBJECT_SIZE         the maximum size of any object created in the heap.
-/                       Defined in WORDS!
-/       Note: It was necessary to reduce this value from 8M to 1M  because
-/       some DPMI hosts (like 386MAX) use much smaller
-/       starting address for data section.  4MB seems to be a good lowest
-/       common denominator so that Save files can move between all the
-/       different DPMI platforms.
+/                       in bytes
 */
 
-#define CHUNK_SIZE 131072	/* # words = 1M */
-#define CHUNK_B_SIZE (CHUNK_SIZE * sizeof(word))
-#define HEAP_SIZE 16777216  /* 16Mwords = 128Mbytes */
-#define OBJECT_SIZE 2097152 /* 2Mwords = 16 Mbytes */
+#define HEAP_INCR   16 * 1024 * 1024 /* default 64Mbytes */
+#define HEAP_MAX    MAXUINT 		 /* default limited by system */
+#define HEAP_MIN    16 * 1024 * 1024 /* default 16Mbytes */
+#define OBJECT_SIZE 16 * 1024 * 1024 /* default 16Mbytes */
 
 /*
  *  Define the maximum nesting allowed of INCLUDE files

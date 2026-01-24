@@ -8087,7 +8087,7 @@ kvert  dac  0                errtype
 kvftr  dac  0                ftrace
 kvfls  dac  1                fullscan
 kvinp  dac  1                input
-kvmxl  dac  5000             maxlength
+kvmxl  dac  0                maxlength
 kvoup  dac  1                output
 .if    .cnpf
 .else

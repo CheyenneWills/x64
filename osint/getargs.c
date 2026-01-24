@@ -24,12 +24,12 @@ Copyright 2012-2017 David Shields
  * Globals modified:
  *   cfiles[]
  *   cmdcnt
- *   databts
+ *   heap_max
  *   inpcnt
  *   lnsppage
  *   maxf
  *   maxsize
- *   memincb
+ *   heap_inc
  *   outptr
  *   pagewdth
  *   readshell0
@@ -121,10 +121,32 @@ getargs(int argc, char *argv[])
                     spitflag |= NOBRAG;
                     break;
 
-                case 'd': /* nnn set maximum size of dynamic area in bytes */
-                    cp = optnum(cp, &databts);
+                case 'd': /* ddd set absolute maximum size of dynamic area in bytes */
+                    if (*cp == '*') {
+                        heap_max = HEAP_MAX;
+                    } else {
+                        cp = optnum(cp, &heap_max);
+                        /* round up to machine word boundary */
+                        heap_max = (heap_max + sizeof(word) - 1) & ~(sizeof(word) - 1);
+                    }
+                    break;
+                case 'i': /* ddd{,ddd} initial heap and expansion size */
+                    cp = optnum(cp, &heap_initial_size);
                     /* round up to machine word boundary */
-                    databts = (databts + sizeof(int) - 1) & ~(sizeof(int) - 1);
+                    heap_initial_size = (heap_initial_size + sizeof(word) - 1) & ~(sizeof(word) - 1);
+                    if (heap_initial_size < HEAP_MIN) {
+                        heap_initial_size = HEAP_MIN;
+                    }
+                    if (*cp == ',') {
+                        cp = optnum(++cp, &heap_inc);
+                        /* round up to machine word boundary */
+                        heap_inc = (heap_inc + sizeof(word) - 1) & ~(sizeof(word) - 1);
+                    }
+                    break;
+                case 'm': /* ddd set maximum size of object in dynmaic area */
+                    cp = optnum(cp, &maxsize);
+                    /* round up to machine word boundary */
+                    maxsize = (maxsize + sizeof(word) - 1) & ~(sizeof(word) - 1);
                     break;
                 case 'e': /* don't send errors to terminal */
                     spitflag &= ~ERRORS;
@@ -135,15 +157,11 @@ getargs(int argc, char *argv[])
                 case 'F': /* fold lower case to upper case */
                     spitflag |= CASFLD;
                     break;
-                case 'i': /* ddd set memory expansion increment (bytes) */
-                    cp = optnum(cp, &memincb);
-                    break;
+
                 case 'k': /* run inspite of compilation errors */
                     spitflag &= ~NOERRO;
                     break;
-                case 'm': /* ddd set maximum size of object in dynmaic area */
-                    cp = optnum(cp, &maxsize);
-                    break;
+
                 case 'n': /* supress program execution */
                     spitflag |= NOEXEC;
                     break;
@@ -281,8 +299,8 @@ getnum(char *cp, uword *ip)
 /*
 /   optnum() converts an ASCII string to an integer AND returns a pointer
 /   to the character following the last valid digit.  optnum() is similar
-/   to getnum() except that optnum accepts a trailing 'k' or 'm' to indicate
-/   that the value should be scaled in units of 1,024 or 1,048,576.
+/   to getnum() except that optnum accepts a trailing 'k', 'm' or 'g' to indicate
+/   that the value should be scaled in units of 1,024, 1,048,576 1,073,741,824
 /
 /   Parameters:
 /        cp    pointer to character string
@@ -309,6 +327,10 @@ optnum(char *cp, uword *ip)
     if (c == 'm' || c == 'M') {
         ++cp;
         *ip <<= 20;
+    }
+    if (c == 'g' || c == 'G') {
+        ++cp;
+        *ip <<= 30;
     }
 
     return cp;

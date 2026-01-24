@@ -18,11 +18,11 @@ prompt(void)
     wrterr("source files are concatenated, filename '-' is standard "
            "input/output");
     wrterr("# is a decimal number.  Append \"k\" for kilobytes, \"m\" for "
-           "megabytes.");
+           "megabytes, \"g\" for gigabytes");
     wrterr("spitbol v4.0f");
     wrterr("options:");
-    wrterr("-d# #bytes max heap            -i# #bytes initial heap size & "
-           "enlarge amount");
+    wrterr("-d# #bytes max heap            -i#[,#] #bytes initial heap size");
+    wrterr("  -d* limited by system                [,#bytes increment size]");
     wrterr("-m# #bytes max object size     -s# #bytes stack size");
     wrterr("-c compiler statistics         -x execution statistics");
     wrterr("-a same as -lcx                -l normal listing");
@@ -41,7 +41,8 @@ prompt(void)
     wrterr("-r INPUT from source file following END statement");
     wrterr("-T=file  write TERMINAL output to file");
     wrterr("-#=file[options]  associate file with I/O channel #");
-    wrterr("option defaults: -F -d128m -i1m -m16m -s4m");
+    wrterr("");
+    wrterr("option defaults: -F -d* -i64m,64m -m16m -s4m");
 
     exit(0);
 }

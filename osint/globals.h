@@ -44,16 +44,17 @@ Init(long spitflag, DFLT_FLAGS);  /*  flags to be given to compiler */
 /*
 /   Memory variables that control compiler's dynamic area and stack.
 */
-Init(uword memincb, CHUNK_B_SIZE);               /*  meminc converted to bytes */
-Init(uword databts, HEAP_SIZE * sizeof(word));   /*  max size in bytes of data area */
-NoInit(char *basemem);                           /*  base of dynamic memory */
-NoInit(char *topmem);                            /*  current top of dynamic memory */
-NoInit(char *maxmem);                            /*  maximum top of dynamic memory */
-Init(uword maxsize, OBJECT_SIZE * sizeof(word)); /*  maximum size element in dyn. memory */
-Init(uword stacksiz, STACK_SIZE);                /*  maximum size of stack in bytes */
-NoInit(char *lowsp);                             /*  lowest legal sp value */
-NoInit(char *highsp);                            /*  highest legal sp value */
-NoInit(size_t currallocsize);                    /* Current memory allocation size */
+Init(uword heap_inc, HEAP_INCR);              /* heap increment (bytes) */
+Init(uword heap_max, HEAP_MAX);               /* absolute size in bytes of heap area (bytes) */
+Init(uword heap_initial_size, HEAP_INCR * 4); /* initial heap size (bytes) */
+NoInit(size_t heap_alloced_size);             /* Internal heap allocation size */
+NoInit(char *basemem);                        /* base of dynamic memory */
+NoInit(char *topmem);                         /* current top of dynamic memory */
+NoInit(char *maxmem);                         /* maximum top of dynamic memory */
+Init(uword maxsize, OBJECT_SIZE);             /* maximum size element in dyn. memory */
+Init(uword stacksiz, STACK_SIZE);             /* maximum size of stack in bytes */
+NoInit(char *lowsp);                          /* lowest legal sp value */
+NoInit(char *highsp);                         /* highest legal sp value */
 
 /*
 /   Variables that describe access to standard input and output files.
