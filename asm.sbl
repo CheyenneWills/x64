@@ -1835,7 +1835,7 @@ g_bct1
 g_aov
 
    genop('add',getarg(i2),getarg(i1))
-   genop('jc',getarg(i3))
+   genop('jo',getarg(i3))
                      :(opdone)
 *  *   2.18 BEV   _opn,plbl_
 
