@@ -86,8 +86,8 @@ zysif()
             /* If still not open, look in directory where SPITBOL resides. */
             int i = pathlast(gblargv[0]) - gblargv[0];
             if (i) {
-                mystrncpy(filebuf, gblargv[0], i);
-                mystrcpy(&filebuf[i], fnscb->schar);
+                strncpy(filebuf, gblargv[0], i);
+                strcat(filebuf, fnscb->schar);
                 fd = spit_open(filebuf, O_RDONLY, IO_PRIVATE | IO_DENY_WRITE,
                                IO_OPEN_IF_EXISTS);
             }
@@ -96,8 +96,8 @@ zysif()
             /* If still not open, look in directory where first source file resides. */
             int i = pathlast(sfn) - sfn;
             if (i) {
-                mystrncpy(filebuf, sfn, i);
-                mystrcpy(&filebuf[i], fnscb->schar);
+                strncpy(filebuf, sfn, i);
+                strcat(filebuf, fnscb->schar);
                 fd = spit_open(filebuf, O_RDONLY, IO_PRIVATE | IO_DENY_WRITE,
                                IO_OPEN_IF_EXISTS);
             }

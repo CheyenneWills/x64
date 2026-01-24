@@ -120,10 +120,10 @@ zysxi()
     /*  Prepare optional file name as a C string, open output file */
     savech = make_c_str(&(scfn->schar[scfn->sclen]));
     if (scfn->schar[0]) {
-        mystrcpy(fileName, scfn->schar);
+        strcpy(fileName, scfn->schar);
     } else {
-        mystrcpy(fileName,                                                   /* default file name */
-                 IA(long) < 0 ? SAVE_FILE : AOUT_FILE);
+        strcpy(fileName,                                                     /* default file name */
+               IA(long) < 0 ? SAVE_FILE : AOUT_FILE);
     }
     retval = openaout(fileName, tmpfnbuf, (IA(long) < 0 ? 0 : IO_EXECUTABLE) /* executable? */
     );
@@ -334,7 +334,7 @@ putsave(
               GET_CODE_OFFSET(s_aaa, char *));
     svfheader.sec5adr = GET_CODE_OFFSET(s_aaa, char *);
     svfheader.compress = (uword)LZWBITS;
-    svfheader.uarglen = uarg ? (uword)length(uarg) : 0;
+    svfheader.uarglen = uarg ? (uword)strlen(uarg) : 0;
     if (svfheader.uarglen >= UargSize) {
         svfheader.uarglen = UargSize - 1;
     }
@@ -610,22 +610,22 @@ getsave(int fd)
             return 1;                  /* call restart to continue execution */
 
 reload_verserr:
-            write(STDERRFD, cp, length(cp));
+            write(STDERRFD, cp, strlen(cp));
             wrterr("");
             write(STDERRFD, "Need ", 5);
             write(STDERRFD,
                   ((svfheader.version >> VWBSHFT) & 0xF) == 2 ? "32" : "64",
                   2);
             write(STDERRFD, "-bit SPITBOL release ", 21);
-            write(STDERRFD, svfheader.headv, length(svfheader.headv));
-            write(STDERRFD, svfheader.iov, length(svfheader.iov));
+            write(STDERRFD, svfheader.headv, strlen(svfheader.headv));
+            write(STDERRFD, svfheader.iov, strlen(svfheader.iov));
             cp = " to load file ";
             goto reload_err;
 reload_ioerr:
             cp = "Error reading ";
 reload_err:
-            write(STDERRFD, cp, length(cp));
-            write(STDERRFD, *inpptr, length(*inpptr));
+            write(STDERRFD, cp, strlen(cp));
+            write(STDERRFD, *inpptr, strlen(*inpptr));
             wrterr("");
             return -1;
         }

@@ -204,7 +204,7 @@ swcinp(int filecnt, char **fileptr)
                        /   Error opening file, so issue a message and exit
                      */
                     write(STDERRFD, "Can't open ", 11);
-                    write(STDERRFD, cp, length(cp));
+                    write(STDERRFD, cp, strlen(cp));
                     wrterr("");
                     exit(1);
             }
@@ -307,7 +307,7 @@ pathlast(char *path)
        /    Scan the path from right-to-left looking for a slash.  Stop when
        /    the front of the path is reached.
      */
-    len = length(path);
+    len = strlen(path);
     cp = path + len;
 
     /*
@@ -367,39 +367,3 @@ appendext(char *path, char *ext, char *result, int force)
     return p - result;
 }
 #endif /* !(RUNTIME) */
-
-/*
- * mystrcpy(p,q)  - copy string q to string p.  Return pointer to '\0' in p;
- *
- * Note that this definition is NOT the same as standard strcpy.
- */
-char *
-mystrcpy(char *p, char *q)
-{
-    while ((*p++ = *q++) != 0)
-        ;
-    return p - 1;
-}
-
-/*
-/    Return length of string argument.
-/    Identical to C strlen function.
-*/
-int
-length(char *cp)
-{
-    char *p = cp;
-    while (*p++)
-        ;
-    return p - cp - 1;
-}
-
-int
-mystrncpy(char *p, char *q, int i)
-{
-    int j = i;
-    while (j--) {
-        *p++ = *q++;
-    }
-    return i;
-}
