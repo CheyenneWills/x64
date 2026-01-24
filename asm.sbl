@@ -1364,7 +1364,7 @@ g_exi
 
    differ(t2,'n') eq(prc.args)   genop('ret')   :s(opdone)
    t3 = ident(t3) '0'
-   genop('mov',rcode,+t3)
+   (ident(t3,'0') genop('xor',rcode,rcode), genop('mov',rcode,+t3))
    ident(t2,'n')              :s(g_exi.1)
    genop('ret')               :(opdone)
 
@@ -2362,8 +2362,9 @@ g_cne memmem()
 g_cmc
 
    genop('repe','cmps_b')
+* The following cannot change condition   
    genop('mov',xl,'0')
-   genop('mov',xr,xl)
+   genop('mov',xr,'0')
    t1 = getarg(i1)
    t2 = getarg(i2)
    (ident(t1,t2) genop('jnz',t1))         :s(opdone)
