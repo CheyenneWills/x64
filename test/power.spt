@@ -1,0 +1,49 @@
+    &anchor = 1
+    opsyn(.sum, '+', 2)
+    opsyn(.prod, '*', 2)
+    data('ali(v,l)')
+    define('out(out)')
+    define('append(v,l)')
+    define('add(i1,i2)c')
+    define('mul(i1,i2)c')
+    define('val(val)')
+    define('link(i)')
+    opsyn('+','add',2)
+    opsyn('*','mul',2)
+    opsyn('%','append',2)
+    opsyn('/','link',1)
+    opsyn('#','val',1)
+    max = 10000
+    addfix = rtab(size(max) - 1) . c rem . add
+    mulfix = rtab(size(max) - 1) . c rem . mul
+                                                :(fend)
+append  append = ali(v,l)                       :(return)
+add     add = ident(i2) i1                      :s(return)
+        add = ident(i1) i2                      :s(return)
+        add = sum(#i1, #i2)
+         lt(add, max) integer(i1) integer(i2)   :s(return)
+        add = lt(add, max) add % (/i1 + /i2)    :s(return)
+        add addfix
+        add = add % (c + (/i1 + /i2))           :(return)
+
+link    link = ~integer(i) l(i)                 :(return)
+val     val = ~integer(val) v(val)              :(return)
+out     out = ident(/out) #out                  :s(return)
+        out = out(/out) dupl('0', size(max) - size(#out) - 1)
++             #out                              :(return)
+
+mul     mul = differ(#i1) differ(#i2) prod(#i1, #i2) :f(return)
+        lt (mul, max) integer(i1) integer(i2)   :s(return)
+        mul = lt(mul, max) mul % ( i1 * /i2 + i2 * /i1) :s(return)
+        mul mulfix
+        mul = mul % (c + i1 * /i2 + i2 * /i1)   :(return)
+fend
+        n = 256
+        k = 25
+        p = 1
+        output = 'Powers of ' n
+        output =
+l       i = lt(i,k) i + 1                       :f(end)
+        p = p * n
+        output = i ': ' out(p)                  :(l)
+end
