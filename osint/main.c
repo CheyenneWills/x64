@@ -113,6 +113,7 @@ main(int argc, char **argv)
 
     switch (getsave(getrdfd())) {
         case 1:                     /* save file loaded */
+            wrterr("SPITBOL restart is currently broken");
             inpcnt = 0;             /* v1.02 no more cmd line files */
             swcinp(inpcnt, inpptr); /* v1.01 */
             restart(NULL, lowsp);
