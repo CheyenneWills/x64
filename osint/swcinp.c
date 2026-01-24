@@ -179,7 +179,6 @@ swcinp(int filecnt, char **fileptr)
                         goto swci_exit;
                     }
                     break;
-#if !RUNTIME
                 case 1: /* try with .spt extension */
                     if (!executing && appendext(cp, COMPEXT, namebuf, 0)) {
                         if ((lastfd = tryopen(namebuf)) >= 0) {
@@ -188,7 +187,6 @@ swcinp(int filecnt, char **fileptr)
                         }
                     }
                     break;
-#endif                  /* !RUNTIME */
 
                 case 2: /* try with .spx extension */
                     if (!executing && curfile == 1 &&
@@ -325,8 +323,6 @@ pathlast(char *path)
     return cp;
 }
 
-#if !(RUNTIME)
-
 /*
  *  appendext - append extension to pathname if possible.
  *
@@ -366,4 +362,3 @@ appendext(char *path, char *ext, char *result, int force)
     p = strcpy(p, ext);
     return p - result;
 }
-#endif /* !(RUNTIME) */

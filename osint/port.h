@@ -30,10 +30,6 @@ Copyright 2012-2017 David Shields
 # define ENGINE 0 /* not building engine version */
 #endif
 
-#ifndef RUNTIME
-# define RUNTIME 0 /* not making runtime version */
-#endif
-
 #ifndef SETREAL
 # define SETREAL 0 /* don't use reals for SET() */
 #endif
@@ -43,25 +39,9 @@ Copyright 2012-2017 David Shields
  *      in systype.h
  */
 
-/*
-#ifndef EXECFILE
-# define EXECFILE        1       / * create executable modules * /
-#endif
-*/
-
-#ifndef FLOAT
-# define FLOAT 1 /* include floating point code */
-#endif
-
 #ifndef IO
 # define IO 1 /* include input/output code */
 #endif
-
-/*
-#ifndef MATH
-# define MATH            1       / * include extended math (i.e., trig) code *
-/ #endif
-*/
 
 /*
  *  Other defaulted values that may be overridden in systype.h
@@ -109,8 +89,6 @@ Copyright 2012-2017 David Shields
 #ifndef ERRDIST
 # define ERRDIST
 #endif
-
-#define GCCx86 (GCCi32 | GCCi64)
 
 /*      minimal datatypes in C. word is long. */
 

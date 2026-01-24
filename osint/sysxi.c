@@ -39,17 +39,9 @@ Copyright 2012-2017 David Shields
 #include "port.h"
 #include <sys/types.h>
 
-#if EXECFILE
-# include <a.out.h>
-#endif
-
 #include "save.h"
 
 #include <time.h>
-#if EXECFILE
-extern word *edata;
-extern word *etext;
-#endif /* EXECFILE */
 
 struct svfilehdr svfheader;
 char uargbuf[UargSize];
@@ -61,13 +53,6 @@ extern off_t LSEEK(int F, off_t Loc, int Method);
 int
 zysxi()
 {
-#if EXECFILE
-    word *srcptr, *dstptr;
-    char *endofmem;
-    char *starttext;
-    char *startdata;
-    long i;
-#endif /* EXECFILE */
 
     char fileName[256], tmpfnbuf[256];
     word *stackbase;
@@ -100,12 +85,10 @@ zysxi()
      */
     SET_WA(0); /* Prepare to return 0 on resumption. */
 
-#if !EXECFILE
     /*  Don't accept request to write executable files. */
     if (IA(long) >= 0) {
         return EXIT_1;
     }
-#endif /* !EXECFILE */
 
     /*
        /    Get current value of FP and compute length of current stack.
@@ -133,30 +116,8 @@ zysxi()
         retval |= putsave(stackbase, stacklength); /* write save file */
     }
 
-#if EXECFILE
-    if (IA(long) > 0) {
-
-        /*
-           /    Copy entire stack into local storage of temporary SCBLK.
-         */
-        if (stacklength > tscblk_length) {
-            retval = -1;
-            goto fail;
-        }
-        srcptr = stackbase;
-        dstptr = (word *)tscblk->schar;
-        i = GET_MIN_VALUE(stbas, word *) - srcptr;
-        while (i--) {
-            *dstptr++ = *srcptr++;
-        }
-        lmodstk = dstptr; /* (also non-zero flag for restart) */
-    }
-#endif                    /* EXECFILE */
-
     rereloc();
-#if EXECFILE
-fail:
-#endif
+
     retval |= closeaout(fileName, tmpfnbuf, retval);
     if (retval < 0) {
         return EXIT_2;
@@ -176,26 +137,6 @@ fail:
     zysej();   /* NO RETURN */
     return EXIT_1;
 }
-
-#if EXECFILE
-
-/* heapmove
- *
- * perform upward copy of heap from where it was stored in the execfile
- * to where it was in memory when the execfile was written.
- */
-void
-heapmove()
-{
-    unsigned long i = (GET_MIN_VALUE(dnamp, char *) - basemem) / sizeof(word);
-    word *from = (word *)&edata;
-    word *to = (word *)basemem;
-
-    while (i--) {
-        *to++ = *from++;
-    }
-}
-#endif
 
 /*
 /    The following two functions deal with the "unrelocation" and

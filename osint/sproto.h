@@ -20,7 +20,6 @@ extern int appendext(char *path, char *ext, char *result, int force);
 #if EXTFUN
 extern union block *callef(struct efblk *efb, union block **sp, word nargs);
 #endif
-extern int checkfpu(void);
 extern int checkstr(struct scblk *scp);
 extern int check2str(void);
 extern void close_all(struct chfcb *chb);

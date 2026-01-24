@@ -31,7 +31,6 @@ Copyright 2012-2017 David Shields
 int
 zysbx()
 {
-#if !RUNTIME
 
     executing = 1;
 
@@ -40,20 +39,6 @@ zysbx()
         curfile = inpcnt;         /* skip rest of cmd line files */
         swcinp(inpcnt, inpptr);   /* v1.07 switch away from source file */
     }
-# if EXECFILE
-    /*
-       /   do we need to write an executable module, and if
-       /   so does writing it produce an error?
-     */
-    if (spitflag & WRTEXE) {
-        tscblk->sclen = appendext(*inpptr, BINEXT, tscblk->schar, 1);
-
-        if (makeexec(tscblk, spitflag & NOEXEC ? 3 : 4)) {
-            wrterr("Error writing load module.");
-            zysej();
-        }
-    }
-# endif /* EXECFILE */
 
     /*
        /   do we need to write a save (.spx) file, and if
@@ -87,10 +72,6 @@ zysbx()
 
     /*  swcoup does real work */
     swcoup(outptr);
-
-#else  /* !RUNTIME */
-    exit(1);
-#endif /* !RUNTIME */
 
     return NORMAL_RETURN;
 }
