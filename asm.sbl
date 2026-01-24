@@ -1116,6 +1116,8 @@ opnext
 *  defer label processing for ent to allow emission of alignment ops for x86.
 
    ident(incode,'ent')           :s(opnext.1)
+   ident(incode,'prc')           :s(opnext.1)
+   ident(incode,'rtn')           :s(opnext.1)
    outfile = thislabel
    outlines = outlines + 1
 
@@ -1263,6 +1265,7 @@ g_bsw1
 
    genop('jmp', 'm_word [' t2 '+' t1 '*cfp_b]')
    genop('segment .data')
+   genop('align', '8')
    genopl(t2 ':')
    z_suspend = 0
                      :(opdone)
@@ -1304,7 +1307,7 @@ g_ent
 *  2 and 4 are even.
 
    t1 = i.text(i1)
-   genop('align', 2)
+   genop('align', '16')
    differ(t1)              :s(g_ent.1)
    genop('nop')
                      :(g_ent.2)
@@ -1420,8 +1423,10 @@ g_prc
 
    prc.args = getarg(i2)
    ppm_cases[thislabel] = i.text(i2)
-   thislabel =
    max_exi = gt(prc.args,max_exi) prc.args
+   genop('align','32')
+   genopl(thislabel)
+   thislabel =
    prc.type = i.text(i1)            :($('g_prc.' prc.type))
 
 g_prc.e
@@ -1646,7 +1651,10 @@ g_sss
 
 g_rtn
 
-   genop()                 :(opdone)
+   genop('align','32')
+   genopl(thislabel)
+   thislabel =                 
+                              :(opdone)
 
 *  #### 2-   Operations on One Word Integer Values (addresses)
 
@@ -3220,6 +3228,7 @@ g_sec.2
 g_sec.3
 
    genop('segment .data')
+   genop('align','8')
    genop('global','sec03')
    genopl('sec03:')           :(opdone)
 
@@ -3230,6 +3239,7 @@ g_sec.4
    genop('global','esec03')
    genopl('esec03:')
    genop('segment .data')
+   genop('align', '8')
    genop('global','sec04')
    genopl('sec04:')           :(opdone)
 
