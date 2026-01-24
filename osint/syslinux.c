@@ -9,9 +9,7 @@ Copyright 2012-2017 David Shields
 *  syslinux - Unique Linux code for SPITBOL              *
 *                                                                        *
 \************************************************************************/
-/*
-#define PRIVATEBLOCKS 1
-*/
+
 /*#include <unistd.h> */
 #include "port.h"
 #include <fcntl.h>
@@ -198,7 +196,7 @@ callef(struct efblk *efb, union block **sp, mword nargs)
     type = callextfun(efb, sp - 1, nargs,
                       SA(nbytes)); /* make call with Stack Aligned nbytes */
 
-    result = (union block *)ptscblk;
+    result = (union block *)tscblk;
     switch (type) {
 
         case BL_XN: /* XNBLK    external block */

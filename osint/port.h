@@ -304,10 +304,8 @@ OUTPUT, TERMINAL
 /                   the word size.
 /
 */
-#ifndef tscblk_length
-# define tscblk_length 512
-#endif
-#define id2blk_length 52
+#define tscblk_length 512
+#define idblk_length 256
 
 /*
 /   The following manifest constants determine the default environment

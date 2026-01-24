@@ -52,9 +52,9 @@ zysld()
     void *fd; /* keep stack word-aligned */
     void *result = 0;
 
-    fd = openloadfile(ptscblk->str);
-    if (fd != -1) {                        /* If file opened OK */
-        result = loadef(fd, ptscblk->str); /* Invoke loader */
+    fd = openloadfile(tscblk->str);
+    if (fd != -1) {                       /* If file opened OK */
+        result = loadef(fd, tscblk->str); /* Invoke loader */
         closeloadfile(fd);
         switch ((word)result) {
             case (word)0:

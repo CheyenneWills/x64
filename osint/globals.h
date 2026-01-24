@@ -102,65 +102,85 @@ typedef struct {
 NoInit(CFile cfiles[Ncmdf]); /* Array of structures to record info */
 
 #define ttyiobininit                                                          \
- {                                                                            \
-  0,                                     /* type word            */           \
-      IRECSIZ,                           /* length               */           \
-      0,                                 /* filename                */        \
-      0,                                 /* process id            */          \
-      0,                                 /* tty BFBLK             */          \
-      STDERRFD,                          /* file descriptor 2    */           \
-      IO_INP + IO_OPN + IO_SYS + IO_CIN, /* flg1            */                \
-      0,                                 /* flg2                    */        \
-      EOL                                                                     \
- } /* end of line char 1   */
+{                                                                             \
+      .typ = 0,                                  /* type word            */   \
+      .len = IRECSIZ,                            /* length               */   \
+      .fnm = NULL,                               /* filename             */   \
+      .pid = 0,                                  /* process id           */   \
+      .bfb = NULL,                               /* tty BFBLK            */   \
+      .fdn = STDERRFD,                           /* file descriptor 2    */   \
+      .flg1 = IO_INP + IO_OPN + IO_SYS + IO_CIN, /* flg1                 */   \
+      .flg2 = 0,                                 /* flg2                 */   \
+      .action = EOL                                                           \
+} /* end of line char 1   */
 
 #define ttyioboutinit                                                         \
- {                                                                            \
-  0,            /* type word            */                                    \
-      ORECSIZ,  /* length                */                                   \
-      0,        /* filename                */                                 \
-      0,        /* process id            */                                   \
-      0,        /* tty BFBLK             */                                   \
-      STDERRFD, /* file descriptor 2    */                                    \
-      IO_OUP + IO_OPN + IO_SYS + IO_COT + IO_WRC, /* flg1     */              \
-      0, /* flg2                    */                                        \
-      EOL                                                                     \
- } /* end of line char 1   */
+{                                                                             \
+      .typ = 0,                                  /* type word            */   \
+      .len = ORECSIZ,                            /* length               */   \
+      .fnm = NULL,                               /* filename             */   \
+      .pid = 0,                                  /* process id           */   \
+      .bfb = NULL,                               /* tty BFBLK            */   \
+      .fdn = STDERRFD,                           /* file descriptor 2    */   \
+      .flg1 = IO_OUP + IO_OPN + IO_SYS + IO_COT + IO_WRC, /* flg1        */   \
+      .flg2 = 0,                                 /* flg2                 */   \
+      .action = EOL                                                           \
+} /* end of line char 1   */
 
 Init(struct ioblk ttyiobin, ttyiobininit);
 Init(struct ioblk ttyiobout, ttyioboutinit);
 
 #define inpiobinit                                                            \
- {                                                                            \
-  0,                            /* type word            */                    \
-      IRECSIZ,                  /* length                */                   \
-      0,                        /* filename                */                 \
-      0,                        /* process id            */                   \
-      0,                        /* std input BFBLK         */                 \
-      0,                        /* file descriptor 0    */                    \
-      IO_INP + IO_OPN + IO_SYS, /* flg1:                  */                  \
-      0,                        /* flg2:                */                    \
-      EOL                                                                     \
- } /* end of line char 1   */
+{                                                                             \
+      .typ = 0,                                  /* type word            */   \
+      .len = IRECSIZ,                            /* length               */   \
+      .fnm = NULL,                               /* filename             */   \
+      .pid = 0,                                  /* process id           */   \
+      .bfb = NULL,                               /* std input BFBLK      */   \
+      .fdn = 0,                                  /* file descriptor 0    */   \
+      .flg1 = IO_INP + IO_OPN + IO_SYS,          /* flg1:                */   \
+      .flg2 = 0,                                 /* flg2:                */   \
+      .action = EOL \
+} /* end of line char 1   */
 
 Init(struct ioblk inpiob, inpiobinit);
 
 #define outiobinit                                                            \
- {                                                                            \
-  0,                                     /* type word            */           \
-      ORECSIZ,                           /* length                */          \
-      0,                                 /* filename                */        \
-      0,                                 /* process id            */          \
-      0,                                 /* no BFBLK needed        */         \
-      1,                                 /* file descriptor 1    */           \
-      IO_OUP + IO_OPN + IO_SYS + IO_WRC, /* flg1:             */              \
-      0,                                 /* flg2:                */           \
-      EOL                                                                     \
+{                                                                             \
+      .typ = 0,                                  /* type word            */   \
+      .len = ORECSIZ,                            /* length               */   \
+      .fnm = NULL,                               /* filename             */   \
+      .pid = 0,                                  /* process id           */   \
+      .bfb = NULL,                               /* no BFBLK needed      */   \
+      .fdn = 1,                                  /* file descriptor 1    */   \
+      .flg1 = IO_OUP + IO_OPN + IO_SYS + IO_WRC, /* flg1:                */   \
+      .flg2 = 0,                                 /* flg2:                */   \
+      .action = EOL                                                           \
  } /* end of line char 1   */
 Init(struct ioblk oupiob, outiobinit);
 
 NoInit(char namebuf[256]);
-NoInit(int save_fd0);     /* Hold current fd 0 for swcinp */
+NoInit(int save_fd0); /* Hold current fd 0 for swcinp */
+
+/* Work areas */
+
+#define scblkinit(len)            \
+(struct scblk *)&(struct {        \
+    word scget;                   \
+    word sclen;                   \
+    char schar[(len)];            \
+}) {                              \
+    .scget = 0,                   \
+    .sclen = 0,                   \
+    .schar = {0}                  \
+}
+Init(struct scblk *tscblk, scblkinit(tscblk_length));
+Init(struct scblk *id1blk, scblkinit(idblk_length));
+Init(struct scblk *id2blk, scblkinit(idblk_length));
+NoInit(struct icblk ticblk);
+
+Init(struct iobfblk *inpbuf, NULL);
+Init(struct iobfblk *ttybuf, NULL);
 
 Init(int expanding, 0);   /* non-zero if doing expansion */
 Init(int compressing, 0); /* non-zero if doing expansion */
@@ -169,13 +189,11 @@ NoInit(int bufcnt);
 NoInit(unsigned char *bufptr);
 NoInit(int bit_count);
 NoInit(unsigned long bit_buffer);
-NoInit(short int *code_value);       /* This is the code value array */
-NoInit(
-  short unsigned int *prefix_code);  /* This array holds the prefix codes */
-NoInit(
-  unsigned char *append_character);  /* This array holds the appended chars */
-NoInit(unsigned char *decode_stack); /* This array holds the decoded string */
-NoInit(unsigned char *buffer);       /* Read/write buffer */
+NoInit(short int *code_value);           /* This is the code value array */
+NoInit(short unsigned int *prefix_code); /* This array holds the prefix codes */
+NoInit(unsigned char *append_character); /* This array holds the appended chars */
+NoInit(unsigned char *decode_stack);     /* This array holds the decoded string */
+NoInit(unsigned char *buffer);           /* Read/write buffer */
 
 NoInit(int aoutfd);
 NoInit(FILEPOS fp);

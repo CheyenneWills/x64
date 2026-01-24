@@ -130,13 +130,13 @@ doshell(struct ioblk *ioptr)
      */
     scptr = ((struct scblk *)(ioptr->fnm)); /* point to cmd scblk */
     if (ioptr->flg2 & IO_ENV) {
-        if (optfile(scptr, ptscblk)) {
+        if (optfile(scptr, tscblk)) {
             return -1;
         }
-        scptr = ptscblk;
-        ptscblk->sclen = lenfnm(scptr); /* remove any options */
+        scptr = tscblk;
+        tscblk->sclen = lenfnm(scptr); /* remove any options */
     }
-    len = lenfnm(scptr) - 2;            /* length of cmd without ! & delimiter */
+    len = lenfnm(scptr) - 2;           /* length of cmd without ! & delimiter */
     if (len >= CMDBUFLEN) {
         return -1;
     }

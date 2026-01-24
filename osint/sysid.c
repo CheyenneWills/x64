@@ -43,17 +43,17 @@ zysid()
     char *s;
     int i;
 
-    SET_XR(pid1blk);
+    SET_XR(id1blk);
     now = time(NULL);
-    gettype(pid2blk, id2blk_length);
-    cp = pid2blk->schar + pid2blk->sclen;
+    gettype(id2blk, id2blk_length);
+    cp = id2blk->schar + id2blk->sclen;
     *cp++ = ' ';
     *cp++ = ' ';
     s = ctime(&now);
     for (i = 0; i < strlen(s); i++) {
         *cp++ = s[i];
     }
-    pid2blk->sclen = pid2blk->sclen + 2 + strlen(s);
-    SET_XL(pid2blk);
+    id2blk->sclen = id2blk->sclen + 2 + strlen(s);
+    SET_XL(id2blk);
     return NORMAL_RETURN;
 }

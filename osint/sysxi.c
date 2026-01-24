@@ -144,7 +144,7 @@ zysxi()
             goto fail;
         }
         srcptr = stackbase;
-        dstptr = (word *)ptscblk->str;
+        dstptr = (word *)tscblk->schar;
         i = GET_MIN_VALUE(stbas, word *) - srcptr;
         while (i--) {
             *dstptr++ = *srcptr++;
@@ -307,7 +307,7 @@ putsave(
     svfheader.system = SYSVERSION;
     svfheader.spare = 0;
     hcopy(vscb->schar, svfheader.headv, vscb->sclen, sizeof(svfheader.headv));
-    hcopy(pid1blk->schar, svfheader.iov, pid1blk->sclen, sizeof(svfheader.iov));
+    hcopy(id1blk->schar, svfheader.iov, id1blk->sclen, sizeof(svfheader.iov));
     svfheader.timedate = time((time_t *)0);
     svfheader.flags = spitflag;
     svfheader.stacksiz = (uword)stacksiz;
@@ -515,12 +515,12 @@ getsave(int fd)
             }
 
             /* Read saved stack from save file into tscblk */
-            if (expand(fd, (unsigned char *)ptscblk->schar, svfheader.stacklength)) {
+            if (expand(fd, (unsigned char *)tscblk->schar, svfheader.stacklength)) {
                 goto reload_ioerr;
             }
 
             SET_MIN_VALUE(stbas, svfheader.stbas, word);
-            lmodstk = (word *)(ptscblk->schar + svfheader.stacklength);
+            lmodstk = (word *)(tscblk->schar + svfheader.stacklength);
             stacksiz = svfheader.stacksiz;
 
             /* Reload compiler working globals section */
@@ -554,8 +554,8 @@ getsave(int fd)
             MINIMAL(minimal_reloc);
 
             /* Relocate any return addresses in stack */
-            SET_WB(ptscblk->schar);
-            SET_WA(ptscblk->schar + svfheader.stacklength);
+            SET_WB(tscblk->schar);
+            SET_WA(tscblk->schar + svfheader.stacklength);
             if (svfheader.stacklength) {
 
                 MINIMAL(minimal_relaj);
@@ -597,10 +597,10 @@ getsave(int fd)
 
             LSEEK(fd, (FILEPOS)0, 2);  /* advance to EOF should be a nop */
             pathptr = (char *)-1L;     /* include paths unknown */
-            pinpbuf->next = 0;         /* no chars left in std input buffer */
-            pinpbuf->fill = 0;         /* ditto */
-            pinpbuf->offset = (FILEPOS)0;
-            pinpbuf->curpos = (FILEPOS)0;
+            inpbuf->next = 0;          /* no chars left in std input buffer */
+            inpbuf->fill = 0;          /* ditto */
+            inpbuf->offset = (FILEPOS)0;
+            inpbuf->curpos = (FILEPOS)0;
             if (uargbuf[0] && !uarg) { /* if uarg in save file and none */
                 uarg = uargbuf;        /* on command line, use saved version */
             }

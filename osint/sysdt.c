@@ -38,8 +38,8 @@ zysdt()
 {
     struct icblk *dtscb = XR(struct icblk *);
 
-    ptscblk->sclen = datecvt(ptscblk->schar, dtscb->icval);
-    SET_XL(ptscblk);
+    tscblk->sclen = datecvt(tscblk->schar, dtscb->icval);
+    SET_XL(tscblk);
     return NORMAL_RETURN;
 }
 

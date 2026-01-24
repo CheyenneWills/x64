@@ -46,9 +46,9 @@ zysbx()
        /   so does writing it produce an error?
      */
     if (spitflag & WRTEXE) {
-        ptscblk->len = appendext(*inpptr, BINEXT, ptscblk->str, 1);
+        tscblk->sclen = appendext(*inpptr, BINEXT, tscblk->schar, 1);
 
-        if (makeexec(ptscblk, spitflag & NOEXEC ? 3 : 4)) {
+        if (makeexec(tscblk, spitflag & NOEXEC ? 3 : 4)) {
             wrterr("Error writing load module.");
             zysej();
         }
@@ -60,8 +60,8 @@ zysbx()
        /   so does writing it produce an error?
      */
     if (spitflag & WRTSAV) {
-        ptscblk->sclen = appendext(*inpptr, RUNEXT, ptscblk->schar, 1);
-        if (makeexec(ptscblk, spitflag & NOEXEC ? -3 : -4)) {
+        tscblk->sclen = appendext(*inpptr, RUNEXT, tscblk->schar, 1);
+        if (makeexec(tscblk, spitflag & NOEXEC ? -3 : -4)) {
             wrterr("Error writing save file.");
             zysej();
         }
