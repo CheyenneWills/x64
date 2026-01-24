@@ -270,16 +270,25 @@ error
 
 error_end
 
--stitl flush
-   define('flush()')          :(flush_end)
+-stitl flush_deferred
+   define('flush_deferred()i') :(flush_deferred_end)
+flush_deferred   
+   eq(dstmts.n)               :s(return)
+   i = 1
+flush_d_0
+   outstmt(dstmts[i])
+   le(i = i + 1, dstmts.n)    :s(flush_d_0)
 
+   dstmts.n =                 :(return)
+flush_deferred_end
+
+-stitl flush
+   define('flush()opcode')          :(flush_end)
 *  here to emit bstmts, cstmts, astmts. attach input label and
 *  comment to first instruction generated.
 
 flush
-
-   eq(astmts.n) eq(bstmts.n) eq(cstmts.n)    :f(flush_0)
-
+   eq(astmts.n) eq(bstmts.n) eq(cstmts.n) eq(dstmts.n)  :f(flush_0)
 *  here if some statements to emit, so output single 'null' statement
 *  to get label and comment field right.
 
@@ -304,6 +313,10 @@ flush_2
 flush_3
 
    outstmt(cstmts[i])
+   opcode = t.opc(cstmts[i])
+   (leq(opcode, 'jmp'), leq(opcode, 'ret'))  :f(flush_3a)
+   flush_deferred()
+flush_3a
    le(i = i + 1, cstmts.n)          :s(flush_3)
 
 flush_4         eq(astmts.n)           :s(flush_6)
@@ -316,6 +329,10 @@ flush_4         eq(astmts.n)           :s(flush_6)
 flush_5
 
    outstmt(astmts[i])
+   opcode = t.opc(astmts[i])
+   (leq(opcode, 'jmp'), leq(opcode, 'ret'))  :f(flush_5a)
+   flush_deferred()
+flush_5a   
    le(i = i + 1, astmts.n)          :s(flush_5)
 
 flush_6
@@ -347,6 +364,18 @@ genbop
    bstmts[bstmts.n = bstmts.n + 1] = stmt    :(return)
 
 genbop_end
+
+-stitl gendop(stmt)
+   define('gendop(stmt)')           :(gendop_end)
+*  generates code for deferred statements
+*  that must be executed after a unconditional branch
+*  or ret
+*  these will typically be a label followed by a series
+*  of tests and conditional jumps.  
+*  Used to fallthrough the mainline code path.
+gendop
+   dstmts[dstmts.n = dstmts.n + 1] = stmt    :(return)
+gendop_end
 
 -stitl genlab()
 
@@ -729,10 +758,12 @@ config_done
 *  astmts: statements after opcode (()+, etc.)
 *  bstmts: statements before code (-(), etc)
 *  cstmts: generated code proper
+*  dstmts: deferred statements (will be inserted after the next jmp/ret)
 
    astmts = array(20,'')
    bstmts = array(10,'')
    cstmts = array(20,'')
+   dstmts = array(20,'')
 
 *  genlabels is count of generated labels (cf. genlab)
 
