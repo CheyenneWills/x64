@@ -259,7 +259,7 @@ crack.end
 error
 
    outfile = filenami ': error: ' text
-   outfile = rpad(lpad(input_lines,6),size(filenami) -1) ' | ' thisline
+   outfile = rpad( lpad(input_lines,6), size(filenami) - 1) ' | ' thisline
    lasterror = output_lines
    output_lines = output_lines + 2
    le(nerrors = nerrors + 1, 10)       :s(opnext)
@@ -333,10 +333,27 @@ flush_5a
    le(i = i + 1, astmts.n)                   :s(flush_5)
 
 flush_6
-
+   oflush()
    astmts.n = bstmts.n = cstmts.n =    :(return)
 
 flush_end
+
+*
+* Optimization flush
+* Our chance to perform peep-hole optimizations
+*
+   define('oflush()i') :(oflush_end)
+oflush
+   ident(odrain)                             :s(return)
+   odrain =
+   eq(ostmts.n)                              :s(return)
+   i = 1
+o_flushl
+   write_asm(ostmts[i])
+   le(i = i + 1, ostmts.n)                   :s(o_flushl)
+   ostmts.n =
+                                             :(return)
+oflush_end
 
 -stitl genaop(stmt)
    define('genaop(stmt)')           :(genaop_end)
@@ -357,7 +374,8 @@ genaop_end
 *  before this instruction.
 
 genbop
-
+   t.label(stmt) = thislabel
+   thislabel =
    bstmts[bstmts.n = bstmts.n + 1] = stmt    :(return)
 
 genbop_end
@@ -393,20 +411,25 @@ genlab_end
 
 genop
 
-   genopl(,gopc,gop1,gop2,gop3)        :(return)
+   genopl(thislabel,gopc,gop1,gop2,gop3)
+   thislabel =
+                                                   :(return)
 
 genop_end
 
 -stitl genopl(gopl,gopc,gop1,gop2,gop3)
-   define('genopl(gopl,gopc,gop1,gop2,gop3)')   :(genopl_end)
+   define('genopl(gopl,gopc,gop1,gop2,gop3)l')   :(genopl_end)
 
 *  generate operation with label
 
 genopl
-
+   ident(thislabel)                          :s(genopl_o)
+   ident(gopl)                               :s(genopl_o)
+   leq(thislabel,gopl)                    :f(genopl_e)
+genopl_o
    cstmts[cstmts.n = cstmts.n + 1] =
 +        tstmt(gopl,gopc,gop1,gop2,gop3)     :(return)
-
+genopl_e error('genopl called with a thislabel set thislabel(' thislabel ') (' gopl ')') :(return)
 genopl_end
 
 -stitl define(genrep(op))
@@ -705,11 +728,13 @@ config_done
 *  bstmts: statements before code (-(), etc)
 *  cstmts: generated code proper
 *  dstmts: deferred statements (will be inserted after the next jmp/ret)
-
-   astmts = array(20,'')
-   bstmts = array(10,'')
-   cstmts = array(20,'')
-   dstmts = array(20,'')
+*  ostmts: optimizer buffer
+   astmts = array(200,'')
+   bstmts = array(100,'')
+   cstmts = array(1000,'')
+   dstmts = array(100,'')
+   ostmts = array(50000,'')
+   odrain =
 
 *  genlabels is count of generated labels (cf. genlab)
 
@@ -732,7 +757,7 @@ config_done
 +        sepchar break(sepchar) . incomment
 +        sepchar rem . slineno
 
-*  pifatal maps minimal opcodes for which no a code allowed to nonzero value.
+*  pifatal maps minimal opcodes for which no acode allowed to nonzero value.
 *  such operations include conditional branches with operand of form (x)+
 
    pifatal = initmap(
@@ -850,18 +875,12 @@ memmem
 memmem.end
 
 -stitl outstmt(ostmt)label,opcode,op1,op2,op3,comment,line)
-   define('outstmt(ostmt)line,label,opcode,op1,op2,op3,comment,t,stmtout')
+   define('outstmt(ostmt)line,label,opcode,op1,op2,op3,comment,t,stmtout,nstmt')
 +        :(outstmt_end)
 
 *  outstmt is used to send a target statement to the output file.
 
-outstmt label = t.label(ostmt)
-
-*  clear label if definition already emitted
-
-   label = ident(label, lastlabel)
-
-outstmt1
+outstmt
 
 *  attach source comment to first generated instruction
 
@@ -870,34 +889,43 @@ outstmt1
    comment = tcomment; tcomment =
 
 outstmt2
+   nstmt = copy(ostmt)
+   t.comment(nstmt) = comment
+   ostmts[ostmts.n = ostmts.n + 1] = nstmt
 
+                                 :(return)
+outstmt_end
+
+*
+* Actually write the output file now
+* Handle any output formatting
+*
+
+   define('write_asm(ostmt)label,opcode,op1,op2,op3,line,comment') :(write_asm_end)
+write_asm
+   label = t.label(ostmt)
    opcode = t.opc(ostmt)
    op1 = t.op1(ostmt)
    op2 = t.op2(ostmt)
    op3 = t.op3(ostmt)
+   comment = t.comment(ostmt)
 
    line = rpad( rpad(label,7) ' ' rpad(opcode,4) ' '
 +        (ident(op1), op1
 +        (ident(op2), ',' op2
-+           (ident(op3), ',' op3))) ,27)
++        (ident(op3), ',' op3))) ,27)
 
    line = trim(line)
-   line = le(size(line),48) rpad(line,48) '; ' comment :s(outstmt5)
-   line = le(size(line),56) rpad(line,56) '; ' comment :s(outstmt5)
+   line = le(size(line),48) rpad(line,48) '; ' comment :s(write_asm1)
+   line = le(size(line),56) rpad(line,56) '; ' comment :s(write_asm1)
    line = line '; ' comment
 
-outstmt5
-
+write_asm1
 * output =  line
    outfile = line
    ntarget = ntarget + 1
-   output_lines = output_lines + 1
-
-*  record code labels in table with delimiter removed.
-   (ge(sectnow,5) differ(thislabel))      :f(return)
-   label ? break(':') . label             :(return)
-
-outstmt_end
+   output_lines = output_lines + 1        :(return)
+write_asm_end
 
 -stitl prcent(n)
    define('prcent(n)')           :(prcent_end)
@@ -1061,30 +1089,8 @@ opnext
    ident(inlabel)             :s(opnext.1)
    thislabel = inlabel (differ(inlabel) ge(sectnow,3) ':',)
 
-*  keep the label as is is not in executable code
-
-   lt(sectnow,5)              :s(opnext.1)
-
-*  here if in code, so output label now
-*  defer label processing for ent to allow emission of alignment ops for x86.
-
-   ident(incode,'ent')           :s(opnext.1)
-   ident(incode,'prc')           :s(opnext.1)
-   ident(incode,'rtn')           :s(opnext.1)
-   outfile = thislabel
-   outlines = outlines + 1
-
-*  set lastlabel so can check to avoid emitting duplicate label definitions
-
-   lastlabel = thislabel
-
-*  clear out label info once generated
-
-   label = thislabel =
-
 opnext.1
 
-   thislabel = inlabel (differ(inlabel) ge(sectnow,3) ':',)
    i1 = prsarg(iarg1)
    i2 = prsarg(iarg2)
    i3 = prsarg(iarg3)
@@ -1216,8 +1222,8 @@ g_bsw
 g_bsw1
 
    genop('jmp', 'm_word [' t2 '+' t1 '*cfp_b]')
-   genop('segment .data')
-   genop('align', '8')
+   genopl(,'segment .data')
+   genopl(,'align', '8')
    genopl(t2 ':')
                      :(opdone)
 *  * 1.4  IFF  _val,plbl_        provide branch for switch
@@ -1235,7 +1241,7 @@ g_iff
 *  * 1.5  ESW  end of branch switch table
 g_esw
 
-   genop('segment .text')           :(opdone)
+   genopl('segment .text')           :(opdone)
 
 *  *   1.6   ENT  _val_ define program entry point
 
@@ -1260,29 +1266,19 @@ g_ent
    errfile = t1 ' internal logic error      : fall through into entry point'
    max.err = gt(t1,max.err) t1
    error_labels['err_999'] = 999
-   genop('jmp','err_999')
+   genopl(,'jmp','err_999')
 
    t1 = i.text(i1)
-   genop('align', '16')
+   genopl(,'align', '16')
    differ(t1)              :s(g_ent.1)
-   genop('nop')
-                     :(g_ent.2)
+   genopl(,'nop')
+                           :(g_ent.2)
 g_ent.1
 
-   genop('db', t1)
+   genopl(,'db', t1)
 
 g_ent.2
-
    genopl(thislabel)
-
-*  note that want to attach label to last instruction
-*       t1 = cstmts[cstmts.n]
-*       t.label(t1) = tlabel
-*       cstmts[cstmts.n] = t1
-*  here to see if want label made public
-
-   thislabel ? rtab(1) . thislabel '      :'
-*  (differ(pubtab[thislabel]), differ(debug)) genop('global',thislabel)
    thislabel =             :(opdone)
 
 *  *   1.7   BRI   _opn_     branch indirect
@@ -1384,7 +1380,7 @@ g_prc
    errfile = t1 ' internal logic error      : fall through into entry point'
    error_labels['err_999'] = t1
    max.err = gt(t1,max.err) t1
-   genop('jmp','err_999')
+   genopl(,'jmp','err_999')
 
    genopl(thislabel)
    thislabel =
@@ -1744,8 +1740,9 @@ g_lct
 
 *  here if operands same. emit no code if no label, else emit null
 
-   ident(thislabel)           :s(opnext)
-   genop()                 :(opdone)
+   ident(thislabel)           :s(opdone)
+   genopl(thislabel)
+   thislabel =                :(opdone)
 
 g_lct.1
 
@@ -2966,7 +2963,8 @@ g_dac
    t1 = i.type(i1)
    t2 = "" ;*(le(t1,2) "", le(t1,4) "d_offset_(", le(t1,6) "d_offset_(", "")
    genopl(thislabel,'d_word',t2 i.text(i1))
-                     :(decend)
+   thislabel =
+                     :(opdone)
 
 *  *   11.2 DIC  _integer_
 
@@ -2977,7 +2975,8 @@ g_dac
 g_dic
 
    genopl(thislabel,'d_word',i.text(i1))
-                     :(decend)
+   thislabel =
+                     :(opdone)
 *  *   11.3 DRC  _real_
 
 *  Assembles a real constant which occupies CFP$R consecutive words.
@@ -2987,15 +2986,12 @@ g_dic
 
 g_drc
 
-   genop('align',8)
+   genopl(,'align',8)
    t1 = i.text(i1)
    t1 ? fence "+" = ""
-   genop('d_real',t1)
+   genopl(thislabel,'d_real',t1)
+   thislabel =                     :(opdone)
 
-*  note that want to attach label to last instruction
-
-   t.label(cstmts[cstmts.n]) = thislabel
-   thislabel =             :(opdone)
 
 *  *   11.4 DTC  _dtext_
 
@@ -3028,6 +3024,7 @@ g_dtc
 
    t4 = ne(t3) t4 dupl(',0',cfp_c - t3)
    genopl(thislabel,'d_char',t4)
+   thislabel =
                      :(opdone)
 *  *   11.5 DBC  val
 
@@ -3038,15 +3035,8 @@ g_dtc
 
 g_dbc
 
-   genopl(thislabel,'d_word',getarg(i1))     :(opdone)
-
-decend
-
-*  here at end of dic or dac to see if want label made public
-
-   thislabel ? rtab(1) . thislabel '      :'
-*  differ(pubtab[thislabel]) genop('global',thislabel)
-                     :(opdone)
+   genopl(thislabel,'d_word',getarg(i1))
+   thislabel =                            :(opdone)
 
 *  #### 12- Symbol Definition Instructions
 
@@ -3080,7 +3070,7 @@ g_equ
 g_exp
 
    ppm_cases[thislabel] = i.text(i1)
-   genop('extern',thislabel)
+   genopl(,'extern',thislabel)
    thislabel =                :(opdone)
 
 *  *   12.3 INP  _ptyp_,int
@@ -3138,44 +3128,48 @@ g_ttl                      :(opnext)
 *  *   14.1  SEC
 
 g_sec
-
+   thislabel =
    genop('')
    sectnow = sectnow + 1            :($("g_sec." sectnow))
 
 *  procedure declaration section
 
 g_sec.1
-
-   genop('segment .text')
-   genop('global','sec01')
+   odrain = 1
+   flush()
+   genopl(,'segment .text')
+   genopl(,'global','sec01')
    genopl('sec01:')           :(opdone)
 
 *  definitions section
 
 g_sec.2
-
-   genop('segment .data')
-   genop('global','sec02')
+   odrain = 1
+   flush()
+   genopl(,'segment .data')
+   genopl(,'global','sec02')
    genopl('sec02:')           :(opdone)
 
 *  constants section
 
 g_sec.3
-
-   genop('segment .data')
-   genop('align','8')
-   genop('global','sec03')
+   odrain = 1
+   flush()
+   genopl(,'segment .data')
+   genopl(,'align','8')
+   genopl(,'global','sec03')
    genopl('sec03:')           :(opdone)
 
 *  working variables section
 
 g_sec.4
-
-   genop('global','esec03')
+   genopl(,'global','esec03')
    genopl('esec03:')
-   genop('segment .data')
-   genop('align', '8')
-   genop('global','sec04')
+   odrain = 1
+   flush()
+   genopl(,'segment .data')
+   genopl(,'align', '8')
+   genopl(,'global','sec04')
    genopl('sec04:')           :(opdone)
 
 *  here at start of program section.  if any n type procedures,
@@ -3186,30 +3180,32 @@ g_sec.5
 *  emit code to indicate in code section
 *  get direction set to up.
 
-   genop('global','esec04')
+   genopl(,'global','esec04')
    genopl('esec04:')
-
    (gt(prc.count1) genopl('prc_:','times', prc.count1 ' dq 0'))
-
-   genop('global','end_min_data')
+   genopl(,'global','end_min_data')
    genopl('end_min_data:')
-   genop('segment .text')
-   genop('global','sec05')
+   odrain = 1
+   flush()
+   genopl(,'segment .text')
+   genopl(,'global','sec05')
    genopl('sec05:')           :(opdone)
 
 *  stack overflow section.  output exi__n tail code
 
 g_sec.6
-
-   genop('global','sec06')
+   odrain = 1
+   flush()
+   genopl(,'global','sec06')
    genopl('sec06:', 'nop')
                      :(opdone)
 
 *  error section. produce code to receive erb's
 
 g_sec.7
-
-   genop('global','sec07')
+   odrain = 1
+   flush()
+   genopl(,'global','sec07')
    genopl('sec07:')
    flush()
 *  error section. produce code to receive erb's
@@ -3230,13 +3226,16 @@ g_errlabels
    rcode = error_labels[i, 2]
    genopl(elabel ':','mov', wa, rcode )
    genop('jmp', 'error')
-   flush()                                  :(g_errlabels)
+                                             :(g_errlabels)
 
 g_err1
-
+   odrain = 1
+   flush()
 *  Tail end of assembly output
    genop('section .note.GNU-stack noalloc noexec nowrite progbits')
+   odrain = 1
    flush()
+
 *
    &dump = 2
    &dump = 0
