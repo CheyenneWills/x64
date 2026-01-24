@@ -94,10 +94,10 @@ extern void pushregs(void);
 #define MINRESTORE() popregs()
 
 /*
- *   Ordinals for MINIMAL calls from C.
+ *    Ordinals for MINIMAL calls from C.
  *
- * The order of entries here must correspond to the order of
- * table entries in the INTER assembly language module.
+ *   The order of entries here must correspond to the order of
+ *   table entries in the INTER assembly language module.
  */
 enum CALLS {
     minimal_relaj,
@@ -132,11 +132,10 @@ enum CALLS {
 /*
  *  Names for accessing MINIMAL data values via GET_DATA_OFFSET macro.
  */
-extern word gbcnt, headv, mxlen, stage, timsx, dnamb, dnamp, state, stbas,
-  statb, polct, typet, lowspmin, flprt, flptr, gtcef, hshtb, pmhbs, r_fcb,
-  c_aaa, c_yyy, g_aaa, w_yyy, r_cod, kvstn, kvdmp, kvftr, kvcom, kvpfl,
-  cswfl, stmcs, stmct,
-  end_min_data;
+extern word headv, mxlen, dnamb, dnamp, stbas, state,
+  polct, typet, flprt, flptr, gtcef, hshtb, pmhbs, r_fcb,
+  c_aaa, c_yyy, g_aaa, w_yyy, kvcom,
+  stmcs, stmct;
 
 /*
  *  Names for accessing MINIMAL code values via GET_CODE_OFFSET macro.

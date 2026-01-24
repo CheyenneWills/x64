@@ -188,18 +188,6 @@ wrterr(char *s)
 }
 
 /*
-/    wrtmsg( s )
-/
-/    Write message to standard output, and append end-of-line.
-*/
-void
-wrtmsg(char *s)
-{
-    write(STDOUTFD, s, strlen(s));
-    write(STDOUTFD, "\n", 1);
-}
-
-/*
  * Setup output file.
  * Issue brag message if approriate
  *

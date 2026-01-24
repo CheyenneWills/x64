@@ -44,19 +44,6 @@ zysdt()
 }
 
 /*
- * Write date/time in SPITBOL form to a string
- */
-int
-storedate(char *cp, word maxlen)
-{
-    if (maxlen < 18) {
-        return 0;
-    }
-
-    return datecvt(cp, 0);
-}
-
-/*
  * Write date/time in several different forms to a string
  */
 int

@@ -16,7 +16,6 @@ Copyright 2012-2017 David Shields
 #include <unistd.h>
 #include <stdint.h>
 #include <string.h>
-#include "systype.h"
 
 /*
 /       Turn off system-specific features unless specifically called for
@@ -29,20 +28,6 @@ Copyright 2012-2017 David Shields
 
 #ifndef ENGINE
 # define ENGINE 0 /* not building engine version */
-#endif
-
-/*
-#ifndef EXTFUN
-#define EXTFUN          0       / * no external functions * /
-#endif
-*/
-
-#ifndef FLTHDWR
-# define FLTHDWR 0 /* floating point hardware not present */
-#endif
-
-#ifndef MATHHDWR
-# define MATHHDWR 0 /* extended math hardware not present */
 #endif
 
 #ifndef RUNTIME
@@ -293,8 +278,7 @@ OUTPUT, TERMINAL
 /   SCBLKs defined by the interface.
 /
 /   tscblk_length       the maximum length of a string that can be stored
-/                   in structure 'tscblk'.  'tscblk' is defined in
-/                   file inter.s.
+/                   in structure 'tscblk'.
 /
 /   id2blk_length       the maximum length of a string that can be stored
 /                   in structure 'id2blk'.  'id2blk' is defined in
@@ -305,7 +289,7 @@ OUTPUT, TERMINAL
 /                   the word size.
 /
 */
-#define tscblk_length 512
+#define tscblk_length 1024
 #define idblk_length 256
 
 /*
