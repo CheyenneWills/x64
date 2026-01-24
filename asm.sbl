@@ -2340,10 +2340,7 @@ g_lch
 g_lcg_1
 
    t2 break('(') len(1) len(2) . t3
-   eq(cfp_b,cfp_c) genop('xor',w0, w0)
-   eq(cfp_b,cfp_c) genop('mov','al','m_char [' register(t3) ']')
-   eq(cfp_b,cfp_c) genop('mov',t1,w0)
-
+   eq(cfp_b,cfp_c) genop('movzx',t1,'m_char [' register(t3) ']')
    ne(cfp_b,cfp_c) genop('mov',t1,'m_char [' register(t3) ']')
 
 *  see if postincrement needed.
