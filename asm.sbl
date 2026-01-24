@@ -283,7 +283,7 @@ flush_d_0
 flush_deferred_end
 
 -stitl flush
-   define('flush()opcode')          :(flush_end)
+   define('flush()opcode,i')          :(flush_end)
 *  here to emit bstmts, cstmts, astmts. attach input label and
 *  comment to first instruction generated.
 
@@ -333,7 +333,7 @@ flush_5
    (leq(opcode, 'jmp'), leq(opcode, 'ret'))  :f(flush_5a)
    flush_deferred()
 flush_5a   
-   le(i = i + 1, astmts.n)          :s(flush_5)
+   le(i = i + 1, astmts.n)                   :s(flush_5)
 
 flush_6
 
@@ -752,6 +752,9 @@ config_done
 
    labtab = table(500)
 
+*  error_labels records the label and error code used   
+   error_labels = table(500)
+
 *  for each statement, code in generated into three
 *  arrays of statements:
 
@@ -1018,8 +1021,8 @@ outstmt3
 outstmt4
 
    line = trim(line)
-   line = le(size(line),48) rpad(line,48) '; ' comment:s(outstmt5)
-   line = le(size(line),56) rpad(line,56) '; ' comment:s(outstmt5)
+   line = le(size(line),48) rpad(line,48) '; ' comment :s(outstmt5)
+   line = le(size(line),56) rpad(line,56) '; ' comment :s(outstmt5)
    line = line '; ' comment
 
 outstmt5
@@ -1031,8 +1034,8 @@ outstmt5
 
 *  record code labels in table with delimiter removed.
    (ge(sectnow,5) differ(thislabel))      :f(return)
-   label ? break(':') . label       :f(return)
-   labtab<label> = output_lines        :(return)
+   label ? break(':') . label             :f(return)
+   labtab<label> = output_lines           :(return)
 
 outstmt_end
 
@@ -1383,6 +1386,11 @@ g_ent
 *  cfp_b (ends in 1, 2, or 3).  the definition here is a simple odd/even,
 *  least significant bit definition. that is, for us, 1 and 3 are odd,
 *  2 and 4 are even.
+   t1 = 999
+   errfile = t1 ' internal logic error      : fall through into entry point'
+   max.err = gt(t1,max.err) t1
+   error_labels['err_999'] = 999
+   genop('jmp','err_999')
 
    t1 = i.text(i1)
    genop('align', '16')
@@ -1438,16 +1446,13 @@ g_jsr
 *  get count of following ppm statements
 
    jsr_count = ppm_cases[jsr_proc]
-   jsr_rcode = 0
+   
    eq(jsr_count)              :s(opdone)
-   z_suspend = 1
-   jsr_calls = jsr_calls +  1
-   jsr_label = 'call_' jsr_calls
-   jsr_label_norm = jsr_label
-   genop('cmp',rcode,jsr_rcode)
-   genop('je',jsr_label_norm)
-   jsr_rcode = jsr_rcode + 1
-   z_suspend = 0
+  
+   genop('test',rcode,rcode)
+   jsr_rcode = 0
+   jsr_label = genlab()
+   genop('jnz',jsr_label)
 
 *       generate branch around for ppms that will follow
 *       take the branch if normal return (eax==0)
@@ -1504,6 +1509,13 @@ g_prc
    prc.args = getarg(i2)
    ppm_cases[thislabel] = i.text(i2)
    max_exi = gt(prc.args,max_exi) prc.args
+   
+   t1 = 999
+   errfile = t1 ' internal logic error      : fall through into entry point'
+   error_labels['err_999'] = t1
+   max.err = gt(t1,max.err) t1
+   genop('jmp','err_999')
+
    genop('align','16')
    genopl(thislabel)
    thislabel =
@@ -1580,36 +1592,35 @@ g_err
 *  until it goes negative,and then take the appropriate branch.
 
    t1 = getarg(i1)
-
 *  branch to next case if rcode code still not negative.
-
-   genop('cmp',rcode,jsr_rcode)
+   differ(jsr_label) gendop(tstmt(jsr_label ':'))
+   jsr_label =
    jsr_rcode = jsr_rcode + 1
+   gendop(tstmt(,'cmp',rcode,jsr_rcode))
 
    ident(incode,'err')        :s(g_ppm.err)
-
    ident(i.text(i1))          :s(g_ppm.2)
-   genop('je', getarg(i1))    :(g_ppm.loop.next)
+
+   gendop(tstmt(,'je', getarg(i1)))  :(g_ppm.loop.next)
 
 *  here if error exit via exi. set rcode to exit code and jump to error
 *  handler with error code in rcode
 g_ppm.err
-   errfile =   i.text(i1) ' ' i.text(i2)
+   errfile = i.text(i1) ' ' i.text(i2)
+g_ppm.err.2
    max.err = gt(t1,max.err) t1
-   lab_next = genlab()
-   genop('jne',lab_next)
-
-g_ppm.loop.err
-
-   genop('mov',rcode, +t1)
-   genop('jmp','err_')
-   genopl(lab_next ':')
-                     :(g_ppm.loop.next)
-
+   gendop(tstmt(,'je','err_' t1))
+   error_labels['err_' t1] = t1
+                    
 * Check to see if ppm/err are all done
 g_ppm.loop.next
-   jsr_count = jsr_count - 1
-   eq(jsr_count) genopl(jsr_label_norm ':')  :(opdone)
+   jsr_count = jsr_count - 1  
+   eq(jsr_count, 0)                           :f(opdone)
+
+   t1 = 299
+   errfile =  t1 ' internal logic error      : unexpected ppm branch'
+   error_labels['err_' t1] = t1
+   gendop(tstmt(,'jmp','err_' t1))           :(opdone)
 
 g_ppm.2
 
@@ -1618,9 +1629,7 @@ g_ppm.2
 
    t1 = 299
    errfile =  t1 ' internal logic error      : unexpected ppm branch'
-   lab_next = genlab()
-   genop('jne',lab_next)
-                     :(g_ppm.loop.err)
+                           :(g_ppm.err.2)
 
 *  *   1.15 ERB  _int,text_  error branch
 
@@ -1631,9 +1640,8 @@ g_ppm.2
 g_erb
    errfile =  i.text(i1) ' ' i.text(i2)
 *       set rcode to error code and branch to error handler
-   genop('mov', rcode,  +(i.text(i1)))
-   genop('jmp','err_')
-                     :(opdone)
+   genop('mov', wa,  +(i.text(i1)))
+   genop('jmp','error')                     :(opdone)
 
 *  *   1.16 ICV   _opn_  increment value by one
 
@@ -3347,13 +3355,23 @@ g_sec.7
 
 *  allow for some extra cases in case of max.err bad estimate
 
-   n1 = max.err + 8
-   output = '  max.err ' max.err
-   genopl('err_:','xchg',wa,rcode) :(opdone)
+
+   genopl('err_:','xchg',wa,rcode)         :(opdone)
+
 
 *  14.2  END
 
 g_end
+   error_labels = convert(error_labels,'array')
+   i = 0
+g_errlabels   
+   elabel = error_labels[i = i + 1, 1]      :f(g_err1)
+   rcode = error_labels[i, 2]
+   genopl(elabel ':','mov', wa, rcode )
+   genop('jmp', 'error')                   
+   flush()                                  :(g_errlabels)
+
+g_err1
 
 *  Tail end of assembly output
    genop('section .note.GNU-stack noalloc noexec nowrite progbits')
