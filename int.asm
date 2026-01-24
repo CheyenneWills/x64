@@ -49,7 +49,6 @@
       extern      stacksiz
       extern      lowsp
       extern      highsp
-      extern      lowspmin
       extern      basemem
 
 ;     values below must agree with calltab defined in x64.hdr and also in osint/osint.h
@@ -237,8 +236,10 @@ ppoff:      d_word          0             ; offset for ppm exits
 compsp: d_word        0             ; compiler's stack pointer
       global      osisp
 osisp:      d_word          0             ; osint's stack pointer
-      global lowspminx
-lowspminx:  d_word          -1            ; lowest used stack
+      global      lowspmin
+lowspmin: d_word      0             ; Bottom of stack (r8 in minimal)
+      global      lowspminx
+lowspminx: d_word     -1            ; Lowest stack used (r9 in minimal)
       global      _rc_
 _rc_: dd   0                        ; return code from osint procedure
 
@@ -402,6 +403,8 @@ minimal:
       mov   rsi,m_word [reg_xl]
       mov   r12,m_word [reg_ia]
       mov   r13,m_word [reg_cp]
+      mov   r8,m_word [lowspmin]
+      mov   r9,m_word [lowspminx]
       movsd xmm12,m_real [reg_ra]
 
       mov   m_word [osisp],rsp      ; save osint stack pointer
@@ -422,6 +425,8 @@ minimal:
       mov   m_word [reg_xl],rsi
       mov   m_word [reg_ia],r12
       mov   m_word [reg_cp],r13
+      mov   m_word [lowspmin],r8
+      mov   m_word [lowspminx],r9
       movsd m_real [reg_ra],xmm12
       ret
 
@@ -493,6 +498,8 @@ syscall_init:
       mov   m_word [reg_xl],rsi
       mov   m_word [reg_ia],r12
       mov   m_word [reg_cp],r13
+      mov   m_word [lowspmin],r8
+      mov   m_word [lowspminx],r9
       movsd m_real [reg_ra],xmm12
       ldmxcsr [mxcsr_save]      ; Restore mxcsr register
       ret
@@ -508,6 +515,8 @@ syscall_exit:
       mov   rsi,m_word [reg_xl]
       mov   r12,m_word [reg_ia]
       mov   r13,m_word [reg_cp]
+      mov   r8,m_word [lowspmin]
+      mov   r9,m_word [lowspminx]
       movsd xmm12,m_real [reg_ra]
       cld
       mov   rax,m_word [reg_pc]
@@ -701,10 +710,14 @@ sysxi:      mov   m_word [reg_xs],rsp
       push  rcx
       push  r12
       push  r13
+      push  r8
+      push  r9
       movsd [reg_ra], ra
       ldmxcsr [mxcsr_set]
       call  %2
       movsd ra, [reg_ra]
+      pop   r9
+      pop   r8
       pop   r13
       pop   r12
       pop   rcx

@@ -471,6 +471,7 @@ init
    xr = 'xr'
 
    xs = 'rsp'
+   r_lowspmin = 'r8'; r_lowspminx = 'r9'
 
    w0 = 'w0'; wa = 'wa'; wb = 'wb'; wc = 'wc'
    xl = 'xl'; xr = 'xr'; xs = 'xs'; xt = xl
@@ -2888,7 +2889,7 @@ g_mcb
 *  The stack builds downward in this implementation.
 
 *  The starting stack base address is passed in (XS ) at The start of execution.
-   During execution it is necessary to make sure that the stack does not overflow.
+*  During execution it is necessary to make sure that the stack does not overflow.
 *  This is achieved by executing the following instruction periodically.
 
 *  *   10.1 CHK
@@ -2896,15 +2897,16 @@ g_mcb
 *  Check stack overflow
 
 *  After successfully executing CHK it is permissible to use up to 100 additional words
-   before issuing another chk thus CHK need not be issued every time the stack is
+*  before issuing another chk thus CHK need not be issued every time the stack is
 *  expanded. In some implementations, the checking may be automatic and CHK will have no effect.
+
 
 g_chk
    t1 = genlab()
-   genop('cmp',xs,'m_word [lowspminx]')
+   genop('cmp',xs,r_lowspminx)
    genop('jae', t1)
-   genop('mov','m_word [lowspminx]', xs)
-   genop('cmp', xs, 'm_word [lowspmin]')
+   genop('mov',r_lowspminx, xs)
+   genop('cmp', xs, r_lowspmin)
    genop('jb','sec06')
    genopl(t1 ':')
                      :(opdone)
@@ -3150,8 +3152,6 @@ g_sec.5
 
    (gt(prc.count1) genopl('prc_:','times', prc.count1 ' dq 0'))
 
-   genop('global','lowspmin')
-   genopl('lowspmin:','d_word','0')
    genop('global','end_min_data')
    genopl('end_min_data:')
    genop('segment .text')
