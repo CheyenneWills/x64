@@ -1386,7 +1386,6 @@ g_prc
    max.err = gt(t1,max.err) t1
    genop('jmp','err_999')
 
-   genop('align','16')
    genopl(thislabel)
    thislabel =
    prc.type = i.text(i1)            :($('g_prc.' prc.type))
@@ -1602,7 +1601,6 @@ g_sss
 
 g_rtn
 
-   genop('align','16')
    genopl(thislabel)
    thislabel =
                               :(opdone)

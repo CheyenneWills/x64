@@ -175,7 +175,6 @@ do_dvi_over:
 ; remained of ia by r10 result in ia
 ; clobbers wc:w0
 ; set overflow
-    align 16
 do_rmi:
     test    r10,r10         ; check for divide by zero
     jz      do_rmi_over     ; set overflow
