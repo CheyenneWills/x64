@@ -42,7 +42,7 @@ prompt(void)
     wrterr("-T=file  write TERMINAL output to file");
     wrterr("-#=file[options]  associate file with I/O channel #");
     wrterr("");
-    wrterr("option defaults: -F -d* -i64m,64m -m16m -s4m");
+    wrterr("option defaults: -F -d* -i24m,4m -m4m -s8m");
 
     exit(0);
 }

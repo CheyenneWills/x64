@@ -46,7 +46,7 @@ Init(long spitflag, DFLT_FLAGS);  /*  flags to be given to compiler */
 */
 Init(uword heap_inc, HEAP_INCR);              /* heap increment (bytes) */
 Init(uword heap_max, HEAP_MAX);               /* absolute size in bytes of heap area (bytes) */
-Init(uword heap_initial_size, HEAP_INCR * 4); /* initial heap size (bytes) */
+Init(uword heap_initial_size, HEAP_SIZE);     /* initial heap size (bytes) */
 NoInit(size_t heap_alloced_size);             /* Internal heap allocation size */
 NoInit(char *basemem);                        /* base of dynamic memory */
 NoInit(char *topmem);                         /* current top of dynamic memory */

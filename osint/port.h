@@ -147,13 +147,15 @@ OUTPUT, TERMINAL
 /
 /   OBJECT_SIZE         the maximum size of any object created in the heap.
 /                       in bytes
+/   STACK_SIZE          the maximum size of the run-time stack.
 */
 
-#define HEAP_INCR   16 * 1024 * 1024 /* default 64Mbytes */
+#define HEAP_SIZE  24 * 1024 * 1024 /* default 24Mbytes */
+#define HEAP_INCR   4 * 1024 * 1024 /* default 4Mbytes */
 #define HEAP_MAX    MAXUINT 		 /* default limited by system */
-#define HEAP_MIN    16 * 1024 * 1024 /* default 16Mbytes */
-#define OBJECT_SIZE 16 * 1024 * 1024 /* default 16Mbytes */
-
+#define HEAP_MIN    4 * 1024 * 1024 /* default 4Mbytes */
+#define OBJECT_SIZE 4 * 1024 * 1024 /* default 4Mbytes */
+#define STACK_SIZE  8 * 1024 * 1024 /* 8MB */
 /*
  *  Define the maximum nesting allowed of INCLUDE files
  */
@@ -183,15 +185,7 @@ OUTPUT, TERMINAL
 # define PollCount MAXPOSWORD
 #endif /* PollCount */
 
-/*
-/   The following manifest contant describes the constraints on the
-/   run-time stack.
-/
-/   The value can be overriden via command line option.
-/
-/   STACK_SIZE          the maximum size of the run-time stack.
-*/
-#define STACK_SIZE 4*1024*1024 /* 4MB */
+
 
 /*
 /   The following manifest constant defines the location of the host file
