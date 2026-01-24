@@ -9,9 +9,9 @@ Copyright 2012-2017 David Shields
 *  syslinux - Unique Linux code for SPITBOL              *
 *                                                                        *
 \************************************************************************/
-
+/*
 #define PRIVATEBLOCKS 1
-
+*/
 /*#include <unistd.h> */
 #include "port.h"
 #include <fcntl.h>

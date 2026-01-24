@@ -51,8 +51,8 @@ zysdc()
 #endif /* RUNTIME */
 
         write(STDERRFD, "  Release ", 10);
-        write(STDERRFD, pheadv->str, pheadv->len);
-        write(STDERRFD, pid1blk->str, pid1blk->len);
+        write(STDERRFD, pheadv->schar, pheadv->sclen);
+        write(STDERRFD, pid1blk->schar, pid1blk->sclen);
         wrterr(cprtmsg);
     }
     return NORMAL_RETURN;

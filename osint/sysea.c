@@ -58,9 +58,9 @@ zysea()
     char *p;
 
     /* Display file name if present */
-    if (fnscblk->len) {
-        p = ptscblk->str;
-        p = eacpy(p, fnscblk->str, (int)fnscblk->len);
+    if (fnscblk->sclen) {
+        p = ptscblk->schar;
+        p = eacpy(p, fnscblk->schar, (int)fnscblk->sclen);
         /* Display line number if present */
         if (WC(unsigned int)) {
             *p++ = '(';
@@ -73,7 +73,7 @@ zysea()
             *p++ = ')';
         }
         p = eacpy(p, " : ", 3);
-        ptscblk->len = p - ptscblk->str;
+        ptscblk->sclen = p - ptscblk->schar;
         SET_XR(ptscblk);
         return NORMAL_RETURN;
     }

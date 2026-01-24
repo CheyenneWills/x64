@@ -30,7 +30,7 @@ sioarg(int ioflg, struct ioblk *ioptr, struct scblk *scptr)
     word cnt, v, share;
     char ch, *cp;
 
-    cp = scptr->str;
+    cp = scptr->schar;
 
     /*
      *    Initialize the default values for an I/O association.  Note that
@@ -71,7 +71,7 @@ sioarg(int ioflg, struct ioblk *ioptr, struct scblk *scptr)
      *    One iteration per character.  Note that scanning an integer causes
      *    more than one character to be handled in an iteration.
      */
-    while (cnt < scptr->len) {
+    while (cnt < scptr->sclen) {
         ch = uppercase(*(cp + cnt++)); /* get next character */
         switch (ch) {
             case ' ':
@@ -103,7 +103,7 @@ sioarg(int ioflg, struct ioblk *ioptr, struct scblk *scptr)
                  *   B - set size of I/O buffer (stored in pid field).
                  */
             case 'B':
-                v = scnint(cp + cnt, scptr->len - cnt, &cnt);
+                v = scnint(cp + cnt, scptr->sclen - cnt, &cnt);
                 if (v > 0 && ((v + sizeof(word) - 1) & ~(sizeof(word) - 1)) <=
                                (maxsize - BFSIZE)) {
                     ioptr->pid = v;
@@ -128,7 +128,7 @@ sioarg(int ioflg, struct ioblk *ioptr, struct scblk *scptr)
                  * F - set file descriptor number (file opened by shell or external func).
                  */
             case 'F':
-                v = scnint(cp + cnt, scptr->len - cnt, &cnt);
+                v = scnint(cp + cnt, scptr->sclen - cnt, &cnt);
                 ioptr->fdn = v;
                 ioptr->flg1 |= (IO_OPN | IO_SYS);
                 if (ioflg && (testty(v) == 0)) {
@@ -148,7 +148,7 @@ sioarg(int ioflg, struct ioblk *ioptr, struct scblk *scptr)
                  * L - line mode access having max record length v.
                  */
             case 'L':
-                v = scnint(cp + cnt, scptr->len - cnt, &cnt);
+                v = scnint(cp + cnt, scptr->sclen - cnt, &cnt);
                 if (v > 0 && (uword)v <= maxsize) {
                     ioptr->len = v;
                 } else {
@@ -165,7 +165,7 @@ sioarg(int ioflg, struct ioblk *ioptr, struct scblk *scptr)
             case 'Q':
                 ioptr->flg2 |= IO_NOE;
             case 'R':
-                v = scnint(cp + cnt, scptr->len - cnt, &cnt);
+                v = scnint(cp + cnt, scptr->sclen - cnt, &cnt);
                 if (v > 0 && v <= (word)maxsize) {
                     ioptr->len = -v;
                 } else {
@@ -204,7 +204,7 @@ sioarg(int ioflg, struct ioblk *ioptr, struct scblk *scptr)
                         return -1;
                 }
 
-                if (cnt >= scptr->len) {
+                if (cnt >= scptr->sclen) {
                     return -1;
                 }
                 ioptr->share = (ioptr->share & ~IO_DENY_MASK) | share;
@@ -364,7 +364,7 @@ zysfc()
      *   Bad filearg2 or NULL filearg1 is an error
      */
 again:
-    if ((length_fname = lenfnm(scb2)) < 0 || !scb1->len) {
+    if ((length_fname = lenfnm(scb2)) < 0 || !scb1->sclen) {
         return EXIT_1;
     }
 

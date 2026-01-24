@@ -96,7 +96,7 @@ zysbs()
 static int
 back(struct ioblk *ioptr)
 {
-    struct bfblk *bfptr = ((struct bfblk *)(ioptr->bfb));
+    struct iobfblk *bfptr = ((struct iobfblk *)(ioptr->bfb));
     unsigned char c;
 
     while (bfptr) { /* if file is buffered */

@@ -62,7 +62,7 @@ lenfnm(struct scblk *scptr)
     /*
        /    Null strings have filenames with lengths of 0.
      */
-    len = len2 = scptr->len;
+    len = len2 = scptr->sclen;
     if (len == 0) {
         return 0L;
     }
@@ -70,8 +70,8 @@ lenfnm(struct scblk *scptr)
     /*
        /   Here to examine end of string for "[option]".
      */
-    cp = &scptr->str[--len2]; /* last char of strng */
-    if (*cp == ']') {         /* string end with "]" ? */
+    cp = &scptr->schar[--len2]; /* last char of strng */
+    if (*cp == ']') {           /* string end with "]" ? */
         /* String ends with "]", find preceeding "[" */
         while (len2--) {
             if (*--cp == ']') {
@@ -80,14 +80,14 @@ lenfnm(struct scblk *scptr)
             if (*cp == '[') {
                 /* valid option syntax, remove from length of
                  * string we'll examine */
-                len = cp - scptr->str;
+                len = cp - scptr->schar;
                 break;
             }
         }
     }
 
     /* Look for space as the options delimiter */
-    cp = scptr->str;
+    cp = scptr->schar;
 
     /*
        /    Here to bypass spaces within a pipe command.

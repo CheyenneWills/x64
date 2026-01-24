@@ -36,10 +36,10 @@ arg2scb(int req, int argc, char *argv[], struct scblk *scptr, int maxs)
     }
 
     argcp = argv[req];
-    scbcp = scptr->str + scptr->len;
+    scbcp = scptr->schar + scptr->sclen;
     for (i = 0; i < maxs && ((*scbcp++ = *argcp++) != 0); i++)
         ;
-    scptr->len += i;
+    scptr->sclen += i;
     return i;
 }
 
@@ -97,8 +97,8 @@ arg2scb(int req, int argc, char *argv[], struct scblk *scptr, int maxs)
 int
 checkstr(struct scblk *scp)
 {
-    return scp != (struct scblk *)0L && scp->typ == TYPE_SCL &&
-           scp->len < tscblk_length;
+    return scp != NULL && scp->scget == TYPE_SCL &&
+           scp->sclen < tscblk_length;
 }
 
 /*  check2str - check first two argument strings in XL, XR.
@@ -119,9 +119,9 @@ check2str(void)
 char *
 savestr(struct scblk *scp, char *cp)
 {
-    *cp = scp->str[scp->len];
-    scp->str[scp->len] = '\0';
-    return scp->str;
+    *cp = scp->schar[scp->sclen];
+    scp->schar[scp->sclen] = '\0';
+    return scp->schar;
 }
 
 /*
@@ -155,7 +155,7 @@ void
 restorestring(struct scblk *scp, word c)
 {
     if (scp) {
-        scp->str[scp->len] = c;
+        scp->schar[scp->sclen] = c;
     }
 }
 
@@ -184,11 +184,11 @@ getint(struct icblk *icp, long *pword)
     int sign;
 
     sign = 1;
-    if (icp->typ == TYPE_ICL) {
-        result = icp->val;
+    if (icp->icget == TYPE_ICL) {
+        result = icp->icval;
     }
 #ifdef REAL_ARITH
-    else if (icp->typ == TYPE_RCL) {
+    else if (icp->icget == TYPE_RCL) {
 # if sparc
         union {
             mword rcvals[2];
@@ -207,8 +207,8 @@ getint(struct icblk *icp, long *pword)
         if (!checkstr(scp)) {
             return 0;
         }
-        i = scp->len;
-        p = scp->str;
+        i = scp->sclen;
+        p = scp->schar;
         result = (long)0;
         while (i && *p == ' ') { /* remove leading blanks */
             p++;
@@ -244,9 +244,9 @@ zyshs()
        /   if argument one is null...
      */
     scp = WA(struct scblk *);
-    if (scp->typ == TYPE_SCL && !scp->len) {
+    if (scp->scget == TYPE_SCL && !scp->sclen) {
         gethost(ptscblk, tscblk_length);
-        if (ptscblk->len == 0) {
+        if (ptscblk->sclen == 0) {
             return EXIT_4;
         }
         SET_XL(ptscblk);
@@ -264,32 +264,32 @@ zyshs()
             case -1:
                 icp = XL(struct icblk *);
                 if (getint(icp, &val)) {
-                    pticblk->typ = TYPE_ICL;
+                    pticblk->icget = TYPE_ICL;
                     SET_XR(pticblk);
                     switch ((int)val) {
                         case 0:
-                            pticblk->val = memincb;
+                            pticblk->icval = memincb;
                             return EXIT_8;
                         case 1:
-                            pticblk->val = databts;
+                            pticblk->icval = databts;
                             return EXIT_8;
                         case 2:
-                            pticblk->val = (long)basemem;
+                            pticblk->icval = (long)basemem;
                             return EXIT_8;
                         case 3:
-                            pticblk->val = (long)topmem;
+                            pticblk->icval = (long)topmem;
                             return EXIT_8;
                         case 4:
-                            pticblk->val = stacksiz - 400; /* safety margin */
+                            pticblk->icval = stacksiz - 400; /* safety margin */
                             return EXIT_8;
-                        case 5:                            /* stack in use */
-                            pticblk->val = stacksiz - (XS(long) - (long)lowsp);
+                        case 5:                              /* stack in use */
+                            pticblk->icval = stacksiz - (XS(long) - (long)lowsp);
                             return EXIT_8;
                         case 6:
-                            pticblk->val = sizeof(long);
+                            pticblk->icval = sizeof(long);
                             return EXIT_8;
                         case 7:
-                            pticblk->val = stacksiz - ((char *)lowspminx - (char *)lowsp);
+                            pticblk->icval = stacksiz - ((char *)lowspminx - (char *)lowsp);
                             return EXIT_8;
                         default:
                             return EXIT_1;
@@ -307,14 +307,14 @@ zyshs()
                     SET_XL(ptscblk);
                     return EXIT_3;
                 } else if ((val = cmdcnt) != 0) {
-                    ptscblk->len = 0;
-                    while (ptscblk->len < tscblk_length - 2 &&
+                    ptscblk->sclen = 0;
+                    while (ptscblk->sclen < tscblk_length - 2 &&
                            arg2scb((int)val++, gblargc, gblargv, ptscblk,
-                                   tscblk_length - ptscblk->len) > 0) {
-                        ptscblk->str[ptscblk->len++] = ' ';
+                                   tscblk_length - ptscblk->sclen) > 0) {
+                        ptscblk->schar[ptscblk->sclen++] = ' ';
                     }
-                    if (ptscblk->len) {
-                        --ptscblk->len;
+                    if (ptscblk->sclen) {
+                        --ptscblk->sclen;
                     }
                     SET_XL(ptscblk);
                     return EXIT_3;
@@ -332,12 +332,12 @@ zyshs()
                 }
                 save2str(&cmd, &path);
                 save0(); /* made sure fd 0 OK */
-                pticblk->val = dosys(cmd, path);
+                pticblk->icval = dosys(cmd, path);
 
-                pticblk->typ = TYPE_ICL;
+                pticblk->icget = TYPE_ICL;
                 restore2str();
                 restore0();
-                if (pticblk->val < 0) {
+                if (pticblk->icval < 0) {
                     return EXIT_6;
                 }
                 SET_XR(pticblk);
@@ -350,7 +350,7 @@ zyshs()
             case 2:
                 icp = XL(struct icblk *);
                 if (getint(icp, &val)) {
-                    ptscblk->len = 0;
+                    ptscblk->sclen = 0;
                     retval = arg2scb((int)val, gblargc, gblargv, ptscblk,
                                      tscblk_length);
                     if (retval < 0) {
@@ -370,8 +370,8 @@ zyshs()
                      */
             case 3:
                 if (cmdcnt) {
-                    pticblk->typ = TYPE_ICL;
-                    pticblk->val = cmdcnt;
+                    pticblk->icget = TYPE_ICL;
+                    pticblk->icval = cmdcnt;
                     SET_XR(pticblk);
                     return EXIT_8;
                 } else {
@@ -384,8 +384,8 @@ zyshs()
                      */
             case 4:
                 scp = XL(struct scblk *);
-                if (scp->typ == TYPE_SCL) {
-                    if (scp->len == 0) {
+                if (scp->scget == TYPE_SCL) {
+                    if (scp->sclen == 0) {
                         return EXIT_1;
                     }
                     if (rdenv(scp, ptscblk) < 0) {

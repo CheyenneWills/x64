@@ -60,21 +60,21 @@ zysif()
         }
 
         inc_pos[nesting] =
-          doset(getrdiob(), 0L, 1);       /* Record current position */
-        inc_fd[nesting++] = dup(0);       /* Save current input file */
-        close(0);                         /* Make fd 0 available */
+          doset(getrdiob(), 0L, 1);           /* Record current position */
+        inc_fd[nesting++] = dup(0);           /* Save current input file */
+        close(0);                             /* Make fd 0 available */
         clrbuf();
-        savecp = fnscb->str + fnscb->len; /* Make it a C string for now. */
+        savecp = fnscb->schar + fnscb->sclen; /* Make it a C string for now. */
         savechar = *savecp;
         *savecp = '\0';
-        file = fnscb->str;
+        file = fnscb->schar;
         fd = spit_open(file, O_RDONLY, IO_PRIVATE | IO_DENY_WRITE,
                        IO_OPEN_IF_EXISTS); /* Open file */
         if (fd < 0) {
             /* If couldn't open, try alternate paths via SNOLIB */
             initpath(SPITFILEPATH);
             file = filebuf;
-            while (trypath(fnscb->str, file)) {
+            while (trypath(fnscb->schar, file)) {
                 fd = spit_open(file, O_RDONLY, IO_PRIVATE | IO_DENY_WRITE,
                                IO_OPEN_IF_EXISTS);
                 if (fd >= 0) {
@@ -87,7 +87,7 @@ zysif()
             int i = pathlast(gblargv[0]) - gblargv[0];
             if (i) {
                 mystrncpy(filebuf, gblargv[0], i);
-                mystrcpy(&filebuf[i], fnscb->str);
+                mystrcpy(&filebuf[i], fnscb->schar);
                 fd = spit_open(filebuf, O_RDONLY, IO_PRIVATE | IO_DENY_WRITE,
                                IO_OPEN_IF_EXISTS);
             }
@@ -97,13 +97,13 @@ zysif()
             int i = pathlast(sfn) - sfn;
             if (i) {
                 mystrncpy(filebuf, sfn, i);
-                mystrcpy(&filebuf[i], fnscb->str);
+                mystrcpy(&filebuf[i], fnscb->schar);
                 fd = spit_open(filebuf, O_RDONLY, IO_PRIVATE | IO_DENY_WRITE,
                                IO_OPEN_IF_EXISTS);
             }
         }
         if (fd >= 0) {          /* If file opened OK */
-            cpys2sc(file, pnscb, pnscb->len);
+            cpys2sc(file, pnscb, pnscb->sclen);
             *savecp = savechar; /* Restore saved char */
         } else {                /* Couldn't open file */
             *savecp = savechar; /* Restore saved char */

@@ -35,7 +35,7 @@ zysio()
     char *charptr = WA(char *);
     struct fcblk *fcb;
     struct ioblk *iob;
-    struct bfblk *bfb;
+    struct iobfblk *bfb;
 
     /*
        /    If zysfc() marked this I/O association as illegal, return an error
@@ -76,7 +76,7 @@ zysio()
             iob = (struct ioblk *)charptr;
             fcb->iob = MP_OFF(iob, struct ioblk *);
             charptr += IOSIZE; /* point to BFBLK */
-            bfb = (struct bfblk *)charptr;
+            bfb = (struct iobfblk *)charptr;
 
             /*
                /    Fill in IOBLK.
@@ -89,7 +89,7 @@ zysio()
                               struct scblk *);         /* filename */
 
             iob->pid = 0;                              /* process id */
-            iob->bfb = MP_OFF(bfb, struct bfblk *);    /* buffer */
+            iob->bfb = MP_OFF(bfb, struct iobfblk *);  /* buffer */
             iob->fdn = tioblk.fdn;                     /* file descriptor */
             iob->flg1 = tioblk.flg1;                   /* flags */
             iob->flg2 = tioblk.flg2;
@@ -104,7 +104,7 @@ zysio()
             if (iob->flg1 & IO_SYS) {
                 switch (iob->fdn) {
                     case 0:
-                        iob->bfb = MP_OFF(pinpbuf, struct bfblk *);
+                        iob->bfb = MP_OFF(pinpbuf, struct iobfblk *);
                         break;
                     case 1:
                         iob->bfb = 0;

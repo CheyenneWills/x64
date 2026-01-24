@@ -61,7 +61,7 @@ zysin()
             return EXIT_2;
         }
     }
-    scb->len = reclen; /* set record length */
+    scb->sclen = reclen; /* set record length */
 
     /* normal return */
     return NORMAL_RETURN;

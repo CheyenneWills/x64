@@ -21,7 +21,7 @@ Copyright 2012-2017 David Shields
 int
 flush(struct ioblk *ioptr)
 {
-    struct bfblk *bfptr = ((struct bfblk *)(ioptr->bfb));
+    struct iobfblk *bfptr = ((struct iobfblk *)(ioptr->bfb));
     int ioerrcnt = 0;
     word n;
 
@@ -61,7 +61,7 @@ flush(struct ioblk *ioptr)
 int
 fsyncio(struct ioblk *ioptr)
 {
-    struct bfblk *bfptr = ((struct bfblk *)(ioptr->bfb));
+    struct iobfblk *bfptr = ((struct iobfblk *)(ioptr->bfb));
     FILEPOS n;
 
     if (bfptr) {

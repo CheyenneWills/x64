@@ -27,9 +27,9 @@ Copyright 2012-2017 David Shields
 /    using a C struct!
 */
 static struct scblk ffscblk = {
-  .typ = 0,      /*  type word - ignore */
-  .len = 1,      /*  string length */
-  .str[0] = '\f' /*  string is a form-feed */
+  .scget = 0,      /*  type word - ignore */
+  .sclen = 1,      /*  string length */
+  .schar[0] = '\f' /*  string is a form-feed */
 };
 
 int
@@ -44,7 +44,7 @@ zysef()
     }
 
     /* write the data, fail if unsuccessful */
-    if (oswrite(fcb->mode, fcb->rsz, ffscblk.len, iob, &ffscblk) != 0) {
+    if (oswrite(fcb->mode, fcb->rsz, ffscblk.sclen, iob, &ffscblk) != 0) {
         return EXIT_2;
     }
 
