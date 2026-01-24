@@ -52,7 +52,7 @@ trypath(char *name, char *file)
     char c;
 
     /* return 0 if no search path or fully-qualified name */
-    if (pathptr == (char *)0L || name[0] == FSEP
+    if (pathptr == NULL || name[0] == FSEP
 #ifdef FSEP2
         || name[0] == FSEP2
 #endif
@@ -76,8 +76,8 @@ trypath(char *name, char *file)
 #endif
       ;
 
-    if (!c) {                 /* If exhausted the string, */
-        pathptr = (char *)0L; /* clear pathptr so kick out on next call */
+    if (!c) {           /* If exhausted the string, */
+        pathptr = NULL; /* clear pathptr so kick out on next call */
     }
 
     file--;

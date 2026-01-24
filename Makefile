@@ -19,7 +19,7 @@ DEMODEST=$(destprefix)/share/spitbol
 MANDEST=$(destprefix)/man/man1
 
 CFLAGS=-Dm64 -m64 -no-pie -fPIC  -mfpmath=sse -mlong-double-64 -ffloat-store \
-    -Wno-unused-command-line-argument -Wno-ignored-optimization-argument
+    -Wall
 
 ifeq ($(DEBUG),1)
 CFLAGS+= -g

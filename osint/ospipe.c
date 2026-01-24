@@ -27,7 +27,7 @@ int
 ospipe(struct ioblk *ioptr)
 {
     int childpid;
-    HFILE childfd, parentfd, savefd, stdfd, fd[2];
+    HFILE childfd, parentfd, stdfd, fd[2];
 
     if ((ioptr->flg1 & (IO_INP | IO_OUP)) == (IO_INP | IO_OUP)) {
         return -1; /* can't open read/write pipe */
@@ -146,6 +146,6 @@ doshell(struct ioblk *ioptr)
     }
     cmdbuf[len] = '\0';                     /* Nul terminate cmd */
     shellpath = getshell();                 /* get shell's path */
-    execl(shellpath, pathlast(shellpath), "-c", cmdbuf, (char *)0);
+    execl(shellpath, pathlast(shellpath), "-c", cmdbuf, NULL);
     return -1;                              /* should not get here */
 }

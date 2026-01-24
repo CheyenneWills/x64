@@ -154,7 +154,9 @@ zysxi()
 #endif                    /* EXECFILE */
 
     rereloc();
+#if EXECFILE
 fail:
+#endif
     retval |= closeaout(fileName, tmpfnbuf, retval);
     if (retval < 0) {
         return EXIT_2;
