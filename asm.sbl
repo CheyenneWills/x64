@@ -33,9 +33,6 @@
 *  you may also specify option flags on the command line to control the
 *  code generation.  the following flags are processed:
 
-*      compress       generate tabs rather than spaces in output file
-*      comments       retain full-line and end-of-line comments
-
 *  the variable arch is set equal to the uppercase name of the machine
 *  being processed. specific tests upon this variable are discouraged,
 *  as all machine-dependent code should be placed in the machine-definition
@@ -686,50 +683,6 @@ init
 
 config_done
 
-*  z_limit is maximum number of calls to be generated if non-zero
-   z_limit = 000
-*  set z_first non-zero to skip first number of instructions that would
-*   generate trace
-   z_first = 0
-*  will set in_executable when in part of program where executable
-*  instructions may occur
-   z_exec = 0
-
-*  z_suspend is set to temporarily disable the trace.
-   z_suspend = 0
-*  set in_skip when should not insert trace code, else assembly errors result.
-*  start with skip on, turn off when see first start of code.
-   z_skip = 1
-*  skip_on and skip_off are labels indicating the start and end,
-*  respectively, of sections of the code that should not be traced,
-*  usually because they contain a loop instruction that won't
-*  compile if too much trace code is inserted.
-   skip_on = table(50)
-   skip_off = table(50)
-
-*  skip_init('start:ini03')
-   skip_init('gbcol           :gtarr')
-*  skip_init('gtn01:gtnvr')
-*  skip_init('bpf05:bpf07')
-*  skip_init('scv12:scv19')
-*  skip_init('exbl1:exbl2')
-*  skip_init('exbl5:expan')
-*  skip_init('prn17:prn18')
-*  skip_init('ini11:ini13')
-*  skip_init('oex13:oexp2')
-*  skip_init('oex14:oexp6')
-*  skip_init('bdfc1:b_efc')
-*  skip_init('sar01:sar10')
-*  skip_init('srpl5:srpl8')
-*  skip_init('pflu1:pflu2')
-*  skip_init('prpa4:prpa5')
-*  skip_init('prn17:prn18')
-*  skip_init('prtvl:prtt1')
-*  skip_init('trim4:trim5')
-*  skip_init('prnl1:prnl2')
-*  skip_init('prti1:prtmi')
-*  skip_init('srpl5:srpl8')
-
 *  data structures
 
    data('minarg(i.type,i.text)')
@@ -743,14 +696,6 @@ config_done
    ppm_cases = table(50,,0)
 
     p.comregs = break(letters) . pre span(letters) . word
-
-*  exttab has entry for external procedures
-
-   exttab = table(50)
-
-*  labtab records labels in the code section, and their line numbers
-
-   labtab = table(500)
 
 *  error_labels records the label and error code used   
    error_labels = table(500)
@@ -775,8 +720,7 @@ config_done
 *  initialize variables
 
    labcnt = output_lines = input_lines = nstmts = ntarget = nerrors = 0
-   lastopc = lastop1 = lastop2 =
-   data_lc = 0
+  
    max_exi = 0
 
 *  initial patterns
@@ -796,21 +740,6 @@ config_done
    pifatal = initmap(
 +        'aov:1 beq:1 bne:1 bge:1 bgt:1 bhi:1 ble:1 blo:1 blt:1 bne:1 bnz:1 ceq:1 cne:1 mfi:1 nzb:1 zrb:1 ')
 
-*  trace not working for mvc (x64)
-
-   is_executable = initmap(
-+        'add:1 adi:1 adr:1 anb:1 aov:1 atn:1 '
-+        'bct:1 beq:1 bev:1 bge:1 bgt:1 bhi:1 ble:1 blo:1 blt:1 bne:1 bnz:1 bod:1 '
-+        'brn:1 bri:1 bsw:1 btw:1 bze:1 ceq:1 chk:1 chp:1 cmb:1 cmc:1 cmp:1 cne:1 csc:1 '
-+        'cos:1 ctb:1 ctw:1 cvd:1 cvm:1 dca:1 dcv:1 eti:1 dvi:1 dvr:1 erb:1 esw:1 etx:1 flc:1 '
-+        'ica:1 icp:1 icv:1 ieq:1 ige:1 igt:1 ile:1 ilt:1 ine:1 ino:1 iov:1 itr:1 jmp:1 '
-+        'jsr:1 lch:1 lct:1 lcp:1 lcw:1 ldi:1 ldr:1 lei:1 lnf:1 lsh:1 lsx:1 mcb:1 mfi:1 mli:1 mlr:1 '
-+        'mnz:1 mov:1 mti:1 mvw:1 mwb:1 ngi:1 eti:1 ngr:1 nzb:1 orb:1 plc:1 prc:1 psc:1 '
-+        'req:1 rge:1 rgt:1 rle:1 rlt:1 rmi:1 rne:1 rno:1 rov:1 rsh:1 rsx:1 rti:1 rtn:1 sbi:1 sbr:1 '
-+        'sch:1 scp:1 sin:1 sqr:1 ssl:1 sss:1 sti:1 str:1 sub:1 tan:1 trc:1 wtb:1 xob:1 zer:1 '
-+        'zgb:1 zrb')
-
-*       don't trace mvc as doing so causes just 'end' to fail. sort out later. (ds 01/09/13)
 
 *  various constants
 
@@ -820,23 +749,12 @@ config_done
 
    branchtab = initmap( 'beq:je bne:jne bgt:ja bge:jae ble:jbe blt:jb blo:jb bhi:ja ')
 
-*  optim.tab flags opcodes capable of participating in or optimization in outstmt routine.
-
-   optim.tab = initmap('and:1 add:1 sub:1 neg:1 or:1 xor:1 shr:1 shl:1 inc:1 dec:1 ')
-
 *  ismem is a map from operand type that is nonzero if the operand type is a memory reference.
 
    ismem = initmap('3:1 4:1 5:1 9:1 10:1 11:1 12:1 13:1 14:1 15:1 ')
 
 *  other definitions that are dependent upon things defined in the machine definition file,
 *  and cannot be built until after the definition file has been read in.
-
-*  p.outstmt examines output lines for certain types of comment contructions
-
-   fillc   = (ident(compress) " ",tab)
-   p.outstmt = (break(fillc) . label span(fillc)) . leader
-+        comment.delim rem . comment
-   p.alltabs = span(tab) rpos(0)
 
    filenami = 'sbl.lex'
    input(.infile,1,filenami)        :s(inputok)
@@ -861,52 +779,6 @@ outputok
    output(.errfile,3, fileprefix ".err")     :s(err_ok)
    output = "  cannot open error message file: " fileprefix ".err":(end)
 err_ok
-
-*  will have havehdr non-null if more remains to copy out at end.
-
-                     :(nopub)
-*  read in pub file if it exists.   this contains a list of symbols to
-*  be declared public when encountered.
-
-   pubtab = table(2)
-   input(.pubfile,5, fileprefix ".pub")      :f(nopub)
-   pubtab = table(101)
-
-pubcopy
-
-   line = pubfile             :f(pubend)
-   pubtab[line] = 1           :(pubcopy)
-
-pubend
-
-    endfile(5)
-
-nopub
-
-*  get file name
-
-*  get definition file name following token file name, and flags.
-
-*  fileprefix ? break(';:') . fileprefix len(1)
-*. (break(';:') | rem) . target
-*. ((len(1) rem . flags) | '')
-
-*  $replace(target,lcase,ucase) = 1
-
-*  parse and display flags, setting each one's name to non-null value (1).
-
-                     :(flgs.skip)
-flgs
-
-   flags ? ((len(1) break(';           :')) . flag len(1)) |
-+        ((len(1) rem) . flag) =         :f(flgs2)
-   flag = replace(flag,lcase,ucase)
-   output = "  flag           : " flag
-   $flag = 1               :(flgs)
-
-flgs.skip
-
-flgs2
 
                      :(return)
 init_end
@@ -1005,20 +877,11 @@ outstmt2
    op1 = t.op1(ostmt)
    op2 = t.op2(ostmt)
    op3 = t.op3(ostmt)
-   differ(compress)           :s(outstmt3)
+
    line = rpad( rpad(label,7) ' ' rpad(opcode,4) ' '
 +        (ident(op1), op1
 +        (ident(op2), ',' op2
 +           (ident(op3), ',' op3))) ,27)
-                     :(outstmt4)
-outstmt3
-
-   line = label tab opcode tab
-+        (ident(op1), op1
-+         (ident(op2), ',' op2
-+           (ident(op3), ',' op3)))
-
-outstmt4
 
    line = trim(line)
    line = le(size(line),48) rpad(line,48) '; ' comment :s(outstmt5)
@@ -1034,8 +897,7 @@ outstmt5
 
 *  record code labels in table with delimiter removed.
    (ge(sectnow,5) differ(thislabel))      :f(return)
-   label ? break(':') . label             :f(return)
-   labtab<label> = output_lines           :(return)
+   label ? break(':') . label             :(return)
 
 outstmt_end
 
@@ -1079,9 +941,6 @@ readline_2
    lne(substr(readline,1,1 ),'*' )        :s(return)
 
 *  Here if comment.
-
-   z_skip = ident(readline,'*z+') 0    :s(readline)
-   z_skip = ident(readline,'*z-') 1    :s(readline)
 
    outfile = ';' substr(readline,2)
    output_lines = output_lines + 1        :(readline)
@@ -1133,16 +992,6 @@ report
    output = rpad('    ' text ':',30) num        :(return)
 
 report_end
-   define('skip_init(s)on,off')        :(skip_init_end)
-
-*  initialize the skip table used for instruction trace.
-
-skip_init   s break(':') . on ':' rem . off     :f(return)
-
-   skip_on[on] = 1
-   skip_off[off] = 1          :(return)
-
-skip_init_end
 
 -stitl main program
 
@@ -1335,7 +1184,6 @@ g_bsw
 
    t1 = getarg(i1)
    t2 = genlab()
-   z_suspend = 1
    ident(i.text(i3))          :s(g_bsw1)
    genop('cmp',t1,getarg(i2))
    genop('jge',getarg(i3))
@@ -1348,7 +1196,6 @@ g_bsw1
    genop('segment .data')
    genop('align', '8')
    genopl(t2 ':')
-   z_suspend = 0
                      :(opdone)
 *  * 1.4  IFF  _val,plbl_        provide branch for switch
 
@@ -2596,8 +2443,6 @@ g_flc
    t1 = (eq(cfp_b,cfp_c) reglow(getarg(i1)), getarg(i1))
    t2 = genlab()
 
-*  z_suspend = 1
-
    genop('cmp',t1,"'A'")
    genop('jb', t2 )
    genop('cmp',t1,"'Z'")
@@ -2605,7 +2450,6 @@ g_flc
    genop('add',t1,'32')
    genopl(t2 '             :')
 
-*  z_suspend = 0
                      :(opdone)
 *  #### 7- Operations on Bit String Values
 
@@ -2716,8 +2560,7 @@ g_zrb1
 *   multiple of the character size.
 
 g_zgb
-
-   genop('nop')               :(opdone)
+   genop('')               :(opnext)
 
 *  #### 8-   Conversion Instructions
 
@@ -2950,10 +2793,8 @@ g_mvc
    ne(cfp_b,cfp_c) genop('shl', wa, 'log_cfp_b')
    ne(cfp_b,cfp_c)               :s(g_mvw)
    t1 = genlab()
-   z_suspend = 1
    genop('rep')
    genop('movs_b')
-   z_suspend = 0
                      :(opdone)
 
 *  *  9.2  MVW
@@ -2979,10 +2820,8 @@ g_mvc
 
 g_mvw
 
-   z_suspend = 1
    genop('shr',wa,'log_cfp_b')
    genop('rep','movs_w')
-   z_suspend = 0
                      :(opdone)
 
 *  *   9.3   MWB
@@ -3248,7 +3087,8 @@ g_inp
 *  The label may be referenced in any type of branch order and it must
 *  appear labelling a RTN instruction in the program section.
 
-g_inr genop('')                  :(opdone)
+g_inr
+   thislabel = tcomment =                :(opnext)
 
 *  ### 13 - Assembly Listing Layout Instruction
 
