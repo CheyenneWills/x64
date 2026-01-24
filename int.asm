@@ -48,6 +48,7 @@
       extern      calltab
       extern      stacksiz
       extern      lowsp
+      extern      highsp
       extern      lowspmin
       extern      basemem
 
@@ -234,9 +235,6 @@ sav_block: times 44 db 0            ; save minimal registers during push/pop reg
 ppoff:      d_word          0             ; offset for ppm exits
       global      compsp
 compsp: d_word        0             ; compiler's stack pointer
-      global      sav_compsp
-sav_compsp:
-      d_word          0             ; save compsp here
       global      osisp
 osisp:      d_word          0             ; osint's stack pointer
       global lowspminx
@@ -433,6 +431,7 @@ stackinit:
       add   rax, m_word [stacksiz]
       sub   rax, cfp_b
       mov   m_word [compsp],rax     ; save as minimal's stack pointer
+      mov   m_word [highsp],rax  ; save top of stack
       ret
 
 ;     mimimal -- call minimal function from c
@@ -449,7 +448,7 @@ stackinit:
 ;     stack to switch to.  in that case, just make the call on the
 ;     the osint stack.
 
- minimal:
+minimal:
 ;       pushad                ; save all registers for c
       mov   rcx,m_word [reg_wa]     ; restore registers
       mov   rbx,m_word [reg_wb]
@@ -797,8 +796,8 @@ get_fp:
       extern      startbrk
       extern      outptr
       extern      swcoup
-;     scstr is offset to start of string in scblk, or two words
-scstr equ   cfp_c+cfp_c
+;     scstro is offset to start of string in scblk, or two words
+scstro equ   cfp_c+cfp_c
 
 ;
 restart:
@@ -811,7 +810,7 @@ restart:
       call  stackinit         ; initialize minimal stack
 
                               ; set up for stack relocation
-      lea   rax,[tscblk+scstr]       ; top of saved stack
+      lea   rax,[tscblk+scstro]       ; top of saved stack
       mov   rbx,m_word [lmodstk]          ; bottom of saved stack
       mov   rcx,m_word [stbas]      ; rcx = stbas from exit() time
       sub   rbx,rax                       ; wb = size of saved stack
@@ -827,7 +826,7 @@ restart:
 ;     restore stack from tscblk.
 ;
       mov   rsi,m_word [lmodstk]          ; -> bottom word of stack in tscblk
-      lea   rdi,[tscblk+scstr]            ; -> top word of stack
+      lea   rdi,[tscblk+scstro]            ; -> top word of stack
       cmp   rsi,rdi                       ; any stack to transfer?
       je    re3               ;  skip if not
       sub   rsi,4
