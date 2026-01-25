@@ -1479,7 +1479,7 @@ g_bsw
 g_bsw1
 
    genop('jmp', 'm_word [' t2 '+' t1 '*cfp_b]')
-   genopl(,'segment .data')
+   genopl(,'segment .rodata')
    genopl(,'align', '8')
    genopl(t2 ':')
                      :(opdone)
@@ -3393,9 +3393,7 @@ g_sec
 g_sec.1
    odrain = 1
    flush()
-   genopl(,'segment .text')
-   genopl(,'global','sec01')
-   genopl('sec01:')           :(opdone)
+                                    :(opdone)
 
 *  definitions section
 
@@ -3411,7 +3409,7 @@ g_sec.2
 g_sec.3
    odrain = 1
    flush()
-   genopl(,'segment .data')
+   genopl(,'segment .rodata')
    genopl(,'align','8')
    genopl(,'global','sec03')
    genopl('sec03:')           :(opdone)
