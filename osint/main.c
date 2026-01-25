@@ -18,6 +18,8 @@ Copyright 2012-2017 David Shields
 #define GLOBALS /* global variables will be defined in this module */
 #include "port.h"
 #include <stdint.h>
+#include <stdio.h>
+#include <stdarg.h>
 
 int
 main(int argc, char **argv)
@@ -113,10 +115,13 @@ main(int argc, char **argv)
  * Write message to standard error, and append end-of-line.
  */
 void
-wrterr(char *s)
+wrterr(char *fmt, ...)
 {
-    write(STDERRFD, s, strlen(s));
-    write(STDERRFD, "\n", 1);
+    va_list args;
+    va_start(args, fmt);
+    vfprintf(stderr, fmt, args);
+	fprintf(stderr,"\n");
+    va_end(args);
 }
 
 /*
