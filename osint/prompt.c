@@ -5,7 +5,7 @@ Copyright 2012-2017 David Shields
 */
 
 #include "port.h"
-
+extern char *source_version;
 /*    prompt() - used to give user usage info in command line versions.
  *
  */
@@ -19,7 +19,7 @@ prompt(void)
            "input/output");
     wrterr("# is a decimal number.  Append \"k\" for kilobytes, \"m\" for "
            "megabytes, \"g\" for gigabytes");
-    wrterr("spitbol v4.0f");
+    wrterr("spitbol %s", source_version);
     wrterr("options:");
     wrterr("-d# #bytes max heap            -i#[,#] #bytes initial heap size");
     wrterr("  -d* limited by system                [,#bytes increment size]");
