@@ -29,18 +29,39 @@ Copyright 2012-2017 David Shields
 
 #include "port.h"
 
+char *workbuffer = NULL;
+int workbuffersz = 0;
+
+
 word
 oswrite(word mode, word linesiz, word recsiz, struct ioblk *ioptr,
         struct scblk *scptr)
 
 {
-    char *saveloc, savech;
+    char *cp;
+    char *saveloc;
+    char savech;
+    int slen = scptr->sclen;
 
-    char *cp = scptr->schar;
     struct iobfblk *bfptr = ((struct iobfblk *)(ioptr->bfb));
     word fdn = ioptr->fdn;
     word linelen;
+
     int ioerrcnt = 0;
+
+    if (mode == 1) {
+        if (workbuffersz < slen + 1) {
+            if (workbuffer == NULL) {
+                workbuffer = malloc(slen + 1);
+            } else {
+                workbuffer = realloc(workbuffer, slen + 1);
+            }
+        }
+        memcpy(workbuffer, scptr->schar, scptr->sclen);
+        cp = workbuffer;
+    } else {
+        cp = scptr->schar;
+    }
 
     do {
         /* If line mode, limit characters written on a line */
@@ -139,20 +160,9 @@ oswrite(word mode, word linesiz, word recsiz, struct ioblk *ioptr,
                     bfptr->next += n;
 
                     /* copy n characters from *cp to *r */
-                    if (n & 1) {
-                        *r++ = *cp++;
-                    }
-                    if (n & 2) {
-                        *r++ = *cp++;
-                        *r++ = *cp++;
-                    }
-                    n >>= 2;
-                    while (--n >= 0) {
-                        *r++ = *cp++;
-                        *r++ = *cp++;
-                        *r++ = *cp++;
-                        *r++ = *cp++;
-                    }
+                    memcpy(r, cp, n);
+                    r += n;
+                    cp += n;
 
                     ioptr->flg2 |= IO_DIR; /* mark buffer dirty */
                     if (bfptr->next > bfptr->fill) {
