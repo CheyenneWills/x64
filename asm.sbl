@@ -351,6 +351,24 @@ oflush
    os = array(ostmts.n * 2)
 
 * Peep-hole optimizations
+
+* Look for some labels to align
+   i = gt(ostmts.n , 1) 1                    :f(opt0_done)
+   on = 0
+opt0_l
+   leq(t.label(ostmts[i]), 'exint:')         :f(opt0_n)
+   os[on = on + 1] = tstmt(,'align','32')
+opt0_n
+   os[on = on + 1] = ostmts[i]
+   le(i = i + 1, ostmts.n)                   :s(opt0_l)
+
+   i = 1
+opt0_c
+   ostmts[i] = os[i]
+   le(i = i + 1, on)                         :s(opt0_c)
+   ostmts.n = on
+opt0_done
+
 * look for 2 jmps in a row with the 2nd jmp without a label
    i = gt(ostmts.n, 1) 1                     :f(opt1_done)
    lastop =
