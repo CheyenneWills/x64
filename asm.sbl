@@ -381,7 +381,7 @@ opt1_l
    (leq(lastop,'jmp'), leq(lastop,'ret'))
 +  (ident(t.label(ostmts[i])) leq(t.opc(ostmts[i]),'jmp')) :f(opt1_n)
 
-   on = on - 1                               :(opt1_nn)  
+   on = on - 1                               :(opt1_nn)
 
 opt1_n
    lastop = differ(t.opc(ostmts[i])) t.opc(ostmts[i])
@@ -396,16 +396,16 @@ opt1_c
    ostmts.n = on
 opt1_done
 
-* Look for 
+* Look for
 * l: xor w0_e,w0_e         l: xor w0_e,w0_e
 *    stos_w                   rep stosq
-*    dec wa                   
-*    jnz l                    
+*    dec wa
+*    jnz l
    i = ge(ostmts.n, 4) 1                     :f(opt2_done)
    on = 0
 opt2_l
    os[on = on + 1] = ostmts[i]
-   
+
    differ(t.label(ostmts[i]))
 +         (leq(t.opc(ostmts[i]), 'xor') leq(t.op1(ostmts[i]),'w0_e'),
 +          leq(t.opc(ostmts[i]), 'mov') leq(t.op1(ostmts[i]),'w0'))
@@ -432,7 +432,7 @@ opt2_c
    ostmts.n = on
 opt2_done
 
-* Look for 
+* Look for
 *    mov {reg},m_word [bitsn] l: mov {reg},{x}
 *    and {reg},{x}               and {reg},{bitsn}
 
@@ -468,7 +468,7 @@ opt3_c
    ostmts.n = on
 opt3_done
 
-* Look for 
+* Look for
 *    and {reg}                      and {reg},...
 *    test {reg}                     {conditional}
 *    {conditional}
@@ -483,7 +483,7 @@ opt4_l
    (leq(t.op1(os[on]), t.op1(ostmts[i + 1])))                    :f(opt4_n)
    (leq(t.op1(os[on]), t.op2(ostmts[i + 1])))                    :f(opt4_n)
    (t.opc(ostmts[i + 2]) ? 'j')                                  :f(opt4_n)
-  
+
    os[on = on + 1] = copy(ostmts[i + 2])
    t.comment(os[on]) = t.comment(ostmts[i + 1])
 * Drop the 'test'
@@ -503,7 +503,7 @@ opt4_c
    ostmts.n = on
 opt4_done
 
-* Look for 
+* Look for
 *    and {reg}                      and {reg},...
 *    test {reg}                     {conditional}
 *    {conditional}
@@ -518,10 +518,10 @@ opt4a_l
 
    ((leq(t.opc(ostmts[i + 1]), 'cmp') leq(t.op1(os[on]), t.op1(ostmts[i + 1]))
 +                                    leq(t.op2(ostmts[i + 1]),'0'))
-+   (t.opc(ostmts[i + 2]) ? pos(0) 'j' ((('n' | '') any('sez')) | 
++   (t.opc(ostmts[i + 2]) ? pos(0) 'j' ((('n' | '') any('sez')) |
 +                                        (any('gl') ('e' | ''))) rpos(0)))
 +                                                                :f(opt4a_n)
-  
+
    os[on = on + 1] = copy(ostmts[i + 2])
    t.comment(os[on]) = t.comment(ostmts[i + 1])
 * Drop the 'test'
@@ -548,14 +548,14 @@ opt4a_done
 *     add/sub 1 => inc/dec
 *     xor {reg},{reg} => use 32bit register
 *     replace psave/psavc with registers
-*            
+*
 
    i = gt(ostmts.n, 1) 1                     :f(opt5_done)
    on = 0
 opt5_l
    os[on = on + 1] = copy(ostmts[i])
 
-   t.op2(os[on]) 'm_word [' (bits span(nos)) . t1 = 
+   t.op2(os[on]) 'm_word [' (bits span(nos)) . t1 =
 +                differ(bitstab[t1]) bitstab[t1]      :s(opt5_n)
 
 * handle integer constants
@@ -570,7 +570,7 @@ opt5_nzer
    t.opc(os[on]) = 'inc'
    t.op2(os[on]) =                                    :(opt5_n)
 
-opt5_dec   
+opt5_dec
    leq(t.opc(os[on]),'sub') leq(t.op2(os[on]),'1')    :f(opt5_psave)
    t.opc(os[on]) = 'dec'
    t.op2(os[on]) =                                    :(opt5_n)
@@ -944,7 +944,7 @@ init
 *  rbp (not saved across syscall)
 
 
-   allregisters.p =    
+   allregisters.p =
 +        w0 | w0_e | wa | wa_e | wb | wb_e | wc | wc_e | ia | ia_e |
 +        ra | cp | xl | xl_e | xt | xt_e | xr | xr_e | xs | r_lowspmin | r_lowspminx |
 +        r10 | r11 |  cp | rcode
@@ -1582,18 +1582,40 @@ g_lei
 g_jsr
 
    jsr_proc = getarg(i1)
+* Handle some special cases
+   l2 =
+   leq(jsr_proc,'arith')                     :f(g_jsr_noopt)
+* add fast path for arith calls.
+* check to see if the 2 arguments are already integers
+   l1 = genlab()
+   genop('mov', xl, 'm_word [' xs '+cfp_b*0]')
+   genop('mov', xr, 'm_word [' xs '+cfp_b*1]')
+   genop('cmp', 'm_word [' xl ']', 'b_icl')
+   genop('jne', l1)
+   genop('cmp', 'm_word [' xr ']', 'b_icl')
+   genop('jne', l1)
+   genop('mov', ia, 'm_word [(cfp_b*icval)+' xr ']')
+   genop('add', xs, 'cfp_b*2')
+   genop('jmp', l2 = genlab())
+   genop('align','16')
+   genopl(l1 ':')
+
+g_jsr_noopt
    genop('call',jsr_proc)
 
 *  get count of following ppm statements
 
    jsr_count = ppm_cases[jsr_proc]
 
-   eq(jsr_count)              :s(opdone)
+   eq(jsr_count)              :s(g_jsr_end)
 
    genop('test',rcode,rcode)
    jsr_rcode = 0
    jsr_label = genlab()
    genop('jnz',jsr_label)
+
+g_jsr_end
+   differ(l2) genopl(l2 ':')
 
 *       generate branch around for ppms that will follow
 *       take the branch if normal return (eax==0)
