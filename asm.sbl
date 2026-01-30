@@ -2152,8 +2152,11 @@ g_scp genop('mov',getarg(i1), cp)       :(opdone)
 
 *  Execution of LCW may destroy XL .
 
-g_lcw  genop('mov', 'r10', 'm_word [r13]')
+g_lcw
+       isreg(i1) genop('mov', getarg(i1), 'm_word [' cp ']') :s(g_lcw_done)
+g_lcws genop('mov', 'r10', 'm_word [r13]')
        genop('mov', getarg(i1, 'm_word'), 'r10')
+g_lcw_done
        genop('add', cp, 'cfp_b')           :(opdone)
 
 *  *   3.4   ICP
