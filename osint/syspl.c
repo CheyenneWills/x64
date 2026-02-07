@@ -32,7 +32,7 @@ Copyright 2012-2017 David Shields
 
 #define pollevent()
 extern int rearmbrk(void);
-extern int brkpnd;
+extern int brint;
 #define stmtDelay PollCount
 
 int
@@ -45,8 +45,8 @@ zyspl(struct minimal_regs *minregs)
 #endif                     /* !ENGINE */
         SET_WA(stmtDelay); /* Poll finished or Continue */
 #if !ENGINE
-        if (brkpnd) {
-            brkpnd = 0;    /* User interrupt */
+        if (brint) {
+            brint = 0;     /* User interrupt */
             rearmbrk();    /* allow breaks again */
             return EXIT_1;
         }

@@ -1668,7 +1668,8 @@
 .def   .cnsc                 define to omit numeric-string compare in sort
 *      .cnsr                 define to omit sort, rsort
 .def   .csou                 define if output, terminal go to sysou
-.def   .cpol                 define if interface polling desired
+*      .cpol                 define if interface polling desired
+.def   .cbrk                 define if polling is simply checking for user interrupt (break)
 .def   .crel                 define to include reloc routines
 *      .crpp                 define if return points have odd parity
 *      .cs16                 define to initialize stlim to 32767
@@ -8164,6 +8165,9 @@ pfste  dic  +0               gets int rep of table entry size
 pmdfl  dac  0                pattern assignment flag
 pmhbs  dac  0                history stack base pointer
 pmssl  dac  0                length of subject string in chars
+.if    .cbrk
+brint  dac  0                set if user break (interrupt)
+.fi
 .if    .cpol
 
 *      global values for interface polling (syspl)
@@ -16541,9 +16545,10 @@ stmgo  rtn
 .fi
        add  xr,*cdcod        point to first code word
        lcp  xr               set code pointer
-
+.if    .cbrk
+       bnz  brint,stgbr      check for user interrupt
+.fi
 *      here to execute first code word of statement
-
 stgo1  lcw  xr               load next code word
        zer  xl               clear garbage xl
        bri  (xr)             execute it
@@ -16563,6 +16568,9 @@ stgo3  mov  kvlst,kvstn      set lastno
 .fi
        add  xr,*cdcod        point to first code word
        lcp  xr               set code pointer
+.if    .cbrk
+       bnz  brint,stgbr      check for user interrupt
+.fi
 .if    .cpol
 
 *      here to check for polling
@@ -16586,7 +16594,11 @@ stgo3  mov  kvlst,kvstn      set lastno
 
 stgo4  ldi  kvstc            get stmt count
        ilt  stgo5            omit counting if negative
+.if    .cpol
        mti  (xs)+            reload start value of counter
+.else
+       mti  stmcs            reload start value of counter
+.fi
        ngi                   negate
        adi  kvstc            stmt count minus counter
        sti  kvstc            replace it
@@ -16600,6 +16612,10 @@ stgo4  ldi  kvstc            get stmt count
 
 stgo5  mov  stmct,stmcs      reset counter
        brn  stgo1            fetch next code word
+
+.if    .cbrk
+stgbr  erb  320,user interrupt
+.fi
        ejc
 
 *      stopr -- terminate run
@@ -26808,6 +26824,9 @@ reada  mov  wa,cswin         max read length
        jsr  sysrd            read input image
        ppm  read4            jump if eof or new file name
        icv  rdnln            increment next line number
+.if    .cbrk
+       bnz  brint,reade      user interrupt
+.fi
 .if    .cpol
        dcv  polct            test if time to poll interface
        bnz  polct,read0      not yet
@@ -26835,6 +26854,9 @@ read2  mov  r_cni,xr         store copy of pointer
 *      merge here if no read attempted
 
 read3  exi                   return to readr caller
+.if    .cbrk
+reade  erb  320,user interrupt
+.fi
 .if    .csfn
 
 *      here on end of file or new source file name.
@@ -29222,8 +29244,12 @@ err03  mov  xr,r_cim         point to start of image
 *      these errors may be handled by the setexit mechanism.
 
 err04  bge  errft,=num03,labo1 abort if too many fatal errors
+.if    .cbrk
+       beq  kvert,=nm320,err06 treat user interrupt specially
+.else
 .if    .cpol
        beq  kvert,=nm320,err06 treat user interrupt specially
+.fi
 .fi
        zer  r_ccb            forget garbage code block
        mov  cwcof,*cccod     set initial offset (mbe catspaw)

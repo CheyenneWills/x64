@@ -116,7 +116,8 @@ calltab:
     global  b_xrt
     global  stbas
     global  statb
-    global  polct
+;   global  polct   ; only if cpol is defined
+    global  brint   ; only if cbrk is defined
     global  typet
     global  lowspmin
     global  flprt

@@ -14,7 +14,7 @@ Copyright 2012-2017 David Shields
 #include <signal.h>
 
 void rearmbrk(void);
-int brkpnd;
+extern int brint;
 
 #if defined(USE_SIGACTION)
 static void catchbrk(int sig, siginfo_t *info, void *context);
@@ -26,7 +26,7 @@ void
 startbrk(void) /* start up break logic */
 {
 
-    brkpnd = 0;
+    brint = 0;
     sigaction(SIGINT, &sighandler, &istat);
     sigaction(SIGHUP, &sighandler, &hstat);
     sigaction(SIGQUIT, &sighandler, &qstat);
@@ -55,12 +55,14 @@ static void
 catchbrk(int sig, siginfo_t *info, void *context)
 {
 
-    brkpnd++;
+    brint++;
+#if defined(POLLING)
     stmct = GET_MIN_VALUE(stmct, word) - 1;
     stmcs = GET_MIN_VALUE(stmcs, word);
     SET_MIN_VALUE(stmct, 1, word);             /* force STMGO loop to check */
     SET_MIN_VALUE(stmcs, stmcs - stmct, word); /* counters quickly */
     SET_MIN_VALUE(polct, 1, word);             /* force quick SYSPL call */
+#endif
 }
 
 #else
@@ -70,7 +72,7 @@ static void (*cstat)(int signal);
 void
 startbrk(void)                        /* start up break logic */
 {
-    brkpnd = 0;
+    brint = 0;
     cstat = signal(SIGINT, catchbrk); /* Catch ctrl-c */
 }
 
@@ -91,12 +93,16 @@ rearmbrk(void) /* rearm after a trap occurs */
 void
 catchbrk(int sig)
 {
+#if defined(POLLING)
     word lstmct, lstmcs;
-    brkpnd++;
+#endif
+    brint++;
+#if defined(POLLING)
     lstmct = GET_MIN_VALUE(stmct, word) - 1;
     lstmcs = GET_MIN_VALUE(stmcs, word);
     SET_MIN_VALUE(stmct, 1, word);               /* force STMGO loop to check */
     SET_MIN_VALUE(stmcs, lstmcs - lstmct, word); /* counters quickly */
     SET_MIN_VALUE(polct, 1, word);               /* force quick SYSPL call */
+#endif
 }
 #endif
