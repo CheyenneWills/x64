@@ -3204,6 +3204,11 @@ e_srs  equ  *                30 words
 
 e_sts  equ  *                500 words
 
+*      e_stm is the minimum initial static size when initializing
+*      memory.
+
+e_stm  equ  *                4096 words
+
 *      e_cbs is the size of code block allocated initially and
 *      the expansion increment if overflow occurs. if this value
 *      is too small or too large, excessive garbage collections
@@ -8955,7 +8960,11 @@ ini03  mlr  reavt            * 10.0
        add  xr,wa            increment for above buffers
        add  xr,*e_hnb        increment for hash table
        add  xr,*e_sts        bump for initial static block
-       jsr  sysmx            get mxlen
+       mov  wa,statb         check for minimum static size
+       add  wa,*e_stm        get minimum static size
+       bge  xr,wa,ini04      skip if static hi already big enough
+       mov  xr,wa            use minimum static size
+ini04  jsr  sysmx            get mxlen
        mov  kvmxl,wa         provisionally store as maxlngth
        mov  mxlen,wa         and as mxlen
        bgt  xr,wa,ini06      skip if static hi exceeds mxlen
