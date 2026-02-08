@@ -154,26 +154,18 @@ mxcsr_save:  dd   0           ; Preserved mxcsr (restore when returning to C -- 
 
       global      ten
 ten:  d_word      10              ; constant 10
-      global      inf
+; Real constants
+
       align 16
 ; double precision
 ;    0        1        2         3        4        5       6        7
 ; seeeeeee eeeeffff ffffffff ffffffff ffffffff ffffffff ffffffff ffffffff
 ;
-zerop: dq         0x0000000000000000     ; Positive zero
       global      zeron
 zeron: dq         0x8000000000000000     ; Negative zero
-infp:  dq         0x7ff0000000000000     ; Postive infinity
-infn:  dq         0x8ff0000000000000     ; Negative infinity
-inf:  dq          0x7ff0000000000000     ; double precision infinity
-nanp: dq          0x7fffffffffffffff     ; positive nan
-nann: dq          0xffffffffffffffff     ; negative nan
-
-infl: dd          -1
-      dd          2146435071
-
+      global      inf
+inf:   dq         0x7ff0000000000000     ; double precision infinity
       global neg1f
-      align 16
 neg1f: dq         0x7fffffffffffffff
 
       global      sav_block
@@ -258,7 +250,7 @@ calltab_enevs equ   12
 calltab_engts equ   13
 
 
-; rdi points to a minimal_regs structure      
+; rdi points to a minimal_regs structure
 startup:
       pop   rax               ; discard return
       cld                     ; default to up direction for string ops
@@ -278,24 +270,24 @@ startup:
 ;     output: register wa, sp, lowspmin, compsp, osint_sp set up per diagram:
 
 ;  C stack - (used when executing C code)
-;  +--------------------+                                             
+;  +--------------------+
 ;  |  C stack -         |
 ;  |    //////          |   o osint_sp set to RSP when entering minimal
 ;  |                    |   o RSP set to osint_sp when leaving minimal
 ;  +--------------------+
-;                 
-;  Minimal stack (static size, not relocated) 
+;
+;  Minimal stack (static size, not relocated)
 ;  +--------------------+ <- highsp (stack goes down) <- initial compsp
 ;  |           ^        |   o compsp set to RSP when leaving minimal
 ;  |           |        |   o RSP set to compsp when entering minimal
-;  / stacksiz bytes     / 
-;  |           |        | }-- lowspminx (lowest used stack) 
-;  |           |        | 
+;  / stacksiz bytes     /
+;  |           |        | }-- lowspminx (lowest used stack)
+;  |           |        |
 ;  |---------- | -------| <-- resultant lowspmin (stack overflow raised if RSP
 ;  | 400 guard v bytes  |                         less than lowspmin)
 ;  +--------------------+ <- lowsp
-; 
-;  Minimal heap (dynamic size, relocatable)           
+;
+;  Minimal heap (dynamic size, relocatable)
 ;  +----------------------+ <-- maxmem (will expand until heap_alloced_size
 ;  |                    ^ |  ^          reaches heap_max)
 ;  |                    | |  |
@@ -306,7 +298,7 @@ startup:
 ;  |--------------------|-|  } - Active minimal heap storage
 ;  / heap_initial_size  v /  v
 ;  +----------------------+ <- basemem  (address must be creater than maxlen)
-;               
+;
 
 
 ;     mimimal -- call minimal function from c
@@ -335,7 +327,7 @@ minimal:
       push  r15
       push  r10                     ; Save for return
       mov   m_word [osint_sp],rsp      ; save osint stack pointer
-; Load minimal registers from the passed parameter      
+; Load minimal registers from the passed parameter
       mov   r12, m_word [r10 + (0 * 8)]   ; IA
       movsd xmm12, m_real [r10 + (1 * 8)] ; RA
       mov   rdi, m_word [r10 + (2 * 8)]  ; XR
@@ -441,7 +433,7 @@ do_syscall:
 ;     save registers in global variables
 
       pop   rax                      ; Pop return address
-      mov   r10,rsp                  ; Save 
+      mov   r10,rsp                  ; Save
       mov   m_word [compsp],rsp
       mov   rsp,m_word [osint_sp]       ; Switch to C stack
       mov   rbp,rsp
@@ -459,16 +451,16 @@ do_syscall:
       mov     [rsp + (2 * 8)], rdi        ; XR
       vmovq   [rsp + (1 * 8)], xmm12      ; RA (Direct Store!)
       mov     [rsp + (0 * 8)], r12        ; IA
-; End of minimal_regs structure      
+; End of minimal_regs structure
       mov   rdi,rsp                  ; Set address of MINIMAL_REGS structure
       push  r8                       ; Save lowspmin
       push  r9                       ; and lowpminx
       push  rbp
       push  rax                      ; Keep proper stack alignment
-; rsp at this point must be aligned on a 16 byte alignment +8      
+; rsp at this point must be aligned on a 16 byte alignment +8
       mov   m_word [lowspmin],r8
       mov   m_word [lowspminx],r9
-      ldmxcsr [mxcsr_save]           ; Restore C rtl mxcsr register      
+      ldmxcsr [mxcsr_save]           ; Restore C rtl mxcsr register
       call  r15
 
 syscall_exit:
