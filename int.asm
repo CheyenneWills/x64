@@ -499,7 +499,6 @@ syscall_exit:
       syscall sysax,zysax     ; after execution, before printing stats/dump
       syscall sysbs,zysbs     ; backspace (previous record)
       syscall sysbx,zysbx     ; after compilation, before execution
-      syscall sysdc,zysdc     ; expiry date check (not applicable any more)
       syscall sysdm,zysdm     ; dump(v)/&dump = v and v >= 4
       syscall sysdt,zysdt     ; obtain current date as a string (date() function)
       syscall sysea,zysea     ; error action

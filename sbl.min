@@ -1879,17 +1879,6 @@ syscr  exp
 .fi
 .fi
 
-*      sysdc -- date check
-
-sysdc  exp  0                define external entry point
-
-*      sysdc is called to check that the expiry date for a trial
-*      version of spitbol is unexpired.
-
-*      jsr  sysdc            call to check date
-*      return only if date is ok
-       ejc
-
 *      sysdm  -- dump core
 
 sysdm  exp  0                define external entry point
@@ -9088,10 +9077,7 @@ ini11  zer  (xr)+            blank a word
        jsr  prpar            associate terminal
        ejc
 
-*      check for expiry date
-
-ini13  jsr  sysdc            call date check
-       mov  flptr,xs         in case stack overflows in compiler
+ini13  mov  flptr,xs         in case stack overflows in compiler
 
 *      now compile source input code
 

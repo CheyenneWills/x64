@@ -51,7 +51,6 @@ main(int argc, char **argv)
     if (inpptr) {
         sfn = *inpptr; /* pointer to first file name */
     } else {
-        zysdc(NULL);
         wrterr("");
         prompt();
     }
@@ -138,7 +137,6 @@ setout(void)
     /*
      *  Brag prior to calling swcoup
      */
-    zysdc(NULL);
 
     /*
      * Switch to proper output file.
