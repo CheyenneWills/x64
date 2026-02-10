@@ -2757,7 +2757,7 @@ g_trc
 
 g_flc
 
-   output = 'flc  not supported ' (end)
+*  output = 'flc  not supported ' (end)
    t1 = (eq(cfp_b,cfp_c) reglow(getarg(i1)), getarg(i1))
    t2 = genlab()
 
