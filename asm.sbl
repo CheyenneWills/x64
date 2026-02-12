@@ -684,26 +684,6 @@ genopl_o
 genopl_e error('genopl called with a thislabel set thislabel(' thislabel ') (' gopl ')') :(return)
 genopl_end
 
--stitl define(genrep(op))
-   define('genrep(op)l1,l2)')       :(genrep_end)
-
-*  generate code to repeat operation *op* using
-*  'rep *op* loop' instruction.
-
-genrep
-   genop('rep ' op) :(return)
-   l1 = genlab()
-   l2 = genlab()
-   genopl(l1 ':')
-   genop('or',wa,wa)
-   genop('jz',l2)
-   genop(op)
-   genop('dec',wa)
-   genop('jmp',l1)
-   genopl(l2 ':')
-                     :(return)
-genrep_end
-
 -stitl getarg(iarg,imem)
    define('getarg(iarg,imem)l1,l2,t1,t2,tmem')  :(getarg_end)
 
