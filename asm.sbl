@@ -894,6 +894,7 @@ init
 
    w0 = 'w0'
    w0_e = 'w0_e'
+   w0_l = 'w0_l'
 
    wa = 'wa'
    wa_e = 'wa_e'
@@ -927,6 +928,7 @@ init
 *  r10, r11 scope only within individual minimal opcodes
 *           values not preserved or used outside of the minimal opcode
    r10 = 'r10'; r11 = 'r11'; r14 = 'r14'
+   r10d = 'r10d'; r11d = 'r11d'; r14d = 'r14d'
 
 * Global registers that are preserved
 *  _ia_ is mapped to _r12_ in nasm.h.
