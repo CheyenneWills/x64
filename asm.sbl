@@ -3189,9 +3189,20 @@ g_mvc
 *  The final value of WA is undefined.  WA,XL ,XR must be set up before obeying MVW
 
 g_mvw
+   t1 = genlab() ;* large mvw
+   t2 = genlab() ;* done
 
-   genop('shr',wa,'log_cfp_b')
-   genop('rep movs_w')
+   genop('cmp', wa, '8')
+   genop('jb', t2)
+   genop('ja', t1)
+   genop('mov', w0, '[xl]')
+   genop('mov', '[' xr ']', w0)
+   genop('add', xl, '8')
+   genop('add', xr, '8')
+   genop('xor', wa, wa)
+   genop('jmp', t2)
+   genopl(t1 ':', 'call', 'min_memcpy')
+   genopl(t2 ':')
                      :(opdone)
 
 *  *   9.3   MWB
