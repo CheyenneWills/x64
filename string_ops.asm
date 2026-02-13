@@ -199,3 +199,67 @@ min_memfill_done:
     ret
 
 ; ------------------------------------------
+
+; lexically compare strings (cmc)
+; xr rdi - str1
+; xl rsi - str2
+; wa rcx - count
+; Sets flags
+; xl and xr zeroed
+
+min_memcmc:
+
+    cmp     wa, 32
+    ja      min_cmc_repcmp
+
+    ; --- Medium Path (17-32 Bytes) ---
+    ; We only need to check 2 QWORDS to cover up to 24 bytes,
+    ; or 3 QWORDS to cover up to 32 bytes (Head, Middle, Tail).
+
+    ; Check First 8
+    mov     w0, [xl]
+    mov     r10, [xr]
+    bswap   w0
+    bswap   r10
+    cmp     w0, r10
+    jne     min_cmc_return
+
+    ; Check Next 8 (Offset 8)
+    mov     w0, [xl + 8]
+    mov     r10, [xr + 8]
+    bswap   w0
+    bswap   r10
+    cmp     w0, r10
+    jne     min_cmc_return
+
+    ; Check Tail 8 (Overlap covers the end)
+    ; This safely handles 17-32 bytes.
+    mov     w0, [xl + wa - 16]
+    mov     r10, [xr + wa - 16]
+    bswap   w0
+    bswap   r10
+    cmp     w0, r10
+    jne     min_cmc_return
+
+    ; If we are really paranoid about 24-32 range coverage:
+    ; 17 bytes: [0..7], [8..15], [9..16] (Tail overlap). Covered.
+    ; 32 bytes: [0..7], [8..15], [24..31]. GAP at 16-23!
+    ; We need one more check for full 32 byte coverage.
+
+    ; Check Third 8 (Offset 16)
+    ; Safe because len > 16 implies we have at least 17 bytes.
+    ; If len < 24, this overlaps with tail. Safe.
+    mov     w0, [xl + wa - 8]
+    mov     r10, [xr + wa - 8]
+    bswap   w0
+    bswap   r10
+    cmp     w0, r10
+min_cmc_return:
+    ret
+
+min_cmc_repcmp:
+    ; > 32 bytes: use hardware
+    repe    cmpsb
+    ret
+
+; ------------------------------------------

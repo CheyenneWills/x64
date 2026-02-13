@@ -2689,17 +2689,76 @@ g_cne memmem()
 *  comparisons difficult (dependent in general on shifts and masking).
 
 g_cmc
+   genop('test', wa, wa)
+   genop('jz', (t1 = genlab()))
+   genop('cmp', wa, '16')
+   genop('ja', (t2 = genlab()))
+   genop('cmp', wa, '4')
+   genop('jb', (t3 = genlab()))
+   genop('cmp', wa, '8')
+   genop('jae', (t4 = genlab()))
+* 4-7
+   genop('mov', w0_e, '[' xl ']')
+   genop('mov', 'r10d', '[' xr ']')
+   genop('bswap', w0_e)
+   genop('bswap', r10d)
+   genop('cmp', w0_e, r10d)
+   genop('jne', (t5 = genlab()))
 
-   genop('repe','cmps_b')
-* The following cannot change condition
-   genop('mov',xl,'0')
-   genop('mov',xr,'0')
-   t1 = getarg(i1)
-   t2 = getarg(i2)
-   (ident(t1,t2) genop('jnz',t1))         :s(opdone)
-   genop('ja',t2)
-   genop('jb',t1)             :(opdone)
+   genop('mov', w0_e, '[' xl '+' wa '-4]')
+   genop('mov', r10d, '[' xr '+' wa '-4]')
+   genop('bswap', w0_e)
+   genop('bswap', r10d)
+   genop('cmp', w0_e, r10d)
+   genop('jne', t5)
+   genop('jmp', t1)
 
+* 8_16
+   genopl(t4 ':', 'mov', w0, '[' xl ']')
+   genop(         'mov', r10, '[' xr ']')
+   genop(         'bswap', w0)
+   genop(         'bswap', r10)
+   genop(         'cmp', w0, r10)
+   genop(         'jne', t5)
+   genop(         'mov', w0, '[' xl '+' wa '-8]')
+   genop(         'mov', r10, '[' xr '+' wa '-8]')
+   genop(         'bswap', w0)
+   genop(         'bswap', r10)
+   genop(         'cmp', w0, r10)
+   genop(         'jne', t5)
+   genop(         'jmp', t1)
+* 1-3
+   genopl(t3 ':',  'mov', w0_l, '[' xl ']')
+   genop(          'cmp', w0_l, '[' xr ']')
+   genop(          'jne', t5)
+   genop(          'cmp', wa, '1')
+   genop(          'je', t1)
+   genop(          'mov', w0_l, '[' xl '+1]')
+   genop(          'cmp', w0_l, '[' xr '+1]')
+   genop(          'jne', t5)
+   genop(          'cmp', wa, '2')
+   genop(          'je', t1)
+   genop(          'mov', w0_l, '[' xl '+2]')
+   genop(          'cmp', w0_l, '[' xr '+2]')
+   genop(          'jne', t5)
+   genop(          'jmp', t1)
+* call helper
+   genopl(t2 ':',  'call', 'min_memcmc')
+   genop(          'je',  t1)
+* diff
+   genopl(t5 ':',  'mov', xl, '0')
+   genop(          'mov', xr, '0')
+   t8 = getarg(i1)
+   t9 = getarg(i2)
+   (ident(t1,t2) genop(          'jnz', t8)) :s(g_cmc1)
+   genop('jb', t8)
+   genop('ja', t9)
+* equal
+g_cmc1
+* Can't change the condition
+   genopl(t1 ':', 'mov', xl, '0')
+   genop(         'mov', xr, '0')
+                                    :(opdone)
 *  *   6.9   TRC
 
 *  Translate characters
