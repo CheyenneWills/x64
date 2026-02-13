@@ -1721,8 +1721,8 @@ g_exi
 
 g_exi.1
 
-   genop('mov',w0, 'm_word ['  prcent(prc.count) ']' )
-   genop('jmp',w0)
+   genop('push', 'm_word ['  prcent(prc.count) ']' )
+   genop('ret')
                      :(opdone)
 
 *  *   1.13 ENP  define end of procedure body
