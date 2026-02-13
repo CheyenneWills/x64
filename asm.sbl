@@ -3266,17 +3266,59 @@ g_mcb
 
    ne(cfp_b,cfp_c) genop('shl', wa, 'log_cfp_b')
    ne(cfp_b,cfp_c)               :s(g_mwb)
-   genop('std')
-   genop('dec',xl)
-   genop('dec',xr)
-   genrep('movs_b')
-   genop('cld')
-                     :(opdone)
-   genop('std')
-   genop('rep')
-   genop('movs_b')
-   genop('cld')
-                     :(opdone)
+
+   t1 = genlab() ;* call_mcb
+   t2 = genlab() ;* mcb_8_15
+   t3 = genlab() ;* mcb_tiny
+   t4 = genlab() ;* mcb_tiny
+   t6 = genlab() ;* cleanup
+   t7 = genlab() ;* done
+
+   genop('cmp', wa, '16')
+   genop('jae', t1)
+   genop('sub', xl, wa)
+   genop('sub', xr, wa)
+   genop('cmp', wa, '8')
+   genop('jae', t2)
+* 0-7
+   genop('cmp', wa, '4')
+   genop('jb', t3)
+   genop('mov', 'eax', '[' xl ']')
+   genop('mov', 'r10d', '[' xl '+' wa '-4]')
+   genop('mov', '[' xr ']', 'eax')
+   genop('mov', '[' xr '+' wa  '-4]', 'r10d')
+   genop('jmp', t6)
+* 8-15
+   genopl(t2 ':', 'mov', w0, '[' xl ']')
+   genop('mov', 'r10', '[' xl '+' wa '-8]')
+   genop('mov', '[' xr ']', w0)
+   genop('mov', '[' xr '+' wa '-8]', 'r10')
+   genop('jmp', t6)
+
+* 2-3
+   genopl(t3 ':', 'cmp', 'cl', '2')
+   genop('jb', t4 )
+   genop('movzx', 'eax', 'word [' xl ']')
+   genop('movzx', 'r10d', 'word [' xl '+' wa '-2]')
+   genop('mov', 'word [' xr ']', 'ax')
+   genop('mov', 'word [' xr '+' wa '-2]', 'r10w')
+   genop('jmp', t6)
+* 1
+   genopl(t4 ':', 'mov', 'al', 'byte [' xl ']')
+   genop('mov', 'byte [' xr ']', 'al')
+   genop('jmp', t6)
+
+*  call min_mcb
+   genopl(t1 ':', 'call', 'min_mcb')
+   genop('jmp', t7)
+
+* cleanup
+   genopl(t6 ':', 'dec', xr)
+   genop('dec', xl)
+   genop('xor', wa, wa)
+   genopl(t7 ':')
+
+                        :(opdone)
 
 *  #### 10- Operations Connected with the Stack
 
