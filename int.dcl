@@ -186,3 +186,5 @@ do_rmi_over:
     xor     w0_e,w0_e
     cmp     al,-128
     ret
+
+%include "string_ops.asm"

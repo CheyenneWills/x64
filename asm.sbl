@@ -3112,8 +3112,59 @@ g_mvc
 
    ne(cfp_b,cfp_c) genop('shl', wa, 'log_cfp_b')
    ne(cfp_b,cfp_c)               :s(g_mvw)
-   t1 = genlab()
-   genop('rep movs_b')
+
+* optimized move string
+* WA = byte count
+* XL = src
+* XR = dst
+   t1 = genlab() ;* slow_path
+   t2 = genlab() ;* 8-15
+   t3 = genlab() ;* 2-3
+   t4 = genlab() ;* 1
+   t6 = genlab() ;* cleanup
+   t7 = genlab() ;* done label
+
+   genop('cmp', wa, '8')
+   genop('jae', t2)
+   genop('cmp', wa, '4')
+   genop('jb', t3)
+*  4-7
+   genop('mov', 'eax', '[' xl ']')
+   genop('mov', 'r10d', '[' xl '+' wa '-4]')
+   genop('mov', '[' xr ']', 'eax')
+   genop('mov', '[' xr '+' wa  '-4]', 'r10d')
+   genop('jmp', t6)
+* 2-3
+   genopl(t3 ':', 'cmp', 'cl', '2')
+   genop('jb', t4 )
+   genop('movzx', 'eax', 'word [' xl ']')
+   genop('movzx', 'r10d', 'word [' xl '+' wa '-2]')
+   genop('mov', 'word [' xr ']', 'ax')
+   genop('mov', 'word [' xr '+' wa '-2]', 'r10w')
+   genop('jmp', t6)
+* 1
+   genopl(t4 ':', 'mov', 'al', 'byte [' xl ']')
+   genop('mov', 'byte [' xr ']', 'al')
+   genop('jmp', t6)
+
+* Slow path
+   genopl(t1 ':', 'call','min_memcpy')
+   genop('jmp', t7)
+* 8-15
+   genopl(t2 ':', 'cmp', wa, '16')
+   genop('jae', t1)
+   genop('mov', w0, '[' xl ']')
+   genop('mov', r10, '[' xl '+' wa '-8]')
+   genop('mov', '[' xr ']', w0)
+   genop('mov', '[' xr '+' wa '-8]', r10)
+* cleanup
+   genopl(t6 ':', 'add', xr, wa)
+   genop('add', xl, wa)
+   genop('xor', wa, wa)
+   genopl(t7 ':')
+
+
+
                      :(opdone)
 
 *  *  9.2  MVW
