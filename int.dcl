@@ -22,6 +22,7 @@
     extern  inf
     extern  neg1f
     extern  zeron
+    extern  reg_cp ; code pointer (cp maintained in location reg_cp)
 
 ; Math functions
     extern atn_
@@ -144,13 +145,9 @@ calltab:
     global  b_rcl
     global  end_min_data
 
-
-
 ;   integer arithmetic instructions
 
-;   code pointer instructions (cp maintained in location reg_cp)
 
-    extern  reg_cp
     section .data
     align   8
 mxcsr       dd      0       ; used to test mxcsr exceptions
