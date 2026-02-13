@@ -133,3 +133,69 @@ min_mwb_tail:
     ret
 
 ; ------------------------------------------
+
+; min_memfill
+; xr rdi - dest
+; w0 rax - fill (word)
+; wa rcx - count
+; matches 'rep stosq'
+
+; min_memfill: Pattern Fill
+min_memfill:
+    test   wa, wa
+    jz     min_memfill_done
+    ; beyond 2KB (256 words), hardware rep usually beats unrolled loops.
+    cmp    wa, 256
+    jae    min_memfill_repstos
+
+    shl    wa, 3
+    ; --- prepare AVX2 pattern ---
+    vmovq        xmm0, w0
+    vpbroadcastq ymm0, xmm0     ; splat 64-bit pattern into all YMM slots
+
+    cmp    wa, 32
+    jb     min_memfill_tiny
+
+    ; --- AVX2 loop (32 bytes per step) ---
+min_memfill_loop32:
+    vmovdqu [xr], ymm0
+    add    xr, 32
+    sub    wa, 32
+    cmp    wa, 32
+    jae    min_memfill_loop32
+    ; check if we have an 8, 16, or 24 byte remainder
+    test   wa, wa
+    jz     min_memfill_cleanup
+
+    vmovdqu [xr + wa - 32], ymm0
+
+min_memfill_cleanup:
+    add    xr, wa
+    vzeroupper                  ; return to SSE state (important for haswell)
+    xor    wa, wa
+    ret
+
+min_memfill_tiny:
+    cmp    wa, 16
+    jae    min_memfill_16_24
+    mov    [xr], w0
+    add    xr, 8
+    xor    wa, wa
+    ret
+
+min_memfill_16_24:
+    vmovdqu [xr], xmm0
+    vmovdqu [xr + wa - 16], xmm0
+
+min_memfill_finish:
+    add     xr, wa
+    xor     wa, wa
+    ret
+
+min_memfill_repstos:
+    rep    stosq
+    xor    wa, wa
+min_memfill_done:
+    ret
+
+; ------------------------------------------

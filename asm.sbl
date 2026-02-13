@@ -416,7 +416,7 @@ opt2_l
 +  leq(t.label(ostmts[i]), t.op1(ostmts[i + 3]) ':') :f(opt2_n)
 
    os[on = on + 1] = ostmts[i + 1]
-   t.opc(os[on]) = 'rep stos_w'
+   t.opc(os[on]) = 'call min_memfill'
    i = i + 3
 opt2_n
    le(i = i + 1, ostmts.n - 4)               :s(opt2_l)
