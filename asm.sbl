@@ -3224,19 +3224,18 @@ g_mvw
 *  WA ,XL , XR must be set up before obeying MWB .
 
 g_mwb
-
-   genop('shr',wa,'log_cfp_b')
-   genop('std')
-   genop('lea',xl,'[xl-cfp_b]')
-   genop('lea',xr,'[xr-cfp_b]')
-   genrep('movs_w')
-   genop('cld')               :(opdone)
-
-   genop('std')
-   genop('shr',wa,'log_cfp_b')
-   genop('rep')
-   genop('movs_w')
-   genop('ctd')
+   t1 = genlab() ;* call mwb
+   t2 = genlab() ;* done
+   genop('cmp', wa, '16')
+   genop('jae', t1)
+   genop('mov', w0, '[' xl '-8]')
+   genop('mov', '[' xr '-8]', w0)
+   genop('sub', xl, 16)
+   genop('sub', xr, 16)
+   genop('xor', wa, wa)
+   genop('jmp', t2)
+   genopl(t1 ':', 'call', 'min_mwb')
+   genopl(t2 ':')
                      :(opdone)
 
 *  *   9.4   MCB
