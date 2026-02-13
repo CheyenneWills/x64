@@ -40,6 +40,7 @@
 
         %define w0      rax
         %define w0_e    eax
+        %define w0_l    al
 
         %define wa      rcx
         %define wa_e    ecx
