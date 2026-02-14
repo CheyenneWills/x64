@@ -437,20 +437,20 @@ do_syscall:
       mov   m_word [compsp],rsp
       mov   rsp,m_word [osint_sp]       ; Switch to C stack
       mov   rbp,rsp
-      sub   rsp,(8*10)+8             ; space for 10 registers + alignment
       and   rsp,-16                  ; 16byte alignment
 ;     Now save the registers - register layout must match
 ;                              minimal_regs in osint.h
-      mov     [rsp + (9 * 8)], r10        ; XS (Minimal Stack)
-      mov     [rsp + (8 * 8)], rax        ; PC (Return Addr)
-      mov     [rsp + (7 * 8)], r13        ; CP
-      mov     [rsp + (6 * 8)], rdx        ; WC
-      mov     [rsp + (5 * 8)], rbx        ; WB
-      mov     [rsp + (4 * 8)], rcx        ; WA
-      mov     [rsp + (3 * 8)], rsi        ; XL
-      mov     [rsp + (2 * 8)], rdi        ; XR
-      vmovq   [rsp + (1 * 8)], xmm12      ; RA (Direct Store!)
-      mov     [rsp + (0 * 8)], r12        ; IA
+      push  r10        ; XS (Minimal Stack)
+      push  rax        ; PC (Return Addr)
+      push  r13        ; CP
+      push  rdx        ; WC
+      push  rbx        ; WB
+      push  rcx        ; WA
+      push  rsi        ; XL
+      push  rdi        ; XR
+      push  r12        ; IA
+      sub   rsp, 8     ; Room for xmm12
+      vmovq [rsp], xmm12      ; RA (Direct Store!)
 ; End of minimal_regs structure
       mov   rdi,rsp                  ; Set address of MINIMAL_REGS structure
       push  r8                       ; Save lowspmin
@@ -473,16 +473,17 @@ syscall_exit:
       mov   r8, m_word [lowspmin]
       mov   r9, m_word [lowspminx]
 
-      mov   r12, [rsp + (0 * 8)]      ; IA
-      vmovq xmm12, [rsp + (1 * 8)]    ; RA (Direct Load)
-      mov   rdi, [rsp + (2 * 8)]      ; XR
-      mov   rsi, [rsp + (3 * 8)]      ; XL
-      mov   rcx, [rsp + (4 * 8)]      ; WA
-      mov   rbx, [rsp + (5 * 8)]      ; WB
-      mov   rdx, [rsp + (6 * 8)]      ; WC
-      mov   r13, [rsp + (7 * 8)]      ; CP
-      mov   r14, [rsp + (8 * 8)]      ; PC (Return Addr)
-      mov   r10, [rsp + (9 * 8)]      ; XS (Minimal Stack)
+      vmovq xmm12, [rsp]    ; RA (Direct Load)
+      add   rsp, 8
+      pop   r12         ; (1 * 8)]      ; IA
+      pop   rdi         ; (2 * 8)]      ; XR
+      pop   rsi         ; (3 * 8)]      ; XL
+      pop   rcx         ; (4 * 8)]      ; WA
+      pop   rbx         ; (5 * 8)]      ; WB
+      pop   rdx         ; (6 * 8)]      ; WC
+      pop   r13         ; (7 * 8)]      ; CP
+      pop   r14         ; (8 * 8)]      ; PC (Return Addr)
+      pop   r10         ; (9 * 8)]      ; XS (Minimal Stack)
 
       mov   m_word [osint_sp],rbp      ; Save C stack
       mov   rsp,r10                 ; Back to minimal

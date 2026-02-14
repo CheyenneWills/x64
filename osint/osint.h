@@ -31,8 +31,8 @@ extern uword minimal_id;
  */
 
 struct minimal_regs {
-    long reg_ia;
     double reg_ra;
+	long reg_ia;
     uword reg_xr;
     uword reg_xl;
     uword reg_wa;
