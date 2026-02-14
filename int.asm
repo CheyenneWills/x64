@@ -493,8 +493,41 @@ syscall_exit:
       %macro      syscall     2
       global %1
       extern %2
-%1:   lea   r15,%2
-      jmp   do_syscall
+%1:
+;     save registers in global variables
+
+      pop   rax                      ; Pop return address
+      mov   r10,rsp                  ; Save
+      mov   m_word [compsp],rsp
+      mov   rsp,m_word [osint_sp]       ; Switch to C stack
+      mov   rbp,rsp
+      and   rsp,-16                  ; 16byte alignment
+;     Now save the registers - register layout must match
+;                              minimal_regs in osint.h
+      push     r10        ; XS (Minimal Stack)
+      push     rax        ; PC (Return Addr)
+      push     r13        ; CP
+      push     rdx        ; WC
+      push     rbx        ; WB
+      push     rcx        ; WA
+      push     rsi        ; XL
+      push     rdi        ; XR
+      push     r12        ; IA
+      sub      rsp,8
+      vmovq    [rsp], xmm12      ; RA (Direct Store!)
+
+; End of minimal_regs structure
+      mov   rdi,rsp                  ; Set address of MINIMAL_REGS structure
+      push  r8                       ; Save lowspmin
+      push  r9                       ; and lowpminx
+      push  rbp
+      push  rax                      ; Keep proper stack alignment
+; rsp at this point must be aligned on a 16 byte alignment +8
+      mov   m_word [lowspmin],r8
+      mov   m_word [lowspminx],r9
+      ldmxcsr [mxcsr_osint]           ; Restore C rtl mxcsr register
+      call  %2
+      jmp   syscall_exit
       %endmacro
 
       syscall sysax,zysax     ; after execution, before printing stats/dump
