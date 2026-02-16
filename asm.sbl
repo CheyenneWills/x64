@@ -905,6 +905,15 @@ init
 *  Return code
    rcode = r15
 
+* Internal work registers - scope within single minimal opcode
+* r10 is explictly used
+   min_workregs = array(4)
+   min_workregs.n = 4
+   min_workregs[1] = r7
+   min_workregs[2] = r11
+   min_workregs[3] = r12
+   min_workregs[4] = r14
+
 *  internal work registers
 *  r10, r11 scope only within individual minimal opcodes
 *           values not preserved or used outside of the minimal opcode
@@ -947,7 +956,7 @@ config_done
 *  data structures
 
    data('minarg(i.type,i.text)')
-   data('tstmt(t.label,t.opc,t.op1,t.op2,t.op3,t.comment)')
+   data('tstmt(t.label,t.opc,t.op1,t.op2,t.op3,t.comment,t.regs)')
 
    sectnow = 0
 
@@ -1324,6 +1333,24 @@ regsw
    regsw = s                            :(return)
 
 regsw_end
+
+* return an available work register
+* Fails if non available
+   define('getreg(s)i')                :(getreg_end)
+getreg
+   i = 0
+getreg_l
+   min_workregs[i = i + 1] arb s.regs ';'  :s(getreg_l)
+   gt(i, min_workregs.n)                   :s(freturn)
+   getreg = min_workregs[i]
+   s.regs = s.regs getreg ';'          :(return)
+getreg_end
+   define('putreg(r,s)a')                   :(putreg_end)
+putreg
+   s.regs arb . a r ';' = a                :s(return)
+   error('putting register not in use')    :(opnext)
+
+putreg_end
 -stitl report(num,text)
 
    define('report(num,text)')       :(report_end)
