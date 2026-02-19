@@ -872,50 +872,47 @@ init
 
 * Registers (actual mappings are in int.h)
 
-   w0 = 'w0'
-   w0_e = 'w0_e'
-   w0_l = 'w0_l'
-
-   wa = 'wa'
-   wa_e = 'wa_e'
-
-   wb = 'wb'
-   wb_e = 'wb_e'
-
-   wc = 'wc'
-   wc_e = 'wc_e'
-
-   ia = 'ia'
-   ia_e = 'ia_e'
-
    ra = 'ra'
-
-   cp = 'cp'
-
-   xl = 'xl'
-   xl_e = 'xl_e'
-   xt = 'xt'
-   xt_e = 'xt_e'
-
-   xr = 'xr'
-   xr_e = 'xr_e'
-
+   xl = 'xl'; xl_e = 'xl_e';
+   xt = 'xt'; xt_e = 'xt_e'
+   xr = 'xr'; xr_e = 'xr_e';
    xs = 'xs'
-   r_lowspmin = 'r8'; r_lowspminx = 'r9'
 
+   w0  = 'w0';   w0_e =  'w0_e';  w0_s =  'w0_s';  w0_l =  'w0_l'
+   wa  = 'wa';   wa_e =  'wa_e';  wa_s =  'wa_s';  wa_l =  'wa_l'
+   wb  = 'wb';   wb_e =  'wb_e';  wb_s =  'wb_s';  wb_l =  'wb_l'
+   wc  = 'wc';   wc_e =  'wc_e';  wc_s =  'wc_s';  wc_l =  'wc_l'
+   ia  = 'ia';   ia_e =  'ia_e';  ia_s =  'ia_s';  ia_l =  'ia_l'
+   r7  = 'r7';   r7_e =  'r7_e';  r7_s =  'r7_s';  r7_l =  'r7_l'
+* r8/r9 reserved - stack guards (lowspmin/lowspminx)
+   r8  = 'r8';   r8_e =  'r8_e';  r8_s =  'r8_s';  r8_l =  'r8_l'
+   r9  = 'r9';   r9_e =  'r9_e';  r9_s =  'r9_s';  r9_l =  'r9_l'
+* r10 reserved - assembly helper routines (int.dcl/string_ops)
+   r10 = 'r10'; r10_e = 'r10_e'; r10_s = 'r10_s'; r10_l = 'r10_l'
+   r11 = 'r11'; r11_e = 'r11_e'; r11_s = 'r11_s'; r11_l = 'r11_l'
+   r12 = 'r12'; r12_e = 'r12_e'; r12_s = 'r12_s'; r12_l = 'r12_l'
+* r13 reserved - code pointer (cp)
+   r13 = 'r13'; r13_e = 'r13_e'; r13_s = 'r13_s'; r13_l = 'r13_l'
+   r14 = 'r14'; r14_e = 'r14_e'; r14_s = 'r14_s'; r14_l = 'r14_l'
+* r15 reserved - return code (rcode)
+   r15 = 'r15'; r15_e = 'r15_e'; r15_s = 'r15_s'; r15_l = 'r15_l'
+
+* The following registers map to hot memory variables
+*  lowspmin lowspminx - low stack and low stack guard
+   r_lowspmin = r8; r_lowspminx = r9
+*  Code pointer
+   cp = r13
+*  Return code
+   rcode = r15
 
 *  internal work registers
 *  r10, r11 scope only within individual minimal opcodes
 *           values not preserved or used outside of the minimal opcode
-   r10 = 'r10'; r11 = 'r11'; r14 = 'r14'
-   r10d = 'r10d'; r11d = 'r11d'; r14d = 'r14d'
 
 * Global registers that are preserved
 *  _ia_ is mapped to _r12_ in nasm.h.
 *  _ra_ is mapped to _xmm12_ in nasm.h
 
-   cp = 'r13'
-   rcode = 'r15'
 
 * x86_64 registers in use:
 *  rax (w0), rbx (wb), rcx (wa), rdi (xr), rsi (xl), rsp (xs) <= minimal regs
@@ -924,12 +921,6 @@ init
 *  r11 (psavc - limited use), r14 (psave - limited use), r15 (rcode)
 * x86_64 registers not explicitly used
 *  rbp (not saved across syscall)
-
-
-   allregisters.p =
-+        w0 | w0_e | wa | wa_e | wb | wb_e | wc | wc_e | ia | ia_e |
-+        ra | cp | xl | xl_e | xt | xt_e | xr | xr_e | xs | r_lowspmin | r_lowspminx |
-+        r10 | r11 |  cp | rcode
 
 *  cp is kept in memory
 
@@ -1247,50 +1238,92 @@ register
 
 register_end
 
--stitl reglow(s)
-   define('reglow(s)')                  :(reglow_end)
+-stitl regbyte(s)
+   define('regbyte(s)')                  :(regbyte_end)
 
 *  returns name of low (rightmost byte) part of target register *s*.
+* 1 byte register variant
+regbyte
 
-reglow
+   regbyte = ident(s,'w0')  'w0_l'        :s(return)
+   regbyte = ident(s,'wa')  'wa_l'        :s(return)
+   regbyte = ident(s,'wb')  'wb_l'        :s(return)
+   regbyte = ident(s,'wc')  'wc_l'        :s(return)
+   regbyte = ident(s,'rax') 'al'          :s(return)
+   regbyte = ident(s,'rbx') 'bl'          :s(return)
+   regbyte = ident(s,'rcx') 'cl'          :s(return)
+   regbyte = ident(s,'rdx') 'dl'          :s(return)
+   regbyte = ident(s,'r7')  'r7_l'          :s(return)
+   regbyte = ident(s,'r8')  'r8_l'          :s(return)
+   regbyte = ident(s,'r9')  'r9_l'          :s(return)
+   regbyte = ident(s,'r10') 'r10_l'          :s(return)
+   regbyte = ident(s,'r11') 'r11_l'          :s(return)
+   regbyte = ident(s,'r12') 'r12_l'          :s(return)
+   regbyte = ident(s,'r13') 'r13_l'          :s(return)
+   regbyte = ident(s,'r14') 'r14_l'          :s(return)
+   regbyte = ident(s,'r15') 'r15_l'          :s(return)
+   error('bad argument to regbyte')        :(return)
 
-   reglow = ident(s,'w0')  'al'        :s(return);* w0
-   reglow = ident(s,'wa')  'cl'        :s(return);* wa
-   reglow = ident(s,'wb')  'bl'        :s(return);* wb
-   reglow = ident(s,'wc')  'dl'        :s(return);* wc
-   reglow = ident(s,'rax') 'al'        :s(return);* w0
-   reglow = ident(s,'rbx') 'bl'        :s(return);* wa
-   reglow = ident(s,'rcx') 'cl'        :s(return);* wb
-   reglow = ident(s,'rdx') 'dl'        :s(return);* wc
-   error('bad argument to reglow')        :(return)
-
-reglow_end
--stitl regxor(s)
-   define('regxor(s)')                  :(regxor_end)
+regbyte_end
+-stitl reghw(s)
+   define('reghw(s)')                  :(reghw_end)
 
 * Returns the 32bit version of a register
 * xor will sign extend and the xor instruction
 * is 1 byte smaller than the 64bit version.
+reghw
+   reghw = ident(s,'w0')  'w0_e'        :s(return)
+   reghw = ident(s,'wa')  'wa_e'        :s(return)
+   reghw = ident(s,'wb')  'wb_e'        :s(return)
+   reghw = ident(s,'wc')  'wc_e'        :s(return)
+   reghw = ident(s,'xr')  'xr_e'        :s(return)
+   reghw = ident(s,'xl')  'xl_e'        :s(return)
+   reghw = ident(s,'xt')  'xt_e'        :s(return)
+   reghw = ident(s,'rax') 'eax'         :s(return)
+   reghw = ident(s,'rbx') 'ebx'         :s(return)
+   reghw = ident(s,'rcx') 'ecx'         :s(return)
+   reghw = ident(s,'rdx') 'edx'         :s(return)
+   reghw = ident(s,'r7')  'r7d'        :s(return)
+   reghw = ident(s,'r8')  'r8d'        :s(return)
+   reghw = ident(s,'r9')  'r9d'        :s(return)
+   reghw = ident(s,'r10') 'r10d'        :s(return)
+   reghw = ident(s,'r11') 'r11d'        :s(return)
+   reghw = ident(s,'r12') 'r12d'        :s(return)
+   reghw = ident(s,'r13') 'r13d'        :s(return)
+   reghw = ident(s,'r14') 'r14d'        :s(return)
+   reghw = ident(s,'r15') 'r15d'        :s(return)
+   reghw = s                            :(return)
 
-regxor
+reghw_end
 
-   regxor = ident(s,'w0')  'w0_e'        :s(return)
-   regxor = ident(s,'wa')  'wa_e'        :s(return)
-   regxor = ident(s,'wb')  'wb_e'        :s(return)
-   regxor = ident(s,'wc')  'wc_e'        :s(return)
-   regxor = ident(s,'xr')  'xr_e'        :s(return)
-   regxor = ident(s,'xl')  'xl_e'        :s(return)
-   regxor = ident(s,'xt')  'xt_e'        :s(return)
-   regxor = ident(s,'rax') 'eax'         :s(return)
-   regxor = ident(s,'rbx') 'ebx'         :s(return)
-   regxor = ident(s,'rcx') 'ecx'         :s(return)
-   regxor = ident(s,'rdx') 'edx'         :s(return)
-   regxor = ident(s,'r15') 'r15d'        :s(return)
-   regxor = ident(s,'r12') 'r12d'        :s(return)
-   regxor = s                            :(return)
+-stitl regsw(s)
+   define('regsw(s)')                  :(regsw_end)
 
-regxor_end
+* Returns the 16bit version of a register
+regsw
+   regsw = ident(s,'w0')  'w0_s'        :s(return)
+   regsw = ident(s,'wa')  'wa_s'        :s(return)
+   regsw = ident(s,'wb')  'wb_s'        :s(return)
+   regsw = ident(s,'wc')  'wc_s'        :s(return)
+   regsw = ident(s,'xr')  'xr_s'        :s(return)
+   regsw = ident(s,'xl')  'xl_s'        :s(return)
+   regsw = ident(s,'xt')  'xt_s'        :s(return)
+   regsw = ident(s,'rax') 'ax'         :s(return)
+   regsw = ident(s,'rbx') 'bx'         :s(return)
+   regsw = ident(s,'rcx') 'cx'         :s(return)
+   regsw = ident(s,'rdx') 'dx'         :s(return)
+   regsw = ident(s,'r7')  'r7_s'        :s(return)
+   regsw = ident(s,'r8')  'r8_s'        :s(return)
+   regsw = ident(s,'r9')  'r9_s'        :s(return)
+   regsw = ident(s,'r10') 'r10_s'        :s(return)
+   regsw = ident(s,'r11') 'r11_s'        :s(return)
+   regsw = ident(s,'r12') 'r12_s'        :s(return)
+   regsw = ident(s,'r13') 'r13_s'        :s(return)
+   regsw = ident(s,'r14') 'r14_s'        :s(return)
+   regsw = ident(s,'r15') 'r15_s'        :s(return)
+   regsw = s                            :(return)
 
+regsw_end
 -stitl report(num,text)
 
    define('report(num,text)')       :(report_end)
@@ -1697,7 +1730,7 @@ g_exi
 
    differ(t2,'n') eq(prc.args)   genop('ret')   :s(opdone)
    t3 = ident(t3) '0'
-   (ident(t3,'0') genop('xor',regxor(rcode) ,regxor(rcode)), genop('mov',rcode,+t3))
+   (ident(t3,'0') genop('xor',reghw(rcode) ,reghw(rcode)), genop('mov',rcode,+t3))
    ident(t2,'n')              :s(g_exi.1)
    genop('ret')               :(opdone)
 
@@ -1809,17 +1842,17 @@ g_dcv
 
 g_zer
 
-   ident(i.text(i1),'(xr)+') genop('xor',regxor(w0), regxor(w0))
+   ident(i.text(i1),'(xr)+') genop('xor',reghw(w0), reghw(w0))
 +        genop('stos_w')            :s(opdone)
    isreg(i1)               :s(g_zer1)
    ident(i.text(i1),'-(xs)')        :s(g_zer.xs)
-   genop('xor',regxor(w0), regxor(w0))
+   genop('xor',reghw(w0), reghw(w0))
    genop('mov',getarg(i1),w0)       :(opdone)
 
 g_zer1
 
    t1 = getarg(i1)
-   genop('xor',regxor(t1),regxor(t1))            :(opdone)
+   genop('xor',reghw(t1),reghw(t1))            :(opdone)
 
 g_zer.xs
 
@@ -2090,14 +2123,14 @@ g_aov
 g_bev
 
    t1 = getarg(i1)
-   t1 = eq(i.type(i1),8) reglow(t1)
+   t1 = eq(i.type(i1),8) regbyte(t1)
    genop('test',t1,'1')
    genop('je',getarg(i2))
                      :(opdone)
 g_bod
 
    t1 = getarg(i1)
-   t1 = eq(i.type(i1),8) reglow(t1)
+   t1 = eq(i.type(i1),8) regbyte(t1)
    genop('test',t1,'1')
    genop('jne',getarg(i2))          :(opdone)
 
@@ -2581,7 +2614,7 @@ g_scg_w
 *  here if moving character from work register, convert t1 to name of
 *  low part of the register.
 
-   t1 = (eq(cfp_b,cfp_c) reglow(getarg(i1)), getarg(i1))
+   t1 = (eq(cfp_b,cfp_c) regbyte(getarg(i1)), getarg(i1))
 
    ident(t2,'(xl)')           :s(g_scg_w.xl)
    ident(t2,'-(xl)')          :s(g_scg_w.pxl)
@@ -2698,18 +2731,18 @@ g_cmc
    genop('cmp', wa, '8')
    genop('jae', (t4 = genlab()))
 * 4-7
-   genop('mov', w0_e, '[' xl ']')
-   genop('mov', 'r10d', '[' xr ']')
-   genop('bswap', w0_e)
-   genop('bswap', r10d)
-   genop('cmp', w0_e, r10d)
+   genop('mov', reghw(w0), '[' xl ']')
+   genop('mov', reghw(r10), '[' xr ']')
+   genop('bswap', reghw(w0))
+   genop('bswap', reghw(r10))
+   genop('cmp', reghw(w0), reghw(r10))
    genop('jne', (t5 = genlab()))
 
-   genop('mov', w0_e, '[' xl '+' wa '-4]')
-   genop('mov', r10d, '[' xr '+' wa '-4]')
-   genop('bswap', w0_e)
-   genop('bswap', r10d)
-   genop('cmp', w0_e, r10d)
+   genop('mov', reghw(w0), '[' xl '+' wa '-4]')
+   genop('mov', reghw(r10), '[' xr '+' wa '-4]')
+   genop('bswap', reghw(w0))
+   genop('bswap', reghw(r10))
+   genop('cmp', reghw(w0), reghw(r10))
    genop('jne', t5)
    genop('jmp', t1)
 
@@ -2789,8 +2822,8 @@ g_trc
 *       genop('loop',t1)
    genop('dec',wa)
    genop('jnz',t1)
-   genop('xor',regxor(xl),regxor(xl))
-   genop('xor',regxor(xr),regxor(xr))
+   genop('xor',reghw(xl),reghw(xl))
+   genop('xor',reghw(xr),reghw(xr))
                      :(opdone)
 *  *   6.10 FLC  _w_
 
@@ -2799,7 +2832,7 @@ g_trc
 g_flc
 
 *  output = 'flc  not supported ' (end)
-   t1 = (eq(cfp_b,cfp_c) reglow(getarg(i1)), getarg(i1))
+   t1 = (eq(cfp_b,cfp_c) regbyte(getarg(i1)), getarg(i1))
    t2 = genlab()
 
    genop('cmp',t1,"'A'")
@@ -3168,22 +3201,22 @@ g_mvc
    genop('cmp', wa, '4')
    genop('jb', t3)
 *  4-7
-   genop('mov', 'eax', '[' xl ']')
-   genop('mov', 'r10d', '[' xl '+' wa '-4]')
-   genop('mov', '[' xr ']', 'eax')
-   genop('mov', '[' xr '+' wa  '-4]', 'r10d')
+   genop('mov', reghw(w0), '[' xl ']')
+   genop('mov', reghw(r10), '[' xl '+' wa '-4]')
+   genop('mov', '[' xr ']', reghw(w0))
+   genop('mov', '[' xr '+' wa  '-4]', reghw(r10))
    genop('jmp', t6)
 * 2-3
-   genopl(t3 ':', 'cmp', 'cl', '2')
+   genopl(t3 ':', 'cmp', regbyte(wa), '2')
    genop('jb', t4 )
-   genop('movzx', 'eax', 'word [' xl ']')
-   genop('movzx', 'r10d', 'word [' xl '+' wa '-2]')
-   genop('mov', 'word [' xr ']', 'ax')
-   genop('mov', 'word [' xr '+' wa '-2]', 'r10w')
+   genop('movzx', reghw(w0), 'word [' xl ']')
+   genop('movzx', reghw(r10), 'word [' xl '+' wa '-2]')
+   genop('mov', 'word [' xr ']', regsw(w0))
+   genop('mov', 'word [' xr '+' wa '-2]', regsw(r10))
    genop('jmp', t6)
 * 1
-   genopl(t4 ':', 'mov', 'al', 'byte [' xl ']')
-   genop('mov', 'byte [' xr ']', 'al')
+   genopl(t4 ':', 'mov', regbyte(w0), 'byte [' xl ']')
+   genop('mov', 'byte [' xr ']', regbyte(w0))
    genop('jmp', t6)
 
 * Slow path
@@ -3321,29 +3354,29 @@ g_mcb
 * 0-7
    genop('cmp', wa, '4')
    genop('jb', t3)
-   genop('mov', 'eax', '[' xl ']')
-   genop('mov', 'r10d', '[' xl '+' wa '-4]')
-   genop('mov', '[' xr ']', 'eax')
-   genop('mov', '[' xr '+' wa  '-4]', 'r10d')
+   genop('mov', reghw(w0), '[' xl ']')
+   genop('mov', reghw(r10), '[' xl '+' wa '-4]')
+   genop('mov', '[' xr ']', reghw(w0))
+   genop('mov', '[' xr '+' wa  '-4]', reghw(r10))
    genop('jmp', t6)
 * 8-15
    genopl(t2 ':', 'mov', w0, '[' xl ']')
-   genop('mov', 'r10', '[' xl '+' wa '-8]')
+   genop('mov', r10, '[' xl '+' wa '-8]')
    genop('mov', '[' xr ']', w0)
-   genop('mov', '[' xr '+' wa '-8]', 'r10')
+   genop('mov', '[' xr '+' wa '-8]', r10)
    genop('jmp', t6)
 
 * 2-3
-   genopl(t3 ':', 'cmp', 'cl', '2')
+   genopl(t3 ':', 'cmp', regbyte(wa), '2')
    genop('jb', t4 )
-   genop('movzx', 'eax', 'word [' xl ']')
-   genop('movzx', 'r10d', 'word [' xl '+' wa '-2]')
-   genop('mov', 'word [' xr ']', 'ax')
-   genop('mov', 'word [' xr '+' wa '-2]', 'r10w')
+   genop('movzx', reghw(w0), 'word [' xl ']')
+   genop('movzx', reghw(r10), 'word [' xl '+' wa '-2]')
+   genop('mov', 'word [' xr ']', regsw(w0))
+   genop('mov', 'word [' xr '+' wa '-2]', regsw(r10))
    genop('jmp', t6)
 * 1
-   genopl(t4 ':', 'mov', 'al', 'byte [' xl ']')
-   genop('mov', 'byte [' xr ']', 'al')
+   genopl(t4 ':', 'mov', regbyte(w0), 'byte [' xl ']')
+   genop('mov', 'byte [' xr ']', regbyte(w0))
    genop('jmp', t6)
 
 *  call min_mcb

@@ -40,23 +40,66 @@
 
         %define w0      rax
         %define w0_e    eax
+        %define w0_s    ax
         %define w0_l    al
 
         %define wa      rcx
         %define wa_e    ecx
+        %define wa_s    cx
         %define wa_l    cl
 
         %define wb      rbx
-        %define wb_e    rbx
+        %define wb_e    ebx
+        %define wb_s    bx
         %define wb_l    bl
 
         %define wc      rdx
         %define wc_e    edx
+        %define wc_s    dx
         %define wc_l    dl
 
+        %define r7      r7
+        %define r7_e    r7d
+        %define r7_s    r7w
+        %define r7_l    r7b
+        %define r8      r8
+        %define r8_e    r8d
+        %define r8_s    r8w
+        %define r8_l    r8b
+        %define r9      r9
+        %define r9_e    r9d
+        %define r9_s    r9w
+        %define r9_l    r9b
+        %define r10     r10
+        %define r10_e   r10d
+        %define r10_s   r10w
+        %define r10_l   r10b
+        %define r11     r11
+        %define r11_e   r11d
+        %define r11_s   r11w
+        %define r11_l   r11b
+        %define r12     r12
+        %define r12_e   r12d
+        %define r12_s   r12w
+        %define r12_l   r12b
+        %define r13     r13
+        %define r13_e   r13d
+        %define r13_s   r13w
+        %define r13_l   r13b
+        %define r14     r14
+        %define r14_e   r14d
+        %define r14_s   r14w
+        %define r14_l   r14b
+        %define r15     r15
+        %define r15_e   r15d
+        %define r15_s   r15w
+        %define r15_l   r15b
+
+        %define ra      xmm12
         %define ia      r12
         %define ia_e    r12d
-        %define ra      xmm12
+        %define ia_s    r12w
+        %define ia_l    r12b
 
 ;       %define cfp_b   8
 
