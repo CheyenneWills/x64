@@ -1,0 +1,51 @@
+
+    define('comp(e,a,b)r') :(comp_end)
+comp
+    l[l.n = l.n + 1] = a
+    l[l.n = l.n + 1] = b
+    t[a] = t[a] + 1
+    t[b] = t[b] + 1
+    r = leq(a, b)  a ' = ' b :s(compe)
+    r = llt(a ,b)  a ' < ' b :s(compl)
+    r = lgt(a ,b)  a ' > ' b :s(compg)
+    output = '???' :(return)
+compe output = lne(e,'=') 'failed, expecting "' e '" result was ' r  :f(rpt)s(return)
+compl output = lne(e,'<') 'failed, expecting "' e '" result was ' r  :f(rpt)s(return)
+compg output = lne(e,'>') 'failed, expecting "' e '" result was ' r  :f(rpt)s(return)
+rpt output = r ' success'
+    :(return)
+comp_end
+    l = array(1000)
+    l.n = 0
+    t = table(1000)
+* --- Basic & Endianness Checks ---
+    comp('<', 'a', 'z')
+    comp('>', 'z', 'a')
+    comp('=', 'a', 'a')
+
+* --- Tiny Path (.cmc_1_3) ---
+    comp('<', 'a', 'z')
+
+* --- Hot Path start (.cmc_4_7) ---
+    comp('<', 'abcd', 'abcz')
+
+* --- General Inline Path start (.cmc_8_16) ---
+    comp('<', '12345678', '12345679')
+
+* --- Boundary: Max Inline / Min Helper ---
+    comp('<', '1234567890123456', '123456789012345z')
+    comp('<', '12345678901234567', '1234567890123456z')
+
+* --- Boundary: Max Helper / Min Hardware ---
+* ; (This specifically tests the "Gap" logic and the repe cmpsb transition)
+    comp('<', 'abcdefghijklmnopqrstuvwxyz123456', 'abcdefghijklmnopqrstuvwxyz12345z')
+    comp('<', 'abcdefghijklmnopqrstuvwxyz1234567', 'abcdefghijklmnopqrstuvwxyz123456z')
+
+    comp('>', 'Bangui', 'Bangkok')
+    comp('<', 'Bangkok', 'Bangui')
+    comp('<', 'Apple', 'Application')
+    comp('>', 'Application', 'Apple')
+
+    s = sort(l)
+    &dump = 2
+end

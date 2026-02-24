@@ -1,0 +1,5 @@
+   a = span('abc')
+   'testing' a . r1 :s(y)f(n)
+y  output = 'success <' r1 '>' :(end)
+n  output = 'fail <' r1 '>' 
+end

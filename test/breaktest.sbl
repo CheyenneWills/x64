@@ -1,0 +1,12 @@
+   sub = 'exceptions-are-as-true-as-rules'
+   p1 = @output break('a') . output @output  'as' @output
+   p2 = breakx('a') . output 'as'
+   sub p1         :s(y)f(n)
+y  output = 'break success'  :(t2)
+n  output = 'break fail'     :(t2)
+
+t2
+  sub p2          :s(y2)f(n2)
+y2 output = 'breakx success' :(end)
+n2 output = 'breakx failed'  :(end)
+end
