@@ -35,12 +35,14 @@ Copyright 2012-2017 David Shields
 /   the two SCBLKs.  Use id2blk instead of tscblk because tscblk may
 /    be active with an error message when zysid is called.
 */
-
+#include "gitversion.h"
 int
 zysid()
 {
     time_t now;
     char *s;
+	char timebuf[26];
+	int timel;
 
     struct utsname unamebuf;
     uname(&unamebuf);
@@ -51,9 +53,13 @@ zysid()
     now = time(NULL);
     id2blk->schar[0] = 0;
     strcpy(id2blk->schar, unamebuf.machine);
-    strcat(id2blk->schar, "  ");
-    s = ctime(&now);
+    strcat(id2blk->schar, "  build:");
+    s = asctime_r(localtime(&now), timebuf);
+	timel = strlen(s);
+	s[timel-1] = '\0';
     strcat(id2blk->schar, s);
+	strcat(id2blk->schar," ");
+	strcat(id2blk->schar,source_version);
     id2blk->sclen = strlen(id2blk->schar);
 
     SET_XR(id1blk);

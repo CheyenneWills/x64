@@ -52,6 +52,7 @@ sbl: sbl.min lex.sbl asm.sbl err.sbl int.asm int.dcl int.h osint/*.c osint/*.h
 	$(ASM) $(ASMFLAGS) -l int.lst int.asm
 	$(ASM) $(ASMFLAGS) -l sbl.lst sbl.asm
 #stop:
+	@echo "char *source_version = \"$$(git describe)\";"  > osint/gitversion.h
 	$(CC) $(CFLAGS) -c osint/*.c
 	$(CC) $(CFLAGS) *.o -osbl -lm
 

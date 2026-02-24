@@ -7,8 +7,9 @@
 # my temporary outfiles
 *.ao
 *.ap
-./osint/*.ao
-./osint/*.ap
+osint/*.ao
+osint/*.ap
+osint/gitversion.h
 # Build outputs
 bootsbl
 sbl
