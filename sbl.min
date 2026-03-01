@@ -17175,7 +17175,7 @@ alloc  prc  e,0              entry point
 
 aloc1  mov  xr,dnamp         point to next available loc
        aov  wa,xr,aloc2      point past allocated block
-       bgt  xr,dname,aloc2   jump if not enough room
+       bge  xr,dname,aloc2   jump if not enough room
        mov  dnamp,xr         store new pointer
        sub  xr,wa            point back to start of allocated bk
        exi                   return to caller
