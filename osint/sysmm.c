@@ -82,9 +82,11 @@ moremem(struct minimal_regs *oregs, long n)
     struct minimal_regs save_regs, *minregs = &save_regs;
     void *newalloc;
     long curr_dnam_offset = GET_MIN_VALUE(dnamb, char *) - basemem;
+    double save_ra;
+    long save_ia;
 
     curralloc = (uintptr_t)basemem;
-    word adjusts[15];
+    word adjusts[15]; /* dnam, stat, working,  constants, code  */
     memset(adjusts, 0, sizeof(adjusts));
 
     n &= -(long)sizeof(word);
@@ -93,8 +95,8 @@ moremem(struct minimal_regs *oregs, long n)
     }
     newalloc = realloc(basemem, heap_alloced_size + n);
 
-    topmem += (uintptr_t)newalloc - curralloc;
-    maxmem += (uintptr_t)newalloc - curralloc;
+    topmem = newalloc + (topmem - basemem);
+    maxmem = newalloc + heap_alloced_size + n;
     basemem = newalloc;
 
     if ((uintptr_t)newalloc != curralloc) {
@@ -124,11 +126,15 @@ moremem(struct minimal_regs *oregs, long n)
         minimal(minregs, minimal_relaj);
 
         /* Handle any relocations within the saved registers */
+        save_ia = oregs->reg_ia;
+        save_ra = oregs->reg_ra;
         memcpy(minregs, oregs, sizeof(*minregs));
         SET_XL(adjusts);
         SET_WB(oregs);
         SET_WA((uintptr_t)oregs + sizeof(*oregs));
         minimal(minregs, minimal_relaj);
+        oregs->reg_ia = save_ia;
+        oregs->reg_ra = save_ra;
     }
     heap_alloced_size += n;
     return n;
